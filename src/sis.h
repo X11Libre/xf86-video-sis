@@ -1,4 +1,4 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.h,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
 /* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.h,v 1.93 2003/12/02 12:15:32 twini Exp $ */
 /*
  * Main global data and definitions
@@ -113,7 +113,7 @@
 #define NEED_REPLIES  		/* ? */
 #define EXTENSION_PROC_ARGS void *
 #include "extnsionst.h"  	/* required */
-#include "panoramiXproto.h"  	/* required */
+#include "xineramaProto.h"  	/* required */
 #endif
 #endif
 

@@ -1,4 +1,4 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.160 2003/12/02 12:15:32 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
 /* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.160 2003/12/02 12:15:32 twini Exp $ */
 /*
  * Copyright 2001, 2002, 2003 by Thomas Winischhofer, Vienna, Austria.
@@ -113,7 +113,7 @@ static int      	SISEntityIndex = -1;
 
 #ifdef SISMERGED
 #ifdef SISXINERAMA
-static Bool 		SiSnoPanoramiXExtension = TRUE;
+static Bool 		SiSnoXineramaExtension = TRUE;
 int 			SiSXineramaPixWidth = 0;
 int 			SiSXineramaPixHeight = 0;
 int 			SiSXineramaNumScreens = 0;
@@ -121,11 +121,8 @@ SiSXineramaData		*SiSXineramadataPtr = NULL;
 static int 		SiSXineramaGeneration;
 
 int SiSProcXineramaQueryVersion(ClientPtr client);
-int SiSProcXineramaGetState(ClientPtr client);
-int SiSProcXineramaGetScreenCount(ClientPtr client);
-int SiSProcXineramaGetScreenSize(ClientPtr client);
-int SiSProcXineramaIsActive(ClientPtr client);
-int SiSProcXineramaQueryScreens(ClientPtr client);
+int SiSProcXineramaGetData(ClientPtr client);
+int SiSProcXineramaActive(ClientPtr client);
 int SiSSProcXineramaDispatch(ClientPtr client);
 #endif
 #endif
@@ -1574,7 +1571,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 
     if(!pSiS->MergedFB) return;
 
-    if(SiSnoPanoramiXExtension) return;
+    if(SiSnoXineramaExtension) return;
 
     if(!SiSXineramadataPtr) return;
 
@@ -1737,159 +1734,95 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 int
 SiSProcXineramaQueryVersion(ClientPtr client)
 {
-    xPanoramiXQueryVersionReply	  rep;
+    xXineramaQueryVersionReply	  rep;
     register int		  n;
 
-    REQUEST_SIZE_MATCH(xPanoramiXQueryVersionReq);
+    REQUEST_SIZE_MATCH(xXineramaQueryVersionReq);
     rep.type = X_Reply;
     rep.length = 0;
     rep.sequenceNumber = client->sequence;
-    rep.majorVersion = SIS_XINERAMA_MAJOR_VERSION;
-    rep.minorVersion = SIS_XINERAMA_MINOR_VERSION;
+    rep.server_major_version = SIS_XINERAMA_MAJOR_VERSION;
+    rep.server_minor_version = SIS_XINERAMA_MINOR_VERSION;
     if(client->swapped) {
         swaps(&rep.sequenceNumber, n);
         swapl(&rep.length, n);
-        swaps(&rep.majorVersion, n);
-        swaps(&rep.minorVersion, n);
+        swaps(&rep.server_major_version, n);
+        swaps(&rep.server_minor_version, n);
     }
-    WriteToClient(client, sizeof(xPanoramiXQueryVersionReply), (char *)&rep);
+    WriteToClient(client, sizeof(xXineramaQueryVersionReply), (char *)&rep);
     return (client->noClientException);
 }
 
 int
-SiSProcXineramaGetState(ClientPtr client)
+SiSProcXineramaActive(ClientPtr client)
 {
-    REQUEST(xPanoramiXGetStateReq);
-    WindowPtr			pWin;
-    xPanoramiXGetStateReply	rep;
-    register int		n;
+    REQUEST(xXineramaActiveReq);
+    xXineramaActiveReply	rep;
+    WindowPtr pWin;
 
-    REQUEST_SIZE_MATCH(xPanoramiXGetStateReq);
-    pWin = LookupWindow(stuff->window, client);
-    if(!pWin) return BadWindow;
+    REQUEST_SIZE_MATCH(xXineramaActiveReq);
 
-    rep.type = X_Reply;
-    rep.length = 0;
-    rep.sequenceNumber = client->sequence;
-    rep.state = !SiSnoPanoramiXExtension;
-    if(client->swapped) {
-       swaps (&rep.sequenceNumber, n);
-       swapl (&rep.length, n);
-       swaps (&rep.state, n);
+    if(!(pWin = LookupWindow (stuff->window, client))) {
+	client->errorValue = stuff->window;
+	return BadWindow;
     }
-    WriteToClient(client, sizeof(xPanoramiXGetStateReply), (char *)&rep);
-    return client->noClientException;
-}
-
-int
-SiSProcXineramaGetScreenCount(ClientPtr client)
-{
-    REQUEST(xPanoramiXGetScreenCountReq);
-    WindowPtr				pWin;
-    xPanoramiXGetScreenCountReply	rep;
-    register int			n;
-
-    REQUEST_SIZE_MATCH(xPanoramiXGetScreenCountReq);
-    pWin = LookupWindow(stuff->window, client);
-    if(!pWin) return BadWindow;
 
     rep.type = X_Reply;
     rep.length = 0;
     rep.sequenceNumber = client->sequence;
-    rep.ScreenCount = SiSXineramaNumScreens;
-    if(client->swapped) {
-       swaps(&rep.sequenceNumber, n);
-       swapl(&rep.length, n);
-       swaps(&rep.ScreenCount, n);
-    }
-    WriteToClient(client, sizeof(xPanoramiXGetScreenCountReply), (char *)&rep);
-    return client->noClientException;
-}
-
-int
-SiSProcXineramaGetScreenSize(ClientPtr client)
-{
-    REQUEST(xPanoramiXGetScreenSizeReq);
-    WindowPtr				pWin;
-    xPanoramiXGetScreenSizeReply	rep;
-    register int			n;
-
-    REQUEST_SIZE_MATCH(xPanoramiXGetScreenSizeReq);
-    pWin = LookupWindow (stuff->window, client);
-    if(!pWin)  return BadWindow;
-
-    rep.type = X_Reply;
-    rep.length = 0;
-    rep.sequenceNumber = client->sequence;
-    rep.width  = SiSXineramadataPtr[stuff->screen].width;
-    rep.height = SiSXineramadataPtr[stuff->screen].height;
-    if(client->swapped) {
-       swaps(&rep.sequenceNumber, n);
-       swapl(&rep.length, n);
-       swaps(&rep.width, n);
-       swaps(&rep.height, n);
-    }
-    WriteToClient(client, sizeof(xPanoramiXGetScreenSizeReply), (char *)&rep);
-    return client->noClientException;
-}
-
-int
-SiSProcXineramaIsActive(ClientPtr client)
-{
-    xXineramaIsActiveReply	rep;
-
-    REQUEST_SIZE_MATCH(xXineramaIsActiveReq);
-
-    rep.type = X_Reply;
-    rep.length = 0;
-    rep.sequenceNumber = client->sequence;
-    rep.state = !SiSnoPanoramiXExtension;
+    rep.active = !SiSnoXineramaExtension;
     if(client->swapped) {
 	register int n;
 	swaps(&rep.sequenceNumber, n);
 	swapl(&rep.length, n);
-	swapl(&rep.state, n);
     }
-    WriteToClient(client, sizeof(xXineramaIsActiveReply), (char *) &rep);
+    WriteToClient(client, sizeof(xXineramaActiveReply), (char *) &rep);
     return client->noClientException;
 }
 
 int
-SiSProcXineramaQueryScreens(ClientPtr client)
+SiSProcXineramaGetData(ClientPtr client)
 {
-    xXineramaQueryScreensReply	rep;
+    REQUEST(xXineramaGetDataReq);
+    xXineramaGetDataReply	rep;
+    WindowPtr pWin;
 
-    REQUEST_SIZE_MATCH(xXineramaQueryScreensReq);
+    REQUEST_SIZE_MATCH(xXineramaGetDataReq);
+
+    if(!(pWin = LookupWindow (stuff->window, client))) {
+	client->errorValue = stuff->window;
+	return BadWindow;
+    }
 
     rep.type = X_Reply;
     rep.sequenceNumber = client->sequence;
-    rep.number = (SiSnoPanoramiXExtension) ? 0 : SiSXineramaNumScreens;
-    rep.length = rep.number * sz_XineramaScreenInfo >> 2;
+    rep.num_rects = (SiSnoXineramaExtension) ? 0 : SiSXineramaNumScreens;
+    rep.length = rep.num_rects * sz_xXineramaRectangle >> 2;
     if(client->swapped) {
-       register int n;
+       int n;
        swaps(&rep.sequenceNumber, n);
        swapl(&rep.length, n);
-       swapl(&rep.number, n);
+       swapl(&rep.num_rects, n);
     }
-    WriteToClient(client, sizeof(xXineramaQueryScreensReply), (char *)&rep);
+    WriteToClient(client, sizeof(xXineramaGetDataReply), (char *)&rep);
 
-    if(!SiSnoPanoramiXExtension) {
-       xXineramaScreenInfo scratch;
+    if(!SiSnoXineramaExtension) {
+       xXineramaRectangle scratch;
        int i;
 
        for(i = 0; i < SiSXineramaNumScreens; i++) {
-	  scratch.x_org  = SiSXineramadataPtr[i].x;
-	  scratch.y_org  = SiSXineramadataPtr[i].y;
+	  scratch.x = SiSXineramadataPtr[i].x;
+	  scratch.y = SiSXineramadataPtr[i].y;
 	  scratch.width  = SiSXineramadataPtr[i].width;
 	  scratch.height = SiSXineramadataPtr[i].height;
 	  if(client->swapped) {
 	     register int n;
-	     swaps(&scratch.x_org, n);
-	     swaps(&scratch.y_org, n);
+	     swaps(&scratch.x, n);
+	     swaps(&scratch.y, n);
 	     swaps(&scratch.width, n);
     	     swaps(&scratch.height, n);
 	  }
-	  WriteToClient(client, sz_XineramaScreenInfo, (char *)&scratch);
+	  WriteToClient(client, sz_xXineramaRectangle, (char *)&scratch);
        }
     }
 
@@ -1901,18 +1834,12 @@ SiSProcXineramaDispatch(ClientPtr client)
 {
     REQUEST(xReq);
     switch (stuff->data) {
-	case X_PanoramiXQueryVersion:
+	case X_XineramaQueryVersion:
 	     return SiSProcXineramaQueryVersion(client);
-	case X_PanoramiXGetState:
-	     return SiSProcXineramaGetState(client);
-	case X_PanoramiXGetScreenCount:
-	     return SiSProcXineramaGetScreenCount(client);
-	case X_PanoramiXGetScreenSize:
-	     return SiSProcXineramaGetScreenSize(client);
-	case X_XineramaIsActive:
-	     return SiSProcXineramaIsActive(client);
-	case X_XineramaQueryScreens:
-	     return SiSProcXineramaQueryScreens(client);
+	case X_XineramaActive:
+	     return SiSProcXineramaActive(client);
+	case X_XineramaGetData:
+	     return SiSProcXineramaGetData(client);
     }
     return BadRequest;
 }
@@ -1922,61 +1849,31 @@ SiSProcXineramaDispatch(ClientPtr client)
 static int
 SiSSProcXineramaQueryVersion (ClientPtr client)
 {
-    REQUEST(xPanoramiXQueryVersionReq);
+    REQUEST(xXineramaQueryVersionReq);
     register int n;
     swaps(&stuff->length,n);
-    REQUEST_SIZE_MATCH (xPanoramiXQueryVersionReq);
+    REQUEST_SIZE_MATCH (xXineramaQueryVersionReq);
     return SiSProcXineramaQueryVersion(client);
 }
 
 static int
-SiSSProcXineramaGetState(ClientPtr client)
+SiSSProcXineramaGetData(ClientPtr client)
 {
-    REQUEST(xPanoramiXGetStateReq);
+    REQUEST(xXineramaGetDataReq);
     register int n;
     swaps (&stuff->length, n);
-    REQUEST_SIZE_MATCH(xPanoramiXGetStateReq);
-    return SiSProcXineramaGetState(client);
+    REQUEST_SIZE_MATCH(xXineramaGetDataReq);
+    return SiSProcXineramaGetData(client);
 }
 
 static int
-SiSSProcXineramaGetScreenCount(ClientPtr client)
+SiSSProcXineramaActive(ClientPtr client)
 {
-    REQUEST(xPanoramiXGetScreenCountReq);
+    REQUEST(xXineramaActiveReq);
     register int n;
     swaps (&stuff->length, n);
-    REQUEST_SIZE_MATCH(xPanoramiXGetScreenCountReq);
-    return SiSProcXineramaGetScreenCount(client);
-}
-
-static int
-SiSSProcXineramaGetScreenSize(ClientPtr client)
-{
-    REQUEST(xPanoramiXGetScreenSizeReq);
-    register int n;
-    swaps (&stuff->length, n);
-    REQUEST_SIZE_MATCH(xPanoramiXGetScreenSizeReq);
-    return SiSProcXineramaGetScreenSize(client);
-}
-
-static int
-SiSSProcXineramaIsActive(ClientPtr client)
-{
-    REQUEST(xXineramaIsActiveReq);
-    register int n;
-    swaps (&stuff->length, n);
-    REQUEST_SIZE_MATCH(xXineramaIsActiveReq);
-    return SiSProcXineramaIsActive(client);
-}
-
-static int
-SiSSProcXineramaQueryScreens(ClientPtr client)
-{
-    REQUEST(xXineramaQueryScreensReq);
-    register int n;
-    swaps (&stuff->length, n);
-    REQUEST_SIZE_MATCH(xXineramaQueryScreensReq);
-    return SiSProcXineramaQueryScreens(client);
+    REQUEST_SIZE_MATCH(xXineramaActiveReq);
+    return SiSProcXineramaActive(client);
 }
 
 int
@@ -1984,18 +1881,12 @@ SiSSProcXineramaDispatch(ClientPtr client)
 {
     REQUEST(xReq);
     switch (stuff->data) {
-	case X_PanoramiXQueryVersion:
+	case X_XineramaQueryVersion:
 	     return SiSSProcXineramaQueryVersion(client);
-	case X_PanoramiXGetState:
-	     return SiSSProcXineramaGetState(client);
-	case X_PanoramiXGetScreenCount:
-	     return SiSSProcXineramaGetScreenCount(client);
-	case X_PanoramiXGetScreenSize:
-	     return SiSSProcXineramaGetScreenSize(client);
-	case X_XineramaIsActive:
-	     return SiSSProcXineramaIsActive(client);
-	case X_XineramaQueryScreens:
-	     return SiSSProcXineramaQueryScreens(client);
+	case X_XineramaGetData:
+	     return SiSSProcXineramaGetData(client);
+	case X_XineramaActive:
+	     return SiSSProcXineramaActive(client);
     }
     return BadRequest;
 }
@@ -2019,20 +1910,20 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
     if(!(SiSXineramadataPtr)) {
 
        if(!pSiS->MergedFB) {
-          SiSnoPanoramiXExtension = TRUE;
+          SiSnoXineramaExtension = TRUE;
           return;
        }
 
-#ifdef PANORAMIX
-       if(!noPanoramiXExtension) {
+#ifdef XINERAMA
+       if(!noXineramaExtension) {
           xf86DrvMsg(pScrn->scrnIndex, X_INFO,
        	     "Xinerama active, not initializing SiS Pseudo-Xinerama\n");
-          SiSnoPanoramiXExtension = TRUE;
+          SiSnoXineramaExtension = TRUE;
           return;
        }
 #endif
 
-       if(SiSnoPanoramiXExtension) {
+       if(SiSnoXineramaExtension) {
           xf86DrvMsg(pScrn->scrnIndex, X_INFO,
        	      "SiS Pseudo-Xinerama disabled\n");
           return;
@@ -2041,14 +1932,14 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
        if(pSiS->CRT2Position == sisClone) {
           xf86DrvMsg(pScrn->scrnIndex, X_INFO,
        	     "Running MergedFB in Clone mode, SiS Pseudo-Xinerama disabled\n");
-          SiSnoPanoramiXExtension = TRUE;
+          SiSnoXineramaExtension = TRUE;
           return;
        }
 
        if(!(pSiS->AtLeastOneNonClone)) {
           xf86DrvMsg(pScrn->scrnIndex, X_INFO,
        	     "Only Clone modes defined, SiS Pseudo-Xinerama disabled\n");
-          SiSnoPanoramiXExtension = TRUE;
+          SiSnoXineramaExtension = TRUE;
           return;
        }
 
@@ -2056,7 +1947,7 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
 
        while(SiSXineramaGeneration != serverGeneration) {
 
-	  pSiS->XineramaExtEntry = AddExtension(PANORAMIX_PROTOCOL_NAME, 0,0,
+	  pSiS->XineramaExtEntry = AddExtension(XINERAMA_PROTOCOL_NAME, 0,0,
 					SiSProcXineramaDispatch,
 					SiSSProcXineramaDispatch,
 					SiSXineramaResetProc,
@@ -2073,7 +1964,7 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
 
        if(!success) {
           SISErrorLog(pScrn, "Failed to initialize SiS Pseudo-Xinerama extension\n");
-          SiSnoPanoramiXExtension = TRUE;
+          SiSnoXineramaExtension = TRUE;
           return;
        }
 
@@ -5332,8 +5223,8 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     	pSiS->SiS_SD_Flags |= SiS_SD_ISDUALHEAD;
 	if(pSiS->SecondHead)      pSiS->SiS_SD_Flags |= SiS_SD_ISDHSECONDHEAD;
 	else			  pSiS->SiS_SD_Flags &= ~(SiS_SD_SUPPORTXVGAMMA1);
-#ifdef PANORAMIX
-	if(!noPanoramiXExtension) {
+#ifdef XINERAMA
+	if(!noXineramaExtension) {
 	   pSiS->SiS_SD_Flags |= SiS_SD_ISDHXINERAMA;
 	   pSiS->SiS_SD_Flags &= ~(SiS_SD_SUPPORTXVGAMMA1);
 	}
@@ -6935,9 +6826,9 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
        pSiS->ShadowFB = FALSE;
 #ifdef SISXINERAMA
        if(pSiS->UseSiSXinerama) {
-          SiSnoPanoramiXExtension = FALSE;
+          SiSnoXineramaExtension = FALSE;
           SiSXineramaExtensionInit(pScrn);
-	  if(!SiSnoPanoramiXExtension) {
+	  if(!SiSnoXineramaExtension) {
 	     pSiS->SiS_SD_Flags |= SiS_SD_PSEUDOXINERAMA;
 	  }
        }
