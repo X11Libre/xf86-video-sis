@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_accel.h,v 1.3 2004/06/17 13:20:13 twini Exp $ */
 /*
  * 2D acceleration for 5597/5598 and 6326
  * Definitions for the SIS engine communication

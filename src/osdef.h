@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/osdef.h,v 1.4 2004/07/26 22:40:56 twini Exp $ */
 /*
  * OS depending defines
  *
@@ -34,7 +35,7 @@
  * * 3) The name of the author may not be used to endorse or promote products
  * *    derived from this software without specific prior written permission.
  * *
- * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -52,7 +53,7 @@
 
 /* The choices are: */
 /* #define LINUX_KERNEL	 */  	/* Kernel framebuffer */
-#define LINUX_XF86    		/* XFree86 */
+#define LINUX_XF86    		/* XFree86/X.org */
 
 #ifdef OutPortByte
 #undef OutPortByte
@@ -108,7 +109,7 @@
 #endif
 
 /**********************************************************************/
-/*  XFree86                                                           */
+/*  XFree86/X.org                                                     */
 /**********************************************************************/
 
 #ifdef LINUX_XF86

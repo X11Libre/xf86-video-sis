@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_cursor.c,v 1.4 2004/07/26 22:40:56 twini Exp $ */
 /*
  * SiS hardware cursor handling
  *
@@ -15,7 +16,7 @@
  * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -918,13 +919,14 @@ SiS300UseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
 	}
 #endif
         break;
-      case PCI_CHIP_SIS550:
-      case PCI_CHIP_SIS650:
       case PCI_CHIP_SIS315:
       case PCI_CHIP_SIS315H:
       case PCI_CHIP_SIS315PRO:
-      case PCI_CHIP_SIS660:
+      case PCI_CHIP_SIS550:
+      case PCI_CHIP_SIS650:
       case PCI_CHIP_SIS330:
+      case PCI_CHIP_SIS660:
+      case PCI_CHIP_SIS340:
         if(mode->Flags & V_INTERLACE)
            return FALSE;
 	if((mode->Flags & V_DBLSCAN) && (pCurs->bits->height > 32))
@@ -992,6 +994,7 @@ SiSUseHWCursorARGB(ScreenPtr pScreen, CursorPtr pCurs)
       case PCI_CHIP_SIS315PRO:
       case PCI_CHIP_SIS330:
       case PCI_CHIP_SIS660:
+      case PCI_CHIP_SIS340:
         if(mode->Flags & V_INTERLACE)
            return FALSE;
 	if((pCurs->bits->height > 64) || (pCurs->bits->width > 64))
@@ -1366,6 +1369,7 @@ SiSHWCursorInit(ScreenPtr pScreen)
       case PCI_CHIP_SIS315PRO:
       case PCI_CHIP_SIS330:
       case PCI_CHIP_SIS660:
+      case PCI_CHIP_SIS340:
         infoPtr->MaxWidth  = 64;
         infoPtr->MaxHeight = 64;
         infoPtr->ShowCursor = SiS310ShowCursor;

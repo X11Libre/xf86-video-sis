@@ -1,6 +1,17 @@
-.\" $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.man,v 1.5 2001/12/17 20:52:34 dawes Exp $
+.\" $XFree86$
+.\" $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.man,v 1.4 2004/08/05 15:35:30 twini Exp $
 .\" shorthand for double quote that works everywhere.
 .ds q \N'34'
+#ifdef __servername__
+#define __myservername__ __servername__
+#else
+#define __myservername__ XFree86
+#endif
+#ifdef __xconfigfile__
+#define __myxconfigfile__ __xconfigfile__
+#else
+#define __myxconfigfile__ XF86Config
+#endif
 .TH SIS __drivermansuffix__ __vendorversion__
 .SH NAME
 sis \- SiS video driver
@@ -14,7 +25,7 @@ sis \- SiS video driver
 .fi
 .SH DESCRIPTION
 .B sis
-is an __xservername__ driver for SiS (Silicon Integrated Systems) video chips. The
+is an __myservername__ driver for SiS (Silicon Integrated Systems) video chips. The
 driver is accelerated, and provides support for colordepths of 8, 16 and 24 bpp.
 XVideo, Render and other extensions are supported as well.
 .SH SUPPORTED HARDWARE
@@ -30,9 +41,9 @@ driver supports PCI and AGP video cards based on the following chipsets:
 .B SiS630/730
 .B SiS315/H/PRO
 .B SiS550/551/552
-.B SiS650/651/M650/661FX/M661FX/M661MX/740/741
+.B SiS650/651/M650/661FX/M661FX/M661MX/740/741/741GX/M741
 .B SiS330 (Xabre)
-.B SiS760
+.B SiS760/M760
 .PP
 In the following text, the following terms are used:
 .PP
@@ -43,11 +54,10 @@ for SiS5597/5598, 530/620 and 6326/AGP/DVD
 for SiS300/305, 540 and 630/730
 .PP
 .B 315/330 series
-for SiS315/H/PRO, 55x and (M)65x/(M)661xX/74x, 330, 760
+for SiS315, 55x and (M)65x/(M)661xX/74x(GX), 330, 760
 .PP
-Note: Support for 661FX, M661FX, M661MX, 741 and 760 is untested.
 .SH CONFIGURATION DETAILS
-Please refer to __xconfigfile__(__filemansuffix__) for general configuration
+Please refer to __myxconfigfile__(__filemansuffix__) for general configuration
 details.  This section only covers configuration details specific to this
 driver.
 .PP
@@ -204,12 +214,12 @@ The driver supports the following video bridges:
 .B SiS301
 .B SiS301B(-DH)
 .B SiS301C
-.B SiS301LV(X)
-.B SiS302LV
+.B SiS301LV
+.B SiS302(E)LV
 .PP
-Instead of a video bridge, some machines have a
+Instead of a video bridge, some machines have a third party
 .B LVDS
-transmitter to control LCD panels, and a
+transmitter to control LCD panels, and/or a
 .B "Chrontel 7005"
 or
 .B "7019"
@@ -217,36 +227,38 @@ for TV output. All these are supported as well.
 .PP
 About TV output
 .PP
-On the SiS301 and the Chrontel 7005, only resolutions up to 800x600
-are supported. On all others, resolutions up to 1024x768 are supported.
-However, due to a hardware bug, Xvideo might be distorted on SiS video
-bridges if running NTSC or PAL-M at 1024x768.
+The driver fully supports standard (PAL, NTSC, PAL-N, PAL-M) S-video or
+composite output as well as high definition TV (HDTV) output via YPbPr plugs. 
+For more information on HDTV, please consult the author's website.
+.PP
+As regards S-video and CVBS output, the SiS301 and the Chrontel 7005 only 
+support resolutions up to 800x600. All others support resolutions up to 
+1024x768. However, due to a hardware bug, Xvideo might be distorted on SiS 
+video bridges if running NTSC or PAL-M at 1024x768.
 .PP
 About XVideo support
 .PP
 XVideo is supported on all chipsets of both families. However, there
 are some differences in hardware features which cause limitations.
-The 300 series as well as the SiS55x, M650, 651, 661FX, M661FX, and
-741 support two video overlays. The SiS315/H/PRO, 650/740 and 330 support
-only one such overlay. On chips with two overlays, one overlay is used
-for CRT1, the other for CRT2. On the other chipsets, the option
+The 300 series as well as the SiS55x, M650, 651, 661FX, M661FX, M661MX, 
+741, 741GX, M741, 760, M760 support two video overlays. The SiS315/H/PRO, 
+650/740 and 330 support only one such overlay. On chips with two overlays, 
+one overlay is used for CRT1, the other for CRT2. On the other chipsets, 
+the option
 .B \*qXvOnCRT2\*q
 can be used to select the desired output channel.
 .PP
 About Merged Framebuffer support
 .PP
-This mode is strongly recommended over Xinerama. Please see
-http://www.winischhofer.net/linuxsisvga.shtml for detailed
+Merged framebuffer mode is similar to dual head/Xinerama mode, but has a 
+few advantages which make me recommend it strongly over Xinerama. Please 
+see http://www.winischhofer.net/linuxsisvga.shtml for detailed
 information.
 .PP
 About dual-head support
 .PP
-Dual head mode has some limitations as regards color depth and
-resolution. Due to memory bandwidth limits, CRT1 might have a
-reduced maximum refresh rate if running on higher resolutions than
-1280x1024.
-.PP
-Colordepth 8 is not supported when running in dual head mode.
+Dual head mode with or without Xinerama is fully supported. Note that 
+colordepth 8 is not supported in dual head mode.
 .PP
 The following driver
 .B Options
@@ -300,7 +312,8 @@ Force display type to one of:
 .B NONE
 will disable CRT2. The SVIDEO, COMPOSITE, SVIDEO+COMPOSITE and SCART
 parameters are for SiS video bridges only and can be used to force the
-driver to use a specific TV output connector (if present).
+driver to use a specific TV output connector (if present). For further
+parameters, see the author's website.
 Default: auto detect.
 .TP
 .BI "Option \*qCRT2Gamma\*q \*q" boolean \*q
@@ -361,10 +374,10 @@ more information.
 .PP
 .I "3. 300 series specific information"
 .PP
-DRI is supported on the 300 series only. On Linux, DRI requires the
-kernel's SiS framebuffer driver (
+DRI is supported on the 300 series only. On Linux, prior to kernel 2.6.3,
+DRI requires the kernel's SiS framebuffer driver (
 .B sisfb
-) and some other modules which come with either the kernel or __xservername__.
+) and some other modules which come with either the kernel or the X server.
 .PP
 Sisfb takes care of memory management for texture data. In order to
 prevent the X Server and sisfb from overwriting each other's data,
@@ -377,6 +390,7 @@ driver. If you start sisfb with a valid mode (ie you gain a graphical console),
 the X driver can communicate with sisfb and doesn't require any
 manual configuration for finding out about the video memory it is allowed
 to use.
+.PP
 However, if you are running a 2.4 series Linux kernel and use sisfb for
 video memory management only, ie you started sisfb with mode=none and still
 have a text mode console, there is no communication between sisfb and the
@@ -399,6 +413,10 @@ If you started sisfb without the mem argument, sisfb will reserve
 If you intend to use DRI, I recommend setting the total video memory in
 the BIOS to 64MB in order to at least overcome the lack of memory swap
 functions.
+.PP
+As of Linux 2.6.3 and under *BSD, sisfb is not required for memory management.
+Hence, this option is mandatory on such systems not running sisfb to decide 
+how much memory X should reserve for DRI.
 .TP
 .BI "Option \*qDRI\*q \*q" boolean \*q
 This option allows enabling or disabling DRI. By default, DRI is on.
@@ -409,7 +427,11 @@ The amount is to be specified in megabyte, the default is 8.
 .SH "KNOWN BUGS"
 none.
 .SH "SEE ALSO"
+#ifdef __xservername__
 __xservername__(__appmansuffix__), __xconfigfile__(__filemansuffix__), xorgconfig(__appmansuffix__), Xserver(__appmansuffix__), X(__miscmansuffix__)
+#else
+XFree86(1), XF86Config(__filemansuffix__), xf86config(1), Xserver(1), X(__miscmansuffix__)
+#endif
 .PP
 .B "http://www.winischhofer.net/linuxsisvga.shtml"
 for more information and updates

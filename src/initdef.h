@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/initdef.h,v 1.9 2004/08/20 18:57:06 kem Exp $ */
 /*
  * Global definitions for init.c and init301.c
  *
@@ -34,7 +35,7 @@
  * * 3) The name of the author may not be used to endorse or promote products
  * *    derived from this software without specific prior written permission.
  * *
- * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -79,11 +80,17 @@
 #define VB_SIS302LV     	0x0010
 #define VB_SIS302ELV		0x0020
 #define VB_SIS301C              0x0040
+#define VB_UMC			0x4000
 #define VB_NoLCD        	0x8000
 #define VB_SIS301BLV302BLV      (VB_SIS301B|VB_SIS301C|VB_SIS302B|VB_SIS301LV|VB_SIS302LV|VB_SIS302ELV)
 #define VB_SIS301B302B          (VB_SIS301B|VB_SIS301C|VB_SIS302B)
 #define VB_SIS301LV302LV        (VB_SIS301LV|VB_SIS302LV|VB_SIS302ELV)
 #define VB_SISVB		(VB_SIS301 | VB_SIS301BLV302BLV)
+#define VB_SISTMDS		(VB_SIS301 | VB_SIS301B302B)
+#define VB_SISLVDS		VB_SIS301LV302LV
+#define VB_SISLCDA		(VB_SIS302B|VB_SIS301C|VB_SIS301LV|VB_SIS302LV|VB_SIS302ELV)
+#define VB_SISYPBPR		(VB_SIS301C|VB_SIS301LV|VB_SIS302LV|VB_SIS302ELV)
+#define VB_SISHIVISION		(VB_SIS301|VB_SIS301B|VB_SIS302B)
 
 /* VBInfo */
 #define SetSimuScanMode         0x0001   /* CR 30 */
@@ -123,7 +130,7 @@
 #define Mode24Bpp               0x06
 #define Mode32Bpp               0x07
 
-#define ModeInfoFlag            0x07
+#define ModeTypeMask            0x07
 #define IsTextMode              0x07
 
 #define DACInfoFlag             0x0018
@@ -136,6 +143,7 @@
 #define CRT2Mode                0x0800
 #define HalfDCLK                0x1000
 #define NoSupportSimuTV         0x2000
+#define NoSupportLCDScale	0x4000 /* SiS bridge: No scaling possible (no matter what panel) */
 #define DoubleScanMode          0x8000
 
 /* Infoflag */
@@ -200,7 +208,7 @@
 #define SF_IsM661		0x0020
 #define SF_IsM741		0x0040
 #define SF_IsM760		0x0080
-#define SF_760UMA		0x8000
+#define SF_760LFB		0x8000  /* 760: We have LFB */
 
 /* CR32 (Newer 630, and 315 series)
 
@@ -398,10 +406,10 @@
 #define Panel_1400x1050         0x09
 #define Panel_1280x768          0x0a    /* 30xB/C and LVDS only (BIOS: all) */
 #define Panel_1600x1200         0x0b
-#define Panel_1280x800		0x0c    /* 661etc  */
+#define Panel_1280x800		0x0c    /* 661etc (TMDS) */
 #define Panel_1680x1050         0x0d    /* 661etc  */
 #define Panel_1280x720		0x0e    /* 661etc  */
-#define Panel_Custom		0x0f	/* MUST BE 0x0f (for DVI DDC detection */
+#define Panel_Custom		0x0f	/* MUST BE 0x0f (for DVI DDC detection) */
 #define Panel_320x480           0x10    /* SiS 550 fstn - TW: This is fake, can be any */
 #define Panel_Barco1366         0x11
 #define Panel_848x480		0x12
@@ -409,6 +417,7 @@
 #define Panel_640x480_3		0x14    /* SiS 550 */
 #define Panel_1280x768_2        0x15	/* 30xLV */
 #define Panel_1280x768_3        0x16    /* 30xLV */
+#define Panel_1280x800_2	0x17    /* 30xLV */
 
 /* Index in ModeResInfo table */
 #define SIS_RI_320x200    0
@@ -433,7 +442,7 @@
 #define SIS_RI_856x480   19
 #define SIS_RI_1280x768  20
 #define SIS_RI_1400x1050 21
-#define SIS_RI_1152x864  22  /* Up to this SiS conforming */
+#define SIS_RI_1152x864  22  /* Up to here SiS conforming */
 #define SIS_RI_848x480   23
 #define SIS_RI_1360x768  24
 #define SIS_RI_1024x600  25
@@ -442,6 +451,9 @@
 #define SIS_RI_1360x1024 28
 #define SIS_RI_1680x1050 29
 #define SIS_RI_1280x800  30
+#define SIS_RI_1920x1080 31
+#define SIS_RI_960x540   32
+#define SIS_RI_960x600   33
 
 /* CR5F */
 #define IsM650                  0x80
@@ -478,13 +490,23 @@
 #define VCLK100_315             0x46   /* Index in VBVCLKData table (315) */
 #define VCLK34_315              0x55
 #define VCLK68_315		0x0d
-#define VCLK69_315		0x5c   /* Index in VBVCLKData table (315) */
+#define VCLK_1280x800_315_2	0x5c   /* Index in VBVCLKData table (315) */
 #define VCLK121_315		0x5d   /* Index in VBVCLKData table (315) */
 #define VCLK_1280x720		0x5f
 #define VCLK_1280x768_2		0x60
 #define VCLK_1280x768_3		0x61
 #define VCLK_CUSTOM_315		0x62
 #define VCLK_1280x720_2		0x63
+#define VCLK_720x480		0x67 
+#define VCLK_720x576		0x68
+#define VCLK_768x576		0x68
+#define VCLK_848x480		0x65
+#define VCLK_856x480		0x66
+#define VCLK_800x480		0x65
+#define VCLK_1024x576		0x51
+#define VCLK_1152x864		0x64
+#define VCLK_1360x768		0x58
+#define VCLK_1280x800_315	0x6c
 
 #define TVCLKBASE_300		0x21   /* Indices on TV clocks in VCLKData table (300) */
 #define TVCLKBASE_315	        0x3a   /* Indices on TV clocks in (VB)VCLKData table (315) */
@@ -595,7 +617,7 @@
 
 /*
   =============================================================
-   			  for 315 series
+   		  for 315 series (old data layout)
   =============================================================
 */
 #define SoftDRAMType        0x80

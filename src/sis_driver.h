@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.8 2004/08/12 12:59:25 twini Exp $ */
 /*
  * Global data and definitions
  *
@@ -15,7 +16,7 @@
  * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -75,6 +76,8 @@ static const struct _sis_vrate {
 	{7,  800,  600, 120, FALSE}, {8,  800,  600, 160, FALSE},
 	{1,  848,  480,  39,  TRUE}, {2,  848,  480,  60,  TRUE},
 	{1,  856,  480,  39,  TRUE}, {2,  856,  480,  60,  TRUE},
+	{1,  960,  540,  60,  TRUE},
+	{1,  960,  600,  60,  TRUE},
 	{1, 1024,  576,  60,  TRUE}, {2, 1024,  576,  75,  TRUE}, {3, 1024,  576,  85,  TRUE},
 	{1, 1024,  600,  60,  TRUE},
 	{1, 1024,  768,  43,  TRUE}, {2, 1024,  768,  60,  TRUE}, {3, 1024,  768,  70, FALSE},
@@ -94,6 +97,7 @@ static const struct _sis_vrate {
 	{4, 1600, 1200,  75,  TRUE}, {5, 1600, 1200,  85,  TRUE}, {6, 1600, 1200, 100,  TRUE},
 	{7, 1600, 1200, 120,  TRUE},
 	{1, 1680, 1050,  60,  TRUE},
+	{1, 1920, 1080,  30,  TRUE},
 	{1, 1920, 1440,  60,  TRUE}, {2, 1920, 1440,  65,  TRUE}, {3, 1920, 1440,  70,  TRUE},
 	{4, 1920, 1440,  75,  TRUE}, {5, 1920, 1440,  85,  TRUE}, {6, 1920, 1440, 100,  TRUE},
 	{1, 2048, 1536,  60,  TRUE}, {2, 2048, 1536,  65,  TRUE}, {3, 2048, 1536,  70,  TRUE}, 
@@ -1283,6 +1287,10 @@ static ModeStatus SISValidMode(int scrnIndex, DisplayModePtr mode,
 /* Internally used functions */
 static Bool    SISMapMem(ScrnInfoPtr pScrn);
 static Bool    SISUnmapMem(ScrnInfoPtr pScrn);
+#ifdef SIS_NEED_MAP_IOP
+static Bool    SISMapIOPMem(ScrnInfoPtr pScrn);
+static Bool    SISUnmapIOPMem(ScrnInfoPtr pScrn);
+#endif
 static void    SISSave(ScrnInfoPtr pScrn);
 static void    SISRestore(ScrnInfoPtr pScrn);
 static void    SISVESARestore(ScrnInfoPtr pScrn);
@@ -1302,18 +1310,21 @@ static void    SISWaitVBRetrace(ScrnInfoPtr pScrn);
 void           SISWaitRetraceCRT1(ScrnInfoPtr pScrn);
 void           SISWaitRetraceCRT2(ScrnInfoPtr pScrn);
 static Bool    InRegion(int x, int y, region r);
+static USHORT  SiS_CheckModeCRT1(ScrnInfoPtr pScrn, DisplayModePtr mode,
+				 unsigned long VBFlags, BOOLEAN hcm);
+static USHORT  SiS_CheckModeCRT2(ScrnInfoPtr pScrn, DisplayModePtr mode,
+				 unsigned long VBFlags, BOOLEAN hcm);				 
 #ifdef SISMERGED
 static void    SISMergePointerMoved(int scrnIndex, int x, int y);
 #endif
 BOOLEAN        SiSBridgeIsInSlaveMode(ScrnInfoPtr pScrn);
-USHORT 	       SiS_CalcModeIndex(ScrnInfoPtr pScrn, DisplayModePtr mode,
-				 unsigned long VBFlags, BOOLEAN hcm);
-USHORT         SiS_CheckCalcModeIndex(ScrnInfoPtr pScrn, DisplayModePtr mode,
-				 unsigned long VBFlags, BOOLEAN hcm);
+USHORT	       SiS_GetModeNumber(ScrnInfoPtr pScrn, DisplayModePtr mode, unsigned long VBFlags);
 unsigned char  SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, USHORT offset, unsigned char value);
 #ifdef DEBUG
 static void    SiSDumpModeInfo(ScrnInfoPtr pScrn, DisplayModePtr mode);
 #endif
+void           SISDetermineLCDACap(ScrnInfoPtr pScrn);
+void           SISSaveDetectedDevices(ScrnInfoPtr pScrn);
 
 extern USHORT   SiS_GetModeID(int VGAEngine, ULONG VBFlags, int HDisplay, int VDisplay,
 				  int Depth, BOOL FSTN, int LCDwith, int LCDheight);
@@ -1322,6 +1333,7 @@ extern USHORT   SiS_GetModeID_LCD(int VGAEngine, ULONG VBFlags, int HDisplay, in
 extern USHORT   SiS_GetModeID_TV(int VGAEngine, ULONG VBFlags, int HDisplay, int VDisplay, int Depth);
 extern USHORT   SiS_GetModeID_VGA2(int VGAEngine, ULONG VBFlags, int HDisplay, int VDisplay, int Depth);
 extern int      SiSTranslateToVESA(ScrnInfoPtr pScrn, int modenumber);
+extern int      SiSTranslateToOldMode(int modenumber);
 extern BOOLEAN  SiSDetermineROMLayout661(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo);
 extern BOOLEAN 	SiSBIOSSetMode(SiS_Private *SiS_Pr, PSIS_HW_INFO HwDeviceExtension,
                                ScrnInfoPtr pScrn, DisplayModePtr mode, BOOLEAN IsCustom);

@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis300_accel.c,v 1.6 2004/08/04 15:46:33 twini Exp $ */
 /*
  * 2D Acceleration for SiS 530, 620, 300, 540, 630, 730.
  *
@@ -15,7 +16,7 @@
  * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -42,7 +43,6 @@
 #include "xf86Pci.h"
 #include "compiler.h"
 #include "xaa.h"
-#include "xaalocal.h"
 #include "xaarop.h"
 
 #include "sis.h"
@@ -53,9 +53,9 @@
 #define HEADOFFSET 	(pSiS->dhmOffset)
 #endif
 
-#undef STSCE    	/* TW: Use/Don't use ScreenToScreenColorExpand - does not work */
+#undef STSCE    	/* Use/Don't use ScreenToScreenColorExpand - does not work */
 
-#undef TRAP     	/* TW: Use/Don't use Trapezoid Fills - does not work - XAA provides
+#undef TRAP     	/* Use/Don't use Trapezoid Fills - does not work - XAA provides
 		         * illegal trapezoid data (left and right edges cross each other
 			 * sometimes) which causes drawing errors. Further, I have not found
 			 * out how to draw polygones with a height greater than 127...
@@ -139,6 +139,9 @@ static void SiSSubsequentColorExpandScanline(ScrnInfoPtr pScrn, int bufno);
 static void SiSRestoreAccelState(ScrnInfoPtr pScrn);
 #endif
 
+extern unsigned char SiSGetCopyROP(int rop);
+extern unsigned char SiSGetPatternROP(int rop);
+
 static void
 SiSInitializeAccelerator(ScrnInfoPtr pScrn)
 {
@@ -177,12 +180,12 @@ SiS300AccelInit(ScreenPtr pScreen)
 	         (pScrn->bitsPerPixel != 32))
 	    return FALSE;
 
-	/* TW: Although SiS states that the 300 series supports a
-	 *     virtual framebuffer of 4096x4096, the 2D accelerator
-	 *     does not seem to know that. If the destination bitmap
-	 *     pitch is > 8192 (which easily happens in 32bpp mode),
-	 *     the accelerator engine collapses.
-	 *     TODO: Find out about the 530 and 620
+	/* Although SiS states that the 300 series supports a
+	 * virtual framebuffer of 4096x4096, the 2D accelerator
+	 * does not seem to know that. If the destination bitmap
+	 * pitch is > 8192 (which easily happens in 32bpp mode),
+	 * the accelerator engine collapses.
+	 * TODO: Find out about the 530 and 620
 	 */
 
 	if(pSiS->scrnOffset < 8192) {
@@ -228,7 +231,7 @@ SiS300AccelInit(ScreenPtr pScreen)
 
 #ifdef STSCE
 	   /* Screen To Screen Color Expand */
-	   /* TW: The hardware does support this the way we need it */
+	   /* The hardware does support this the way we need it */
 	   infoPtr->SetupForScreenToScreenColorExpandFill =
 	    			SiSSetupForScreenToScreenColorExpand;
 	   infoPtr->SubsequentScreenToScreenColorExpandFill =
@@ -248,9 +251,7 @@ SiS300AccelInit(ScreenPtr pScreen)
 	   infoPtr->CPUToScreenColorExpandFillFlags = NO_PLANEMASK |
 	   					      BIT_ORDER_IN_BYTE_MSBFIRST |
 	    					      NO_TRANSPARENCY |
-	    					      SYNC_AFTER_COLOR_EXPAND |
-	    					      HARDWARE_PATTERN_SCREEN_ORIGIN |
-	    					      HARDWARE_PATTERN_PROGRAMMED_BITS ;
+	    					      SYNC_AFTER_COLOR_EXPAND;
 #endif
 
 	   /* per-scanline color expansion (using indirect method) */
@@ -360,13 +361,13 @@ SiSRestoreAccelState(ScrnInfoPtr pScrn)
 {
 	SISPtr pSiS = SISPTR(pScrn);
 
-	/* TW: We don't need to do anything special here; forcing the
-	 *     other head to re-read the CmdQueLen is not necessary:
-	 *     After the Sync in RestoreAccelState(), the real queue
-	 *     length is always larger than (or at least equal to)
-	 *     the amount stored in CmdQueueLen of the other head,
-	 *     so the only thing that might happen is one unnecessary
-	 *     Sync on the other head. I think we can live with that.
+	/* We don't need to do anything special here; forcing the
+	 * other head to re-read the CmdQueLen is not necessary:
+	 * After the Sync in RestoreAccelState(), the real queue
+	 * length is always larger than (or at least equal to)
+	 * the amount stored in CmdQueueLen of the other head,
+	 * so the only thing that might happen is one unnecessary
+	 * Sync on the other head. I think we can live with that.
 	 */
 	pSiS->DoColorExpand = FALSE;
 	SiSIdle
@@ -391,7 +392,7 @@ static void SiSSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 	   SiSSetupSRCTrans(trans_color)
 	   SiSSetupCMDFlag(TRANSPARENT_BITBLT)
 	} else {
-	   SiSSetupROP(XAACopyROP[rop])
+	   SiSSetupROP(SiSGetCopyROP(rop))
 	}
 	if(xdir > 0) {
 	   SiSSetupCMDFlag(X_INC)
@@ -405,8 +406,8 @@ static void SiSSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn,
                                 int src_x, int src_y, int dst_x, int dst_y,
                                 int width, int height)
 {
-	SISPtr  pSiS = SISPTR(pScrn);
-	long srcbase, dstbase;
+	SISPtr pSiS = SISPTR(pScrn);
+	CARD32 srcbase, dstbase;
 
 	PDEBUG(ErrorF("Subsequent ScreenCopy(%d,%d, %d,%d, %d,%d)\n",
 					src_x, src_y, dst_x, dst_y, width, height));
@@ -448,7 +449,7 @@ static void
 SiSSetupForSolidFill(ScrnInfoPtr pScrn,
                         int color, int rop, unsigned int planemask)
 {
-	SISPtr  pSiS = SISPTR(pScrn);
+	SISPtr pSiS = SISPTR(pScrn);
 
 	PDEBUG(ErrorF("Setup SolidFill(0x%x, 0x%x, 0x%x)\n",
 					color, rop, planemask));
@@ -461,7 +462,7 @@ SiSSetupForSolidFill(ScrnInfoPtr pScrn,
 	SiSSetupPATFG(color)
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
 	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupROP(XAAPatternROP[rop])
+	SiSSetupROP(SiSGetPatternROP(rop))
 	/* SiSSetupCMDFlag(PATFG) - is zero */
 }
 
@@ -469,8 +470,8 @@ static void
 SiSSubsequentSolidFillRect(ScrnInfoPtr pScrn,
                         int x, int y, int w, int h)
 {
-	SISPtr  pSiS = SISPTR(pScrn);
-	long dstbase;
+	SISPtr pSiS = SISPTR(pScrn);
+	CARD32 dstbase;
 
 	PDEBUG(ErrorF("Subsequent SolidFillRect(%d, %d, %d, %d)\n",
 					x, y, w, h));
@@ -498,7 +499,7 @@ SiSSubsequentSolidFillRect(ScrnInfoPtr pScrn,
 	SiSDoCMD
 }
 
-/* TW: Trapezoid */
+/* Trapezoid */
 /* This would work better if XAA would provide us with valid trapezoids.
  * In fact, with small trapezoids the left and the right edge often cross
  * each other or result in a line length of 0 which causes drawing errors
@@ -512,8 +513,8 @@ SiSSubsequentSolidFillTrap(ScrnInfoPtr pScrn, int y, int h,
 	       int left,  int dxL, int dyL, int eL,
 	       int right, int dxR, int dyR, int eR )
 {
-	SISPtr  pSiS = SISPTR(pScrn);
-	long dstbase;
+	SISPtr pSiS = SISPTR(pScrn);
+	CARD32 dstbase;
 #if 0
 	float kL, kR;
 #endif
@@ -610,7 +611,7 @@ static void
 SiSSetupForSolidLine(ScrnInfoPtr pScrn,
                         int color, int rop, unsigned int planemask)
 {
-	SISPtr  pSiS = SISPTR(pScrn);
+	SISPtr pSiS = SISPTR(pScrn);
 
 	PDEBUG(ErrorF("Setup SolidLine(0x%x, 0x%x, 0x%x)\n",
 					color, rop, planemask));
@@ -619,7 +620,7 @@ SiSSetupForSolidLine(ScrnInfoPtr pScrn,
 	SiSSetupPATFG(color)
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
 	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupROP(XAAPatternROP[rop])
+	SiSSetupROP(SiSGetPatternROP(rop))
 	SiSSetupCMDFlag(PATFG | LINE)
 }
 
@@ -627,8 +628,9 @@ static void
 SiSSubsequentSolidTwoPointLine(ScrnInfoPtr pScrn,
                         int x1, int y1, int x2, int y2, int flags)
 {
-	SISPtr  pSiS = SISPTR(pScrn);
-	long dstbase,miny,maxy;
+	SISPtr pSiS = SISPTR(pScrn);
+	CARD32 dstbase;
+	int    miny,maxy;
 
 	PDEBUG(ErrorF("Subsequent SolidLine(%d, %d, %d, %d, 0x%x)\n",
 					x1, y1, x2, y2, flags));
@@ -663,8 +665,8 @@ static void
 SiSSubsequentSolidHorzVertLine(ScrnInfoPtr pScrn,
                                 int x, int y, int len, int dir)
 {
-	SISPtr  pSiS = SISPTR(pScrn);
-	long dstbase;
+	SISPtr pSiS = SISPTR(pScrn);
+	CARD32 dstbase;
 
 	PDEBUG(ErrorF("Subsequent SolidHorzVertLine(%d, %d, %d, %d)\n",
 					x, y, len, dir));
@@ -708,7 +710,7 @@ SiSSetupForDashedLine(ScrnInfoPtr pScrn,
 	SiSSetupStyleLow(*pattern)
 	SiSSetupStyleHigh(*(pattern+4))
 	SiSSetupStylePeriod(length-1);
-	SiSSetupROP(XAAPatternROP[rop])
+	SiSSetupROP(SiSGetPatternROP(rop))
 	SiSSetupPATFG(fg)
 	SiSSetupCMDFlag(LINE | LINE_STYLE)
 	if(bg != -1) {
@@ -724,7 +726,8 @@ SiSSubsequentDashedTwoPointLine(ScrnInfoPtr pScrn,
                                 int flags, int phase)
 {
 	SISPtr pSiS = SISPTR(pScrn);
-	long dstbase,miny,maxy;
+	CARD32 dstbase;
+	int    miny,maxy;
 
 	PDEBUG(ErrorF("Subsequent DashedLine(%d,%d, %d,%d, 0x%x,0x%x)\n",
 			x1, y1, x2, y2, flags, phase));
@@ -768,7 +771,7 @@ SiSSetupForMonoPatternFill(ScrnInfoPtr pScrn,
 	SiSSetupDSTColorDepth(pSiS->DstColor);
 	SiSSetupMONOPAT(patx,paty)
 	SiSSetupPATFG(fg)
-	SiSSetupROP(XAAPatternROP[rop])
+	SiSSetupROP(SiSGetPatternROP(rop))
 	SiSSetupCMDFlag(PATMONO)
 	if(bg != -1) {
 	   SiSSetupPATBG(bg)
@@ -783,7 +786,7 @@ SiSSubsequentMonoPatternFill(ScrnInfoPtr pScrn,
                                 int x, int y, int w, int h)
 {
 	SISPtr pSiS = SISPTR(pScrn);
-	long dstbase;
+	CARD32 dstbase;
 
 	PDEBUG(ErrorF("Subsequent MonoPatFill(0x%x,0x%x, %d,%d, %d,%d)\n",
 							patx, paty, x, y, w, h));
@@ -820,8 +823,8 @@ SiSSubsequentMonoPatternFillTrap(ScrnInfoPtr pScrn,
 	       int left, int dxL, int dyL, int eL,
 	       int right, int dxR, int dyR, int eR )
 {
-	SISPtr  pSiS = SISPTR(pScrn);
-	long dstbase;
+	SISPtr pSiS = SISPTR(pScrn);
+	CARD32 dstbase;
 
 	PDEBUG(ErrorF("Subsequent Mono8x8PatternFillTrap(%d, %d, %d - %d %d/%d %d/%d)\n",
 					y, h, left, right, dxL, dxR, eL, eR));
@@ -880,7 +883,7 @@ SiSSubsequentMonoPatternFillTrap(ScrnInfoPtr pScrn,
 
 #if 0
 
-/* TW: The following (already commented) functions have NOT been adapted for dual-head mode */
+/* The following (already commented) functions have NOT been adapted for dual-head mode */
 
 /* ----- CPU To Screen Color Expand (single task) ------------------------- */
 
@@ -902,7 +905,7 @@ SiSSetupForCPUToScreenColorExpand(ScrnInfoPtr pScrn,
 	SiSSetupDSTColorDepth(pSiS->DstColor);
 	SiSSetupSRCXY(0,0)
 	SiSSetupSRCFG(fg)
-	SiSSetupROP(XAAPatternROP[rop])
+	SiSSetupROP(SiSGetPatternROP(rop))
 	SiSSetupCMDFlag(X_INC | Y_INC | COLOREXP)
 	if(bg == -1) {
 	   SiSSetupCMDFlag(TRANSPARENT)
@@ -916,7 +919,7 @@ SiSSubsequentCPUToScreenColorExpand(ScrnInfoPtr pScrn,
                                 int x, int y, int w, int h, int skipleft)
 {
 	SISPtr pSiS = SISPTR(pScrn);
-	long dstbase;
+	CARD32 dstbase;
 
 	PDEBUG(ErrorF("Subsequent CPUToScreen ColorExpand(%d,%d, %d,%d, %d)\n",
 							x, y, w, h, skipleft));
@@ -939,7 +942,7 @@ SiSSubsequentCPUToScreenColorExpand(ScrnInfoPtr pScrn,
 
 /* ------ Screen To Screen Color Expand ------------------------------- */
 
-/* TW: The hareware does not seem to support this the way we need it */
+/* The hareware does not seem to support this the way we need it */
 
 #ifdef STSCE
 static void
@@ -947,14 +950,14 @@ SiSSetupForScreenToScreenColorExpand(ScrnInfoPtr pScrn,
                                 int fg, int bg,
                                 int rop, unsigned int planemask)
 {
-	SISPtr          pSiS = SISPTR(pScrn);
+	SISPtr pSiS = SISPTR(pScrn);
 
 	PDEBUG(ErrorF("Setup ScreenToScreen ColorExp(0x%x,0x%x, 0x%x)\n",
 							fg, bg, rop));
 
 	SiSSetupDSTColorDepth(pSiS->DstColor)
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
-	SiSSetupROP(XAACopyROP[rop])
+	SiSSetupROP(SiSGetCopyROP(rop))
 	SiSSetupSRCFG(fg)
 	/* SiSSetupSRCXY(0,0) */
 
@@ -969,7 +972,7 @@ SiSSetupForScreenToScreenColorExpand(ScrnInfoPtr pScrn,
 }
 #endif
 
-/* TW. This method blits in a single task; this does not seem to work
+/* This method blits in a single task; this does not seem to work
  * because the hardware does not use the source pitch as scanline
  * offset but only to calculate pattern address from source X and Y.
  * XAA provides the pattern bitmap with scrnOffset (displayWidth * bpp/8)
@@ -1016,7 +1019,7 @@ SiSSubsequentScreenToScreenColorExpand(ScrnInfoPtr pScrn,
                                 int srcx, int srcy, int skipleft)
 {
 	SISPtr pSiS = SISPTR(pScrn);
-        long srcbase, dstbase;
+        CARD32 srcbase, dstbase;
 #if 0
 	int _x0, _y0, _x1, _y1;
 #endif
@@ -1120,7 +1123,7 @@ SiSSetupForScanlineCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
 	while((MMIO_IN16(pSiS->IOBase, 0x8242) & 0x1F00) != 0) {} /* WDR: == 0x10 */
 
 	SiSSetupSRCXY(0,0);
-	SiSSetupROP(XAACopyROP[rop]);
+	SiSSetupROP(SiSGetCopyROP(rop));
 	SiSSetupSRCFG(fg);
 	SiSSetupDSTRect(pSiS->scrnOffset, -1);
 	SiSSetupDSTColorDepth(pSiS->DstColor);
@@ -1144,8 +1147,8 @@ SiSSubsequentScanlineCPUToScreenColorExpandFill(
                         int h, int skipleft)
 {
 	SISPtr pSiS = SISPTR(pScrn);
-	int _x0, _y0, _x1, _y1;
-	long dstbase;
+	int    _x0, _y0, _x1, _y1;
+	CARD32 dstbase;
 
 	dstbase = 0;
 	if((y >= 2048) || ((y + h) >= 2048)) {
@@ -1158,13 +1161,13 @@ SiSSubsequentScanlineCPUToScreenColorExpandFill(
 	}
 #endif
 
-	/* TW: Wait until there is no color expansion command in queue
-	 *     (This solves the OpenOffice.org window-move bug)
-	 *     Added Idle-check - bit 23 is set sometimes, although
-	 *     engine is actually idle!
-	 *     Update: Bit 23 is not reliable. After heavy 3D engine
-	 *     action, this bit never gets cleared again. So do
-	 *     SiSIdle instead.
+	/* Wait until there is no color expansion command in queue
+	 * (This solves the OpenOffice.org window-move bug)
+	 * Added Idle-check - bit 23 is set sometimes, although
+	 * engine is actually idle!
+	 * Update: Bit 23 is not reliable. After heavy 3D engine
+	 * action, this bit never gets cleared again. So do
+	 * SiSIdle instead.
 	 */
 	if((MMIO_IN16(pSiS->IOBase, 0x8242) & 0xe000) != 0xe000) {
            /* while ((MMIO_IN16(pSiS->IOBase, 0x8242) & 0x0080) != 0) {} */
@@ -1198,7 +1201,7 @@ SiSSubsequentColorExpandScanline(ScrnInfoPtr pScrn, int bufno)
 #if 0
 	int newhead,bltbufstage,newtail;
 #endif
-	long cbo;
+	CARD32 cbo;
 
 	cbo = pSiS->ColorExpandBufferScreenOffset[bufno];
 #ifdef SISDUALHEAD
@@ -1207,13 +1210,13 @@ SiSSubsequentColorExpandScanline(ScrnInfoPtr pScrn, int bufno)
 	}
 #endif
 
-	/* TW: Wait until there is no color expansion command in queue
-	 *     (This solves the GTK-big-font bug)
-	 *     Added Idle-check - bit 23 is set sometimes, although
-	 *     engine is actually idle!
-	 *     Update: Bit 23 is not reliable. After heavy 3D engine
-	 *     action, this bit never gets cleared again. So do
-	 *     SiSIdle instead.
+	/* Wait until there is no color expansion command in queue
+	 * (This solves the GTK-big-font bug)
+	 * Added Idle-check - bit 23 is set sometimes, although
+	 * engine is actually idle!
+	 * Update: Bit 23 is not reliable. After heavy 3D engine
+	 * action, this bit never gets cleared again. So do
+	 * SiSIdle instead.
 	 */
 	if((MMIO_IN16(pSiS->IOBase, 0x8242) & 0xe000) != 0xe000) {
 	   /* while ((MMIO_IN16(pSiS->IOBase, 0x8242) & 0x0080) != 0) {} */

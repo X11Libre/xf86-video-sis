@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/init.h,v 1.12 2004/08/20 18:57:06 kem Exp $ */
 /*
  * Data and prototypes for init.c
  *
@@ -34,7 +35,7 @@
  * * 3) The name of the author may not be used to endorse or promote products
  * *    derived from this software without specific prior written permission.
  * *
- * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -98,6 +99,8 @@ const USHORT  ModeIndex_800x480[]      = {0x70, 0x7a, 0x00, 0x76};
 const USHORT  ModeIndex_800x600[]      = {0x30, 0x47, 0x00, 0x63};
 const USHORT  ModeIndex_848x480[]      = {0x39, 0x3b, 0x00, 0x3e};
 const USHORT  ModeIndex_856x480[]      = {0x3f, 0x42, 0x00, 0x45};
+const USHORT  ModeIndex_960x540[]      = {0x1d, 0x1e, 0x00, 0x1f};  /* 315 series only */
+const USHORT  ModeIndex_960x600[]      = {0x20, 0x21, 0x00, 0x22};  /* 315 series only */
 const USHORT  ModeIndex_1024x768[]     = {0x38, 0x4a, 0x00, 0x64};
 const USHORT  ModeIndex_1024x576[]     = {0x71, 0x74, 0x00, 0x77};
 const USHORT  ModeIndex_1024x600[]     = {0x20, 0x21, 0x00, 0x22};  /* 300 series only */
@@ -114,6 +117,7 @@ const USHORT  ModeIndex_300_1360x1024[]= {0x67, 0x6f, 0x00, 0x72};  /* 300 serie
 const USHORT  ModeIndex_1400x1050[]    = {0x26, 0x27, 0x00, 0x28};  /* 315 series only */
 const USHORT  ModeIndex_1680x1050[]    = {0x17, 0x18, 0x00, 0x19};  /* 315 series only */
 const USHORT  ModeIndex_1600x1200[]    = {0x3c, 0x3d, 0x00, 0x66};
+const USHORT  ModeIndex_1920x1080[]    = {0x2c, 0x2d, 0x00, 0x73};  /* 315 series only */
 const USHORT  ModeIndex_1920x1440[]    = {0x68, 0x69, 0x00, 0x6b};
 const USHORT  ModeIndex_300_2048x1536[]= {0x6c, 0x6d, 0x00, 0x00};
 const USHORT  ModeIndex_310_2048x1536[]= {0x6c, 0x6d, 0x00, 0x6e};
@@ -253,10 +257,14 @@ static const SiS_ModeResInfoStruct SiS_ModeResInfo[] =
 	{ 1152, 768, 8,16},   /* 0x1a */
 	{  768, 576, 8,16},   /* 0x1b */
 	{ 1360,1024, 8,16},   /* 0x1c */
-	{ 1280, 800, 8,16},   /* 0x1d */
-	{ 1680,1050, 8,16}    /* 0x1e */
+	{ 1680,1050, 8,16},   /* 0x1d */
+	{ 1280, 800, 8,16},   /* 0x1e */ 
+	{ 1920,1080, 8,16},   /* 0x1f */
+	{  960, 540, 8,16},   /* 0x20 */
+	{  960, 600, 8,16}    /* 0x21 */
 };
 
+#if defined(SIS300) || defined(SIS315H)
 static SiS_StandTableStruct SiS_StandTable[]=
 {
 /* 0x00: MD_0_200 */
@@ -695,6 +703,7 @@ static SiS_StandTableStruct SiS_StandTable[]=
    0xff}
  }
 };
+#endif
 
 /**************************************************************/
 /* SIS VIDEO BRIDGE ----------------------------------------- */
@@ -840,7 +849,8 @@ static const SiS_TVDataStruct  SiS_ExtPALData[] =
  {   36,  25,1060, 648,1270, 530, 438,   0, 438,0xeb,0x05,0x25,0x16},  /* 800x600, 400x300 - better */
  {    3,   2,1080, 619,1270, 540, 438,   0, 438,0xf3,0x00,0x1d,0x20},  /* 720x576 */
  {    1,   1,1170, 821,1270, 520, 686,   0, 686,0xF3,0x00,0x1D,0x20},  /* 1024x768 */
- {    1,   1,1170, 821,1270, 520, 686,   0, 686,0xF3,0x00,0x1D,0x20}   /* 1024x768 (for NTSC equ) */
+ {    1,   1,1170, 821,1270, 520, 686,   0, 686,0xF3,0x00,0x1D,0x20},  /* 1024x768 (for NTSC equ) */
+ {    9,   4, 848, 528,1270, 530,   0,   0,  50,0xf5,0xfb,0x1b,0x2a}   /* 720x480 test */
 };
 
 static const SiS_TVDataStruct  SiS_StNTSCData[] =
@@ -899,7 +909,8 @@ static const SiS_TVDataStruct  SiS_ExtHiTVData[] =
  {    5,   4, 0x627,0x464,0x670,0x3c0,0x128,  0, 0, 0x00,0x00,0x00,0x00},  /* 1280x1024 */
  {    4,   1, 0x41a,0x233,0x60c,0x3c0,0x143,128, 0, 0x00,0x00,0x00,0x00},  /* 800x480   */
  {    5,   2, 0x578,0x293,0x670,0x3c0,0x032,  0, 0, 0x00,0x00,0x00,0x00},  /* 1024x576  */
- {    8,   5, 0x6d6,0x323,0x670,0x3c0,0x128,  0, 0, 0x00,0x00,0x00,0x00}   /* 1280x720  */
+ {    8,   5, 0x6d6,0x323,0x670,0x3c0,0x128,  0, 0, 0x00,0x00,0x00,0x00},  /* 1280x720  */
+ {  137,  32, 0x3d4,0x233,0x663,0x3bf,0x143,  0, 0, 0x00,0x00,0x00,0x00}   /* 960x600  */
 };
 
 static const SiS_TVDataStruct  SiS_St525pData[] =
@@ -922,30 +933,31 @@ static const SiS_TVDataStruct  SiS_St750pData[] =
 
 static const SiS_TVDataStruct  SiS_Ext750pData[] =
 {
- {    3,   1, 0x3a7,0x1d6,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},
- {   24,   7, 0x3a7,0x1a4,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},
- {    3,   1, 0x3a7,0x1d6,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},
- {   24,   7, 0x3a7,0x1a4,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},
- {   99,  32, 0x320,0x1fe,0x500,0x2d0,   50,  0,     0, 0x00,0x00,0x00,0x00},  /* 640x480   */
- {    5,   4, 0x5d8,0x29e,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},  /* 800x600   */
- {    2,   1, 0x35a,0x1f7,0x4f6,0x1e0,    0,128,     0, 0x00,0x00,0x00,0x00},  /* 720x480   */
- {   68,  64, 0x55f,0x346,0x500,0x2a8,0x27e,  0,     0, 0x00,0x00,0x00,0x00},  /* 1024x768  */
- {   25,  24, 0x5d8,0x2f3,0x460,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00}   /* 1280x720  */
+ {  143,  65, 0x35a,0x1bb,0x4f6,0x1b8,0x0ab,  0, 0x0ab, 0x00,0x00,0x00,0x00},
+ {   88,  35, 0x35a,0x189,0x4f6,0x1b8,0x0ab,  0, 0x0ab, 0x00,0x00,0x00,0x00},
+ {   18,   5, 0x339,0x1ae,0x500,0x2d0,0x05c,  0, 0x05c, 0x00,0x00,0x00,0x00},
+ {  143,  70, 0x39c,0x189,0x4f6,0x1b8,0x05c,  0, 0x05c, 0x00,0x00,0x00,0x00},
+ {   99,  32, 0x320,0x1fe,0x500,0x2d0,   50,  0,     0, 0x00,0x00,0x00,0x00},  /* 640x480  */
+ {    5,   4, 0x5d8,0x29e,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},  /* 800x600  */
+ {   99,  32, 0x320,0x1fe,0x500,0x2d0,   50,  0,     0, 0x00,0x00,0x00,0x00},  /* 720x480 test WORKS */ 
+ {   68,  64, 0x55f,0x346,0x500,0x2a8,0x27e,  0,     0, 0x00,0x00,0x00,0x00},  /* 1024x768 */
+ {    5,   2, 0x3a7,0x226,0x500,0x2a8,    0,128,     0, 0x00,0x00,0x00,0x00},  /* 720x576  */
+ {   25,  24, 0x5d8,0x2f3,0x460,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00}   /* 1280x720 WORKS */
 };
 
-static const SiS_LCDDataStruct  SiS_LCD1280x720Data[] =  
+static const SiS_LCDDataStruct  SiS_LCD1280x720Data[] =  /* 2.03.00 */
 {
-	{  14,    5,  864,  432, 1344,  806 }, /* 640x400 */
-	{  16,    5,  864,  378, 1344,  806 },
-	{  14,    5,  864,  432, 1344,  806 },
-	{  16,    5,  864,  378, 1344,  806 },
-	{  24,   11,  924,  523, 1344,  806 }, /* 640x480 */
-	{   7,    5, 1152,  664, 1344,  806 }, /* 800x600 */
+	{  44,   15,  864,  430, 1408,  806 }, /* 640x400 */
+	{ 128,   35,  792,  385, 1408,  806 },
+	{  44,   15,  864,  430, 1408,  806 },
+	{ 128,   35,  792,  385, 1408,  806 },
+	{  22,    9,  864,  516, 1408,  806 }, /* 640x480 */
+	{   8,    5, 1056,  655, 1408,  806 }, /* 800x600 */
+	{   0,    0,    0,    0,    0,    0 }, /* 1024x768 */
+	{   0,    0,    0,    0,    0,    0 }, /* 1280x1024 */
 	{   0,    0,    0,    0,    0,    0 },
 	{   0,    0,    0,    0,    0,    0 },
-	{   0,    0,    0,    0,    0,    0 },
-	{   0,    0,    0,    0,    0,    0 },
-	{   1,    1, 1344,  806, 1344,  806 }  /* 1280x720 */
+	{   1,    1, 1408,  806, 1408,  806 }  /* 1280x720 */
 };
 
 /* About 1280x768: For TMDS, Panel_1280x768 will only be set if
@@ -954,7 +966,7 @@ static const SiS_LCDDataStruct  SiS_LCD1280x720Data[] =
  * For LVDS, we know two types. Data follows:
  */
 
-static const SiS_LCDDataStruct  SiS_StLCD1280x768_2Data[] =
+static const SiS_LCDDataStruct  SiS_StLCD1280x768_2Data[] = /* 2.03.00 */
 {
 	{  64,   21,  858,  434, 1408,  806 }, /* 640x400 */
 	{  32,    9,  858,  372, 1408,  806 },
@@ -964,22 +976,27 @@ static const SiS_LCDDataStruct  SiS_StLCD1280x768_2Data[] =
 	{  64,   51, 1364,  663, 1408,  806 }, /* 800x600 */
 	{  88,   81, 1296,  806, 1408,  806 }, /* 1024x768 */
 	{   0,    0,    0,    0,    0,    0 },
-	{   1,    1, 1408,  806, 1408,  806 }  /* 1280x768 */
-};
-
-static const SiS_LCDDataStruct  SiS_ExtLCD1280x768_2Data[] =
-{
-	{  64,   25, 1056,  422, 1408,  806 }, /*, 664 */
-	{ 128,   39,  884,  396, 1408,  806 }, /*, 640 */
-	{  64,   25, 1056,  422, 1408,  806 }, /*, 664 */
-	{ 128,   39,  884,  396, 1408,  806 }, /*, 640 */
-	{  32,   15, 1056,  513, 1408,  806 }, /*, 664 */
-	{ 176,  125, 1280,  640, 1408,  806 }, /*, 768 */
-	{  88,   81, 1296,  806, 1408,  806 },
+	{   1,    1, 1408,  806, 1408,  806 }, /* 1280x768 */
 	{   0,    0,    0,    0,    0,    0 },
-	{   1,    1, 1408,  806, 1408,  806 }
+	{  16,   15, 1600,  750, 1600,  806 }  /* 1280x720 - from Ext */
 };
 
+static const SiS_LCDDataStruct  SiS_ExtLCD1280x768_2Data[] = /* 2.03.00 */
+{
+	{  16,    5,  960,  410, 1600,  806 }, /* 640x400 */
+	{  64,   21, 1152,  364, 1600,  806 },
+	{  16,    5,  960,  410, 1600,  806 }, 
+	{  64,   21, 1152,  364, 1600,  806 },
+	{  32,   13, 1040,  493, 1600,  806 }, /* 640x480 */
+	{  16,    9, 1152,  618, 1600,  806 }, /* 800x600 */
+	{  25,   21, 1344,  796, 1600,  806 }, /* 1024x768 */
+	{   0,    0,    0,    0,    0,    0 },
+	{   1,    1, 1600,  806, 1600,  806 }, /* 1280x768 */
+	{   0,    0,    0,    0,    0,    0 },
+	{  16,   15, 1600,  750, 1600,  806 }  /* 1280x720 */
+};
+
+#if 0
 static const SiS_LCDDataStruct  SiS_LCD1280x768_3Data[] =
 {
 	{  64,   25, 1056,  422, 1664,  798 },			/* 640x400 */
@@ -990,20 +1007,40 @@ static const SiS_LCDDataStruct  SiS_LCD1280x768_3Data[] =
 	{ 176,  125, 1280,  640, 1408,  806 }, /* ,768 */	/* 800x600 */
 	{  64,   61, 1342,  806, 1408,  806 },			/* 1024x768 */
 	{   0,    0,    0,    0,    0,    0 },
-	{   1,    1, 1408,  806, 1408,  806 }			/* 1280x768 */
+	{   1,    1, 1408,  806, 1408,  806 },			/* 1280x768 */
+	{   0,    0,    0,    0,    0,    0 },
+	{  16,   15, 1600,  750, 1600,  806 }  /* 1280x720  from above */
+};
+#endif
+
+static const SiS_LCDDataStruct  SiS_LCD1280x800Data[] = /* 0.93.12a (TMDS) */
+{
+	{ 128,   51, 1122,  412, 1408,  816 },  /* 640x400 */
+	{ 128,   49, 1232,  361, 1408,  816 },  
+	{ 128,   51, 1122,  412, 1408,  816 }, 
+	{ 128,   49, 1232,  361, 1408,  816 },  
+	{   8,    3,  880,  491, 1408,  816 },  /* 640x480 */
+	{  11,    6, 1024,  612, 1408,  816 },  /* 800x600 */
+	{  22,   21, 1400,  784, 1408,  816 },  /* 1024x768 */
+	{   0,    0,    0,    0,    0,    0 },  /* 1280x1024 */
+	{   1,    1, 1408,  816, 1408,  816 },  /* 1280x800 */
+	{   0,    0,    0,    0,    0,    0 },  /* 1280x768 (patch index) */
+	{   0,    0,    0,    0,    0,    0 }   /* 1280x720 */
 };
 
-static const SiS_LCDDataStruct  SiS_LCD1280x800Data[] =
+static const SiS_LCDDataStruct  SiS_LCD1280x800_2Data[] = /* 2.03.00 (LVDS) */
 {
-	{ 128,   51, 1122,  412, 1408,  816 }, /* 640x400 */
-	{ 128,   49, 1232,  361, 1408,  816 },
-	{ 128,   51, 1122,  412, 1408,  816 },
-	{ 128,   49, 1232,  361, 1408,  816 },
-	{   8,    3,  880,  491, 1408,  816 }, /* 640x480 */
-	{  11,    6, 1024,  612, 1408,  816 }, /* 800x600 */
-	{  22,   21, 1400,  784, 1408,  816 }, /* 1024x768 */
-	{   0,    0,    0,    0,    0,    0 },
-	{   1,    1, 1408,  816, 1408,  816 }  /* 1280x800 */
+	{  97,   42, 1344,  409, 1552,  812 }, /* 640x400 */
+	{  97,   35, 1280,  358, 1552,  812 }, 
+	{  97,   42, 1344,  409, 1552,  812 }, 
+	{  97,   35, 1280,  358, 1552,  812 }, 
+	{  97,   39, 1040,  488, 1552,  812 }, /* 640x480 */
+	{ 194,  105, 1120,  608, 1552,  812 }, /* 800x600 */
+	{  97,   84, 1400,  780, 1552,  812 }, /* 1024x768 */
+	{   0,    0,    0,    0,    0,    0 }, /* 1280x1024 */
+	{   1,    1, 1552,  812, 1552,  812 }, /* 1280x800 */
+	{  97,   96, 1600,  780, 1552,  812 }, /* 1280x768 - patch index */
+	{  97,   90, 1600,  730, 1552,  812 }  /* 1280x720 */
 };
 
 static const SiS_LCDDataStruct  SiS_LCD1280x960Data[] =
@@ -1034,15 +1071,20 @@ static const SiS_LCDDataStruct  SiS_StLCD1400x1050Data[] =
 
 static const SiS_LCDDataStruct  SiS_ExtLCD1400x1050Data[] =
 {
-	{ 211,  100, 2100,  408, 1688, 1066 }, /* 640x400 */
+/*	{ 211,   60, 1260,  410, 1688, 1066 },    640x400 (6330) */
+	{ 211,  100, 2100,  408, 1688, 1066 }, /* 640x400 (6325) WORKS */
 	{ 211,   64, 1536,  358, 1688, 1066 },
 	{ 211,  100, 2100,  408, 1688, 1066 },
 	{ 211,   64, 1536,  358, 1688, 1066 },
-	{ 211,   48,  840,  488, 1688, 1066 }, /* 640x480 */
-	{ 211,   72, 1008,  609, 1688, 1066 }, /* 800x600 */
-	{ 211,  128, 1400,  776, 1688, 1066 },
-	{ 211,  205, 1680, 1041, 1688, 1066 },
-	{   1,    1, 1688, 1066, 1688, 1066 }
+/*	{ 211,   80, 1400,  490, 1688, 1066 },    640x480 (6330) */
+	{ 211,   48,  840,  488, 1688, 1066 }, /* 640x480 (6325) WORKS */
+/*	{ 211,  117, 1638,  613, 1688, 1066 },    800x600 (6330) */
+	{ 211,   72, 1008,  609, 1688, 1066 }, /* 800x600 (6325) WORKS */
+	{ 211,  128, 1400,  776, 1688, 1066 }, /* 1024x768 */
+	{ 211,  205, 1680, 1041, 1688, 1066 }, /* 1280x1024 - not used (always unscaled) */
+	{   1,    1, 1688, 1066, 1688, 1066 }, /* 1400x1050 */
+	{   0,    0,    0,    0,    0,    0 }, /* kludge */
+	{ 211,  120, 1400,  730, 1688, 1066 }  /* 1280x720 */
 };
 
 static const SiS_LCDDataStruct  SiS_LCD1680x1050Data[] =
@@ -1056,9 +1098,9 @@ static const SiS_LCDDataStruct  SiS_LCD1680x1050Data[] =
 	{  95,   64, 1750,  784, 1900, 1066 }, /*  6 1024x768 */
 	{  95,   94, 1900, 1055, 1900, 1066 }, /*  7 1280x1024 */
 	{  41,   31, 1900,  806, 1900, 1066 }, /*  8 1280x768 */
-	{  95,   69, 1800,  817, 1900, 1066 }, /*  9 1280x800 patch */
+	{  95,   69, 1800,  817, 1900, 1066 }, /*  9 1280x800 patch index */
 	{  13,    9, 1900,  739, 1900, 1066 }, /* 10 1280x720 */
-	{  95,   94, 1880, 1066, 1900, 1066 }, /* 11 1400x1050 patch */
+	{  95,   94, 1880, 1066, 1900, 1066 }, /* 11 1400x1050 patch index */
 	{   1,    1, 1900, 1066, 1900, 1066 }  /* 12 1680x1050 */
 };
 
@@ -1072,21 +1114,23 @@ static const SiS_LCDDataStruct  SiS_StLCD1600x1200Data[] =
 	{ 4,  1,1080, 625, 2160, 1250 },
 	{ 5,  2,1350, 800, 2160, 1250 },
 	{135,88,1600,1100, 2160, 1250 },
-	{135,88,1600,1100, 2160, 1250 },
+	{72, 49,1680,1092, 2160, 1250 }, 
 	{ 1,  1,2160,1250, 2160, 1250 }
 };
 
 static const SiS_LCDDataStruct  SiS_ExtLCD1600x1200Data[] =
 {
-	{27, 4, 800, 500, 2160, 1250 },
+	{72,11, 990, 422, 2160, 1250 }, /* 640x400 (6330) WORKS */
+/*	{27, 4, 800, 500, 2160, 1250 },    640x400 (6235) */
 	{27, 4, 800, 500, 2160, 1250 },
 	{ 6, 1, 900, 500, 2160, 1250 },
 	{ 6, 1, 900, 500, 2160, 1250 },
-	{27, 1, 800, 500, 2160, 1250 },
+	{45, 8, 960, 505, 2160, 1250 }, /* 640x480 (6330) WORKS */
+/*	{27, 1, 800, 500, 2160, 1250 },    640x480 (6325) */
 	{ 4, 1,1080, 625, 2160, 1250 },
 	{ 5, 2,1350, 800, 2160, 1250 },
-	{27,16,1500,1064, 2160, 1250 },
-	{27,16,1500,1064, 2160, 1250 },
+	{27,16,1500,1064, 2160, 1250 }, /* 1280x1024 */
+	{72,49,1680,1092, 2160, 1250 }, /* 1400x1050 (6330, was not supported on 6325) */
 	{ 1, 1,2160,1250, 2160, 1250 }
 };
 
@@ -1104,15 +1148,26 @@ static const SiS_LCDDataStruct  SiS_NoScaleData[] =
         { 1, 1,2160,1250,2160,1250 },  /* 0x09: 1600x1200 */
 	{ 1, 1,1800,1000,1800,1000 },  /* 0x0a: 1280x960  */
 	{ 1, 1,1688,1066,1688,1066 },  /* 0x0b: 1400x1050 */
-	{ 1, 1,1650, 750,1650, 750 },  /* 0x0c: 1280x720 (TMDS)  */
-	{ 1, 1,1408, 816,1408, 816 },  /* 0x0d: 1280x800  */
+	{ 1, 1,1650, 750,1650, 750 },  /* 0x0c: 1280x720 (TMDS, projector)  */
+	{ 1, 1,1552, 812,1552, 812 },  /* 0x0d: 1280x800_2 (LVDS) (was: 1408,816/ 1656,841) */
 	{ 1, 1,1900,1066,1900,1066 },  /* 0x0e: 1680x1050 (LVDS) */
-	{ 1, 1,1408, 806,1408, 806 },  /* 0x0f: 1280x768_2 */
-	{ 1, 1,1664, 798,1664, 798 },  /* 0x10: 1280x768_3 */
-	{ 1, 1,1688, 802,1688, 802 },  /* 0x11: 1280x768: Std, TMDS only */
-	{ 1, 1,1344, 806,1344, 806 }   /* 0x12: 1280x720 (LVDS)  */
+	{ 1, 1,1660, 806,1660, 806 },  /* 0x0f: 1280x768_2 (LVDS) */
+	{ 1, 1,1664, 798,1664, 798 },  /* 0x10: 1280x768_3 (LVDS) - temp */
+	{ 1, 1,1688, 802,1688, 802 },  /* 0x11: 1280x768   (TMDS) */
+	{ 1, 1,1408, 806,1408, 806 },  /* 0x12: 1280x720 (LVDS) */
+	{ 1, 1, 896, 497, 896, 497 },  /* 0x13: 720x480 */
+	{ 1, 1, 912, 597, 912, 597 },  /* 0x14: 720x576 */
+	{ 1, 1, 912, 597, 912, 597 },  /* 0x15: 768x576 */
+	{ 1, 1,1056, 497,1056, 497 },  /* 0x16: 848x480 */
+	{ 1, 1,1064, 497,1064, 497 },  /* 0x17: 856x480 */
+	{ 1, 1,1056, 497,1056, 497 },  /* 0x18: 800x480 */
+	{ 1, 1,1328, 739,1328, 739 },  /* 0x19: 1024x576 */
+	{ 1, 1,1680, 892,1680, 892 },  /* 0x1a: 1152x864 */
+	{ 1, 1,1808, 808,1808, 808 },  /* 0x1b: 1360x768 */
+	{ 1, 1,1104, 563,1104, 563 },  /* 0x1c: 960x540 */
+	{ 1, 1,1120, 618,1120, 618 },  /* 0x1d: 960x600 */
+	{ 1, 1,1408, 816,1408, 816 }   /* 0x1f: 1280x800 (TMDS special) */
 };
-
 
 /**************************************************************/
 /* LVDS ----------------------------------------------------- */
@@ -1154,7 +1209,6 @@ static const SiS_LVDSDataStruct  SiS_LVDS640x480Data_2[]=
 	{ 800, 525, 800, 525}    /* pseudo */
 };
 
-
 static const SiS_LVDSDataStruct  SiS_LVDS800x600Data_1[]=
 {
 	{ 848, 433,1060, 629},
@@ -1168,12 +1222,6 @@ static const SiS_LVDSDataStruct  SiS_LVDS800x600Data_1[]=
 
 static const SiS_LVDSDataStruct  SiS_LVDS800x600Data_2[]=
 {
-	{1056, 628,1056, 628},
-	{1056, 628,1056, 628},
-	{1056, 628,1056, 628},
-	{1056, 628,1056, 628},
-	{1056, 628,1056, 628},
-	{1056, 628,1056, 628},
 	{1056, 628,1056, 628}
 };
 
@@ -1190,13 +1238,7 @@ static const SiS_LVDSDataStruct  SiS_LVDS1024x768Data_1[]=
 
 static const SiS_LVDSDataStruct  SiS_LVDS1024x768Data_2[]=
 {
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
+	{1344, 806,1344, 806}
 };
 
 static const SiS_LVDSDataStruct  SiS_LVDS1280x1024Data_1[]=
@@ -1213,13 +1255,6 @@ static const SiS_LVDSDataStruct  SiS_LVDS1280x1024Data_1[]=
 
 static const SiS_LVDSDataStruct  SiS_LVDS1280x1024Data_2[]=
 {
-	{1688,1066,1688,1066},
-	{1688,1066,1688,1066},
-	{1688,1066,1688,1066},
-	{1688,1066,1688,1066},
-	{1688,1066,1688,1066},
-	{1688,1066,1688,1066},
-	{1688,1066,1688,1066},
 	{1688,1066,1688,1066}
 };
 
@@ -1238,15 +1273,7 @@ static const SiS_LVDSDataStruct  SiS_LVDS1400x1050Data_1[]=
 
 static const SiS_LVDSDataStruct  SiS_LVDS1400x1050Data_2[]=
 {
-        {1688,1066, 1688,1066},
-	{1688,1066, 1688,1066},
-	{1688,1066, 1688,1066},
-	{1688,1066, 1688,1066},
-	{1688,1066, 1688,1066},
-	{1688,1066, 1688,1066},
-	{1688,1066, 1688,1066},
-	{1688,1066, 1688,1066},
-	{1688,1066, 1688,1066},
+        {1688,1066, 1688,1066}
 };
 
 static const SiS_LVDSDataStruct  SiS_LVDS1600x1200Data_1[]=
@@ -1261,32 +1288,11 @@ static const SiS_LVDSDataStruct  SiS_LVDS1600x1200Data_1[]=
 	{1728,1144, 2048,1320},
 	{1848,1170, 2048,1320},
 	{2048,1320, 2048,1320}
-#if 0
-        {1088, 450, 2048,1250},
-	{1088, 400, 2048,1250},
-	{1088, 450, 2048,1250},
-	{1088, 400, 2048,1250},
-	{1088, 530, 2048,1250},
-	{1248, 650, 2048,1250},
-	{1472, 818, 2048,1250},
-	{1728,1066, 2048,1250},
-	{1848,1066, 2048,1250},
-	{2048,1250, 2048,1250}
-#endif
 };
 
 static const SiS_LVDSDataStruct  SiS_LVDS1600x1200Data_2[]=
 {
-        {2048,1320, 2048,1320},
-	{2048,1320, 2048,1320},
-	{2048,1320, 2048,1320},
-	{2048,1320, 2048,1320},
-	{2048,1320, 2048,1320},
-	{2048,1320, 2048,1320},
-	{2048,1320, 2048,1320},
-	{2048,1320, 2048,1320},
-	{2048,1320, 2048,1320},
-	{2048,1320, 2048,1320}
+        {2048,1320, 2048,1320}
 };
 
 static const SiS_LVDSDataStruct  SiS_LVDS1280x960Data_1[]=
@@ -1304,15 +1310,7 @@ static const SiS_LVDSDataStruct  SiS_LVDS1280x960Data_1[]=
 
 static const SiS_LVDSDataStruct  SiS_LVDS1280x960Data_2[]=
 {
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{ 800, 449,1280, 801},
-	{ 800, 525,1280, 813}
+	{1344, 806,1344, 806}
 };
 
 static const SiS_LVDSDataStruct  SiS_LVDS1280x768Data_1[]=
@@ -1330,14 +1328,6 @@ static const SiS_LVDSDataStruct  SiS_LVDS1280x768Data_1[]=
 
 static const SiS_LVDSDataStruct  SiS_LVDS1280x768Data_2[]=
 {
-	{1408, 806, 1408, 806},
-	{1408, 806, 1408, 806},
-	{1408, 806, 1408, 806},
-	{1408, 806, 1408, 806},
-	{1408, 806, 1408, 806},
-	{1408, 806, 1408, 806},
-	{1408, 806, 1408, 806},
-	{1408, 806, 1408, 806},
 	{1408, 806, 1408, 806}
 };
 
@@ -1354,12 +1344,6 @@ static const SiS_LVDSDataStruct  SiS_LVDS1024x600Data_1[] =
 
 static const SiS_LVDSDataStruct  SiS_LVDS1024x600Data_2[] =
 {
-	{1344, 800,1344, 800},
-	{1344, 800,1344, 800},
-	{1344, 800,1344, 800},
-	{1344, 800,1344, 800},
-	{1344, 800,1344, 800},
-	{1344, 800,1344, 800},
 	{1344, 800,1344, 800}
 };
 
@@ -1376,12 +1360,6 @@ static const SiS_LVDSDataStruct  SiS_LVDS1152x768Data_1[] =
 
 static const SiS_LVDSDataStruct  SiS_LVDS1152x768Data_2[] =
 {
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
 	{1344, 806,1344, 806}
 };
 
@@ -1392,12 +1370,11 @@ static const SiS_LVDSDataStruct  SiS_LVDSXXXxXXXData_1[]=
 	{ 800, 449,  800, 449},
 	{ 900, 449,  900, 449},
 	{ 900, 449,  900, 449},
-	{ 800, 525,  800, 525},  /*  640x480   */
-	{1056, 628, 1056, 628},  /*  800x600   */
-	{1344, 806, 1344, 806},  /* 1024x768   */
-	{1688,1066, 1688,1066},  /* 1280x1024  */  /* INSERTED ! */
- 	{1688, 806, 1688, 806},  /* 1280x768   */
-	/* No other panels ! */
+	{ 800, 525,  800, 525},  /*  640x480  */
+	{1056, 628, 1056, 628},  /*  800x600  */
+	{1344, 806, 1344, 806},  /* 1024x768  */
+	{1688,1066, 1688,1066},  /* 1280x1024 */  /* INSERTED */
+ 	{1688, 806, 1688, 806},  /* 1280x768  */
 };
 
 /* Custom data for Barco iQ R series */
@@ -1443,13 +1420,7 @@ static const SiS_LVDSDataStruct  SiS_LVDSBARCO1024Data_1[]=
 /* Custom data for Barco iQ G series */
 static const SiS_LVDSDataStruct  SiS_LVDSBARCO1024Data_2[]=
 {
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
-	{1344, 806,1344, 806},
+	{1344, 806,1344, 806}
 };
 
 /* Custom data for 848x480 parallel panel */
@@ -1536,10 +1507,10 @@ static const SiS_LVDSDesStruct  SiS_CHTVONTSCDesData[]=
 
 static const SiS_LVDSDesStruct  SiS_CHTVUPALDesData[]=
 {
-	{256,   0},
-	{256,   0},
-	{256,   0},
-	{256,   0},
+	{256,  0},
+	{256,  0},
+	{256,  0},
+	{256,  0},
 	{ 0,   0},
 	{ 0,   0},
 	{ 0,   0}
@@ -1547,10 +1518,10 @@ static const SiS_LVDSDesStruct  SiS_CHTVUPALDesData[]=
 
 static const SiS_LVDSDesStruct  SiS_CHTVOPALDesData[]=
 {
-	{256,   0},
-	{256,   0},
-	{256,   0},
-	{256,   0},
+	{256,  0},
+	{256,  0},
+	{256,  0},
+	{256,  0},
 	{ 0,   0},
 	{ 0,   0},
 	{ 0,   0}
@@ -2074,6 +2045,7 @@ typedef struct _SiS_PlasmaTables
    USHORT product[5];
    const char *DDCnames[5];
    const char *plasmaname;
+   USHORT maxx,maxy;
    UCHAR  modenum;
    UCHAR  plasmamodes[20];  /* | 0x80 = DVI-capable, | 0x40 = analog */
 } SiS_PlasmaTables;
@@ -2192,6 +2164,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "NEC PlasmaSync 42VP4/42VP4D/42VP4G/42VP4DG",
+     0, 0,
      11,   /* All DVI, except 0, 7, 13 */
      { 0|0x40, 1|0xc0, 2|0xc0, 4|0xc0, 7|0x40, 9|0xc0,10|0xc0,11|0xc0,13|0x40,14|0xc0,
       17|0xc0, 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2202,6 +2175,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "NEC PlasmaSync 42PD1/50PD1/50PD2",
+     0, 0,
      5,   /* DVI entirely unknown */
      { 0|0x40, 1|0xc0, 2|0xc0, 4|0xc0, 9|0xc0, 0     , 0     , 0     , 0     , 0     ,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2210,6 +2184,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "NEC PlasmaSync 42PD3",
+     0, 0,
      10,   /* DVI entirely unknown */
      { 0|0x40, 1|0xc0, 2|0xc0, 3|0xc0, 4|0xc0, 5|0xc0, 6|0xc0, 7|0x40, 8|0xc0, 9|0xc0,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2218,6 +2193,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "NEC PlasmaSync 42VM3/61XM1",
+     0, 0,
      11,  /* DVI entirely unknown */
      { 0|0x40, 1|0xc0, 2|0xc0, 3|0xc0, 4|0xc0, 5|0xc0, 6|0xc0, 8|0xc0, 9|0xc0,11|0xc0,
       17|0xc0, 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2226,6 +2202,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "NEC PlasmaSync 42MP1/42MP2",
+     0, 0,
      6,   /* DVI entirely unknown */
      { 0|0x40, 1|0xc0, 2|0xc0, 4|0xc0, 9|0xc0,11|0xc0, 0     , 0     , 0     , 0     ,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2234,6 +2211,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "NEC PlasmaSync 50MP1",
+     0, 0,
      10,   /* DVI entirely unknown */
      { 0|0x40, 1|0xc0, 2|0xc0, 4|0xc0, 7|0x40, 9|0xc0,10|0xc0,11|0xc0,13|0x40,14|0xc0,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2243,6 +2221,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0xa482, 0xa483, 0x0000, 0x0000, 0x0000 },
      { "PX-42VM", "", "", "", "" },
      "NEC PlasmaSync 42MP3/42MP4/50MP2/61MP1",
+     0, 0,
      11,   /* All DVI except 0, 7, 13, 17 */
      { 0|0x40, 1|0xc0, 2|0xc0, 4|0xc0, 7|0x40, 9|0xc0,10|0xc0,11|0xc0,13|0x40,14|0xc0,
       17|0x40, 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2252,6 +2231,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "NEC PlasmaSync 3300W",
+     0, 0,
      3,
      { 0|0x40, 1|0xc0,18|0xc0, 0     , 0     , 0     , 0     , 0     , 0     , 0     ,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2268,6 +2248,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "NEC PlasmaSync 4210W",
+     0, 0,
      6,   /* DVI entirely unknown */
      { 0|0x40, 1|0xc0, 2|0xc0, 4|0xc0, 9|0xc0,11|0xc0, 0     , 0     , 0     , 0     ,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2285,6 +2266,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0x000c, 0x000b, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "Pioneer 503CMX/PDA-5002",
+     0, 0,
      6,   /* DVI unknown */
      { 1|0xc0, 2|0xc0, 9|0xc0,11|0xc0,12|0xc0,15|0xc0, 0     , 0     , 0     , 0     ,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2293,6 +2275,7 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0xa00e, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "", "", "", "", "" },
      "Panasonic TH-42",
+     0, 0,
      5,   /* No DVI output */
      { 1|0x40, 2|0x40, 4|0x40, 9|0x40,15|0x40, 0     , 0     , 0     , 0     , 0     ,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
@@ -2301,8 +2284,18 @@ static const SiS_PlasmaTables SiS_PlasmaTable[] = {
      { 0xa005, 0x0000, 0x0000, 0x0000, 0x0000 },
      { "TH-42PW*4", "", "", "", "" },
      "Panasonic TH-42PW5",
+     0, 0,
      1,   /* No special modes otherwise; no DVI. */
      {20|0x40,19|0x40, 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     ,
+       0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
+   },
+   { 0x4c2e, 1,
+     { 0x9b05, 0x0000, 0x0000, 0x0000, 0x0000 },
+     { "PLV-Z2", "", "", "", "" },
+     "Sanyo PLV-Z2 (non HDCP-mode)", 	/* HDCP mode would be id 9b06, but not needed */
+     1280, 768,				/* as it then advertises correct size */
+     1,   /* 1280x720, no special modes otherwise */
+     { 6|0xc0, 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     ,
        0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0     , 0       }
    },
    { 0x0000 }
@@ -2351,9 +2344,12 @@ BOOLEAN	SiSBIOSSetModeCRT2(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo, ScrnInfoPtr
 BOOLEAN	SiSBIOSSetModeCRT1(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo, ScrnInfoPtr pScrn,
                DisplayModePtr mode, BOOLEAN IsCustom);
 int	SiSTranslateToVESA(ScrnInfoPtr pScrn, int modenumber);
+int	SiSTranslateToOldMode(int modenumber);
 BOOLEAN	SiS_GetPanelID(SiS_Private *SiS_Pr, PSIS_HW_INFO);
 USHORT 	SiS_CheckBuildCustomMode(ScrnInfoPtr pScrn, DisplayModePtr mode, int VBFlags);
 DisplayModePtr SiSBuildBuiltInModeList(ScrnInfoPtr pScrn, BOOLEAN includelcdmodes, BOOLEAN isfordvi);
+int 	SiS_FindPanelFromDB(SISPtr pSiS, USHORT panelvendor, USHORT panelproduct, int *maxx, int *maxy);
+void    SiS_MakeClockRegs(ScrnInfoPtr pScrn, int clock, UCHAR *p2b, UCHAR *p2c);
 #else
 BOOLEAN	SiSSetMode(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo,USHORT ModeNo);
 #endif
@@ -2362,10 +2358,7 @@ int    sisfb_mode_rate_to_dclock(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo,
 			      unsigned char modeno, unsigned char rateindex);
 int    sisfb_mode_rate_to_ddata(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo,
 			 unsigned char modeno, unsigned char rateindex,
-			 ULONG *left_margin, ULONG *right_margin,
-			 ULONG *upper_margin, ULONG *lower_margin,
-			 ULONG *hsync_len, ULONG *vsync_len,
-			 ULONG *sync, ULONG *vmode);
+			 struct fb_var_screeninfo *var);
 BOOLEAN sisfb_gettotalfrommode(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo,
 		       unsigned char modeno, int *htotal, int *vtotal, unsigned char rateindex);
 #endif
@@ -2397,8 +2390,7 @@ extern void 	SiSCalcClock(ScrnInfoPtr pScrn, int clock, int max_VLD, unsigned in
 
 extern unsigned char SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, USHORT offset, unsigned char value);
 extern unsigned char SiS_GetSetModeID(ScrnInfoPtr pScrn, unsigned char id);
-extern USHORT 	     SiS_CalcModeIndex(ScrnInfoPtr pScrn, DisplayModePtr mode, unsigned long VBFlags,
-					BOOLEAN hcm);
+extern USHORT 	     SiS_GetModeNumber(ScrnInfoPtr pScrn, DisplayModePtr mode, unsigned long VBFlags);
 #endif
 
 #endif

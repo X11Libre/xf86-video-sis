@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_accel.c,v 1.5 2004/08/04 15:46:33 twini Exp $ */
 /*
  * 2D acceleration for SiS5597/5598 and 6326
  *
@@ -92,6 +93,9 @@ static void SiSSubsequentScanlineCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
                                 int skipleft);
 static void SiSSubsequentColorExpandScanline(ScrnInfoPtr pScrn, int bufno);
 #endif
+
+extern unsigned char SiSGetCopyROP(int rop);
+extern unsigned char SiSGetPatternROP(int rop);
 
 Bool
 SiSAccelInit(ScreenPtr pScreen)
@@ -271,7 +275,7 @@ SiSSetupForScreenToScreenCopy(ScrnInfoPtr pScrn, int xdir, int ydir,
     sisBLTSync;
     sisSETPITCH(pSiS->scrnOffset, pSiS->scrnOffset);
 
-    sisSETROP(XAACopyROP[rop]);
+    sisSETROP(SiSGetCopyROP(rop));
     pSiS->Xdirection = xdir;
     pSiS->Ydirection = ydir;
 }
@@ -328,8 +332,8 @@ SiSSetupForFillRectSolid(ScrnInfoPtr pScrn, int color, int rop,
     SISPtr pSiS = SISPTR(pScrn);
 
     sisBLTSync;
-    sisSETBGROPCOL(XAACopyROP[rop], color);
-    sisSETFGROPCOL(XAACopyROP[rop], color);
+    sisSETBGROPCOL(SiSGetCopyROP(rop), color);
+    sisSETFGROPCOL(SiSGetCopyROP(rop), color);
     sisSETPITCH(pSiS->scrnOffset, pSiS->scrnOffset);
 }
 
@@ -435,8 +439,8 @@ static void SiSSetupForSolidLine(ScrnInfoPtr pScrn,
     SISPtr pSiS = SISPTR(pScrn);
 
     sisBLTSync;
-    sisSETBGROPCOL(XAACopyROP[rop], 0);
-    sisSETFGROPCOL(XAACopyROP[rop], color);
+    sisSETBGROPCOL(SiSGetCopyROP(rop), 0);
+    sisSETFGROPCOL(SiSGetCopyROP(rop), color);
 }
 
 static void SiSSubsequentSolidTwoPointLine(ScrnInfoPtr pScrn,
@@ -538,11 +542,11 @@ SiSSetupForScanlineCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
         sisSETROPBG(0xAA);             /* dst = dst (=noop) */
 	pSiS->CommandReg |= sisSRCFG;
     } else {
-        sisSETBGROPCOL(XAAPatternROP[rop], bg);
+        sisSETBGROPCOL(SiSGetPatternROP(rop), bg);
 	pSiS->CommandReg |= sisSRCFG | sisPATBG;
     }
 
-    sisSETFGROPCOL(XAACopyROP[rop], fg);
+    sisSETFGROPCOL(SiSGetCopyROP(rop), fg);
 
     sisSETDSTPITCH(pSiS->scrnOffset);
 }

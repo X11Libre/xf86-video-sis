@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis6326_video.c,v 1.6 2004/08/14 15:35:49 twini Exp $ */
 /*
  * Xv driver for SiS 5597/5598, 6236 and 530/620.
  *
@@ -15,7 +16,7 @@
  * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -45,7 +46,6 @@
 #include "xf86xv.h"
 #include "Xv.h"
 #include "xaa.h"
-#include "xaalocal.h"
 #include "dixstruct.h"
 #include "fourcc.h"
 
@@ -528,6 +528,13 @@ SIS6326SetupImageVideo(ScreenPtr pScreen)
     XF86VideoAdaptorPtr adapt;
     SISPortPrivPtr pPriv;
 
+#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
+    XAAInfoRecPtr pXAA = pSiS->AccelInfoPtr;
+
+    if (!pXAA || !pXAA->FillSolidRects)
+	return NULL;
+#endif
+
     if(!(adapt = xcalloc(1, sizeof(XF86VideoAdaptorRec) +
                             sizeof(SISPortPrivRec) +
                             sizeof(DevUnion))))
@@ -599,7 +606,7 @@ SIS6326SetupImageVideo(ScreenPtr pScreen)
     return adapt;
 }
 
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,0,0)
+#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,3,0)
 static Bool
 RegionsEqual(RegionPtr A, RegionPtr B)
 {
@@ -1205,7 +1212,7 @@ static FBLinearPtr
 SIS6326AllocateOverlayMemory(
   ScrnInfoPtr pScrn,
   FBLinearPtr linear,
-  int size
+  int size	/* in pixels */
 ){
    ScreenPtr pScreen;
    FBLinearPtr new_linear;
@@ -1239,7 +1246,7 @@ SIS6326AllocateOverlayMemory(
    }
    if (!new_linear)
         xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-	           "Xv: Failed to allocate %dK of video memory\n", size/1024);
+	           "Xv: Failed to allocate %d pixels of linear video memory\n", size/1024);
 
    return new_linear;
 }
@@ -1268,17 +1275,17 @@ SIS6326StopVideo(ScrnInfoPtr pScrn, pointer data, Bool shutdown)
 
   if(shutdown) {
      if(pPriv->videoStatus & CLIENT_VIDEO_ON) {
-       close_overlay(pSiS, pPriv);
-       pPriv->mustwait = 1;
+        close_overlay(pSiS, pPriv);
+        pPriv->mustwait = 1;
      }
      SIS6326FreeOverlayMemory(pScrn);
      pPriv->videoStatus = 0;
      pSiS->VideoTimerCallback = NULL;
   } else {
      if(pPriv->videoStatus & CLIENT_VIDEO_ON) {
-       pPriv->videoStatus = OFF_TIMER | CLIENT_VIDEO_ON;
-       pPriv->offTime = currentTime.milliseconds + OFF_DELAY;
-       pSiS->VideoTimerCallback = SIS6326VideoTimerCallback;
+        pPriv->videoStatus = OFF_TIMER | CLIENT_VIDEO_ON;
+        pPriv->offTime = currentTime.milliseconds + OFF_DELAY;
+        pSiS->VideoTimerCallback = SIS6326VideoTimerCallback;
      }
   }
 }
@@ -1317,7 +1324,7 @@ SIS6326PutImage(
    pPriv->height = height;
    pPriv->width = width;
 
-   /* TW: Pixel formats:
+   /* Pixel formats:
       1. YU12:  3 planes:       H    V
                Y sample period  1    1   (8 bit per pixel)
 	       V sample period  2    2	 (8 bit per pixel, subsampled)
@@ -1360,14 +1367,14 @@ SIS6326PutImage(
 
    /* make it a multiple of 16 to simplify to copy loop */
    totalSize += 15;
-   totalSize &= ~15;
+   totalSize &= ~15; /* in bytes */
 
    pPriv->totalSize = totalSize;
 
-   /* allocate memory (we do doublebuffering) */
+   /* allocate memory (we do doublebuffering) - size is in pixels */
    if(!(pPriv->linear = SIS6326AllocateOverlayMemory(pScrn, pPriv->linear,
-						 totalSize<<1)))
-	return BadAlloc;
+					((totalSize + depth - 1) / depth) << 1)))
+      return BadAlloc;
 
    /* fixup pointers */
    pPriv->bufAddr[0] = (pPriv->linear->offset * depth);
@@ -1392,7 +1399,7 @@ SIS6326PutImage(
    /* update cliplist */
    if(  pPriv->autopaintColorKey &&
         (pPriv->grabbedByV4L ||
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,0,0)
+#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,3,0)
 	 !RegionsEqual(&pPriv->clip, clipBoxes)) ) {
 #else
          !REGION_EQUAL(pScrn->pScreen, &pPriv->clip, clipBoxes)) ) {
@@ -1401,8 +1408,8 @@ SIS6326PutImage(
      if(!pPriv->grabbedByV4L)
      	REGION_COPY(pScrn->pScreen, &pPriv->clip, clipBoxes);
      /* draw these */
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-     XAAFillSolidRects(pScrn, pPriv->colorKey, GXcopy, ~0,
+#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
+     (*pSiS->AccelInfoPtr->FillSolidRects)(pScrn, pPriv->colorKey, GXcopy, ~0,
                     REGION_NUM_RECTS(clipBoxes),
                     REGION_RECTS(clipBoxes));
 #else
@@ -1490,33 +1497,32 @@ SIS6326VideoTimerCallback (ScrnInfoPtr pScrn, Time now)
 
     if(pSiS->adaptor) {
     	pPriv = GET_PORT_PRIVATE(pScrn);
-	if(!pPriv->videoStatus)
-	   pPriv = NULL;
+	if(!pPriv->videoStatus) pPriv = NULL;
     }
 
     if(pPriv) {
-      if(pPriv->videoStatus & TIMER_MASK) {
-        UpdateCurrentTime();
-	if(pPriv->offTime < currentTime.milliseconds) {
+       if(pPriv->videoStatus & TIMER_MASK) {
           if(pPriv->videoStatus & OFF_TIMER) {
-              /* Turn off the overlay */
-	      sridx = inSISREG(SISSR); cridx = inSISREG(SISCR);
-              close_overlay(pSiS, pPriv);
-	      outSISREG(SISSR, sridx); outSISREG(SISCR, cridx);
-	      pPriv->mustwait = 1;
-              pPriv->videoStatus = FREE_TIMER;
-              pPriv->freeTime = currentTime.milliseconds + FREE_DELAY;
-	      pSiS->VideoTimerCallback = SIS6326VideoTimerCallback;
+	     if(pPriv->offTime < now) {
+                /* Turn off the overlay */
+	        sridx = inSISREG(SISSR); cridx = inSISREG(SISCR);
+                close_overlay(pSiS, pPriv);
+	        outSISREG(SISSR, sridx); outSISREG(SISCR, cridx);
+	        pPriv->mustwait = 1;
+                pPriv->videoStatus = FREE_TIMER;
+                pPriv->freeTime = now + FREE_DELAY;
+	        pSiS->VideoTimerCallback = SIS6326VideoTimerCallback;
+	     }
+          } else if(pPriv->videoStatus & FREE_TIMER) {  
+             if(pPriv->freeTime < now) {
+                SIS6326FreeOverlayMemory(pScrn);
+	        pPriv->mustwait = 1;
+                pPriv->videoStatus = 0;
+             }
           } else
-	  if(pPriv->videoStatus & FREE_TIMER) {  
-              SIS6326FreeOverlayMemory(pScrn);
-	      pPriv->mustwait = 1;
-              pPriv->videoStatus = 0;
-          }
-        } else
-	  pSiS->VideoTimerCallback = SIS6326VideoTimerCallback;
-      }
-   }
+	     pSiS->VideoTimerCallback = SIS6326VideoTimerCallback;
+       }
+    }
 }
 
 /* Offscreen surface stuff for v4l */
@@ -1553,7 +1559,7 @@ SIS6326AllocSurface (
     w = (w + 1) & ~1;
     pPriv->pitch = ((w << 1) + 63) & ~63; /* Only packed pixel modes supported */
     size = h * pPriv->pitch;
-    pPriv->linear = SIS6326AllocateOverlayMemory(pScrn, pPriv->linear, size);
+    pPriv->linear = SIS6326AllocateOverlayMemory(pScrn, pPriv->linear, ((size + depth - 1) / depth));
     if(!pPriv->linear)
     	return BadAlloc;
 
@@ -1661,8 +1667,8 @@ SIS6326DisplaySurface (
    SIS6326DisplayVideo(pScrn, pPriv);
 
    if(pPriv->autopaintColorKey) {
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-   	XAAFillSolidRects(pScrn, pPriv->colorKey, GXcopy, ~0,
+#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
+   	(*XAAPTR(pScrn)->FillSolidRects)(pScrn, pPriv->colorKey, GXcopy, ~0,
                     REGION_NUM_RECTS(clipBoxes),
                     REGION_RECTS(clipBoxes));
 #else

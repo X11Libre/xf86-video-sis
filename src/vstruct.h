@@ -1,4 +1,5 @@
 /* $XFree86$ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vstruct.h,v 1.7 2004/08/20 18:57:06 kem Exp $ */
 /*
  * General structure definitions for universal mode switching modules
  *
@@ -34,7 +35,7 @@
  * * 3) The name of the author may not be used to endorse or promote products
  * *    derived from this software without specific prior written permission.
  * *
- * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
  * * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -168,6 +169,7 @@ typedef struct _SiS_ExtStruct
 	UCHAR  VB_ExtTVYFilterIndex;
 	UCHAR  VB_ExtTVYFilterIndexROM661;
 	UCHAR  REFindex;
+	CHAR   ROMMODEIDX661;
 } SiS_ExtStruct;
 
 typedef struct _SiS_Ext2Struct
@@ -289,6 +291,7 @@ typedef struct _SiS_Private
 #endif
 	BOOLEAN SiS_UseROM;
 	BOOLEAN SiS_ROMNew;
+	BOOLEAN SiS_NeedRomModeData;
 	BOOLEAN PanelSelfDetected;
 	int     SiS_CHOverScan;
 	BOOLEAN SiS_CHSOverScan;
@@ -301,6 +304,7 @@ typedef struct _SiS_Private
 	BOOLEAN HaveEMILCD;
 	BOOLEAN OverruleEMI;
 	UCHAR  EMI_30,EMI_31,EMI_32,EMI_33;
+	USHORT SiS_EMIOffset;
 	SHORT  PDC, PDCA;
 	UCHAR  SiS_MyCR63;
 	USHORT SiS_CRT1Mode;
@@ -417,8 +421,8 @@ typedef struct _SiS_Private
 	const SiS_LCDDataStruct  *SiS_LCD1280x720Data;
 	const SiS_LCDDataStruct  *SiS_StLCD1280x768_2Data;
 	const SiS_LCDDataStruct  *SiS_ExtLCD1280x768_2Data;
-	const SiS_LCDDataStruct  *SiS_LCD1280x768_3Data;
 	const SiS_LCDDataStruct  *SiS_LCD1280x800Data;
+	const SiS_LCDDataStruct  *SiS_LCD1280x800_2Data;
 	const SiS_LCDDataStruct  *SiS_LCD1280x960Data;
 	const SiS_LCDDataStruct  *SiS_ExtLCD1280x1024Data;
 	const SiS_LCDDataStruct  *SiS_St2LCD1280x1024Data;
@@ -660,6 +664,8 @@ typedef struct _SiS_Private
 	BOOLEAN CP_HaveCustomData;
 	int     CP_PreferredX, CP_PreferredY, CP_PreferredIndex;
 	int	CP_MaxX, CP_MaxY, CP_MaxClock;
+	UCHAR   CP_PrefSR2B, CP_PrefSR2C;
+	USHORT  CP_PrefClock;
 	BOOLEAN CP_Supports64048075;
 	int     CP_HDisplay[7], CP_VDisplay[7];	/* For Custom LCD panel dimensions */
     	int     CP_HTotal[7], CP_VTotal[7];
