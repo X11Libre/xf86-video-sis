@@ -1,7 +1,10 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_cursor.h,v 1.5 2003/02/06 13:14:04 eich Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_cursor.h,v 1.11 2003/10/30 18:53:42 twini Exp $ */
 /*
+ * SiS hardware cursor handling
+ * Definitions
+ *
  * Copyright 1998,1999 by Alan Hourihane, Wigan, England.
- * Parts Copyright 2001, 2002 by Thomas Winischhofer, Vienna, Austria.
+ * Copyright 2001, 2002, 2003 by Thomas Winischhofer, Vienna, Austria.
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -227,7 +230,7 @@
   MMIO_OUT32(pSiS->IOBase,CS(8),temp); \
   }
 
-/* 310/325/330 series CRT1 */
+/* 315/330 series CRT1 */
 
 /* 80000000 = RGB(1) - MONO(0)
  * 40000000 = enable(1) - disable(0)
@@ -246,7 +249,7 @@
   temp |= status; \
   MMIO_OUT32(pSiS->IOBase, CS(0), temp); \
   }
-  
+
 #define sis310EnableHWCursor()\
   { \
   unsigned long temp; \
@@ -271,7 +274,7 @@
   temp = MMIO_IN32(pSiS->IOBase, CS(0)); \
   temp &= 0x4fffffff; \
   MMIO_OUT32(pSiS->IOBase, CS(0), temp); \
-  }   
+  }
   
 #define sis310SwitchToRGBCursor() \
   { \
@@ -290,13 +293,15 @@
   MMIO_OUT32(pSiS->IOBase, CS(0), temp); \
   }
   
-#define sis310SetCursorBGColor(color)\
+#define sis310SetCursorBGColor(color) \
   MMIO_OUT32(pSiS->IOBase, CS(1), (color));
+
 #define sis310SetCursorFGColor(color)\
   MMIO_OUT32(pSiS->IOBase, CS(2), (color));
 
 #define sis310SetCursorPositionX(x,preset)\
   MMIO_OUT32(pSiS->IOBase, CS(3), ((x) | ((preset) << 16)));
+
 #define sis310SetCursorPositionY(y,preset)\
   MMIO_OUT32(pSiS->IOBase, CS(4), ((y) | ((preset) << 16)));
 
@@ -318,17 +323,17 @@
   MMIO_OUT32(pSiS->IOBase,CS(0),temp); \
   }
 
-/* 310/325/330 series CRT2 */
+/* 315 series CRT2 */
 
 /* 80000000 = RGB(1) - MONO(0)
  * 40000000 = enable(1) - disable(0)
  * 20000000 = 32(1) / 16(1) bit RGB
  * 10000000 = "ghost"(1) - Alpha Blend(0)  ?
  */
- 
+
 #define sis301GetCursorStatus310 \
   MMIO_IN32(pSiS->IOBase, CS(8)) & 0x40000000;
-  
+
 #define sis301SetCursorStatus310(status) \
   { \
   unsigned long temp; \
@@ -337,32 +342,32 @@
   temp |= status; \
   MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
   }
-  
+
 #define sis301EnableHWCursor310()\
-   { \
-   unsigned long temp, temp1, temp2; \
-   temp1 = MMIO_IN32(pSiS->IOBase, CS(11)); \
-   temp2 = MMIO_IN32(pSiS->IOBase, CS(12)); \
-   temp = MMIO_IN32(pSiS->IOBase, CS(8)); \
-   temp &= 0x0fffffff; \
-   temp |= 0x40000000; \
-   MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
-   MMIO_OUT32(pSiS->IOBase, CS(11), temp1); \
-   MMIO_OUT32(pSiS->IOBase, CS(12), temp2); \
-   }
+  { \
+  unsigned long temp, temp1, temp2; \
+  temp1 = MMIO_IN32(pSiS->IOBase, CS(11)); \
+  temp2 = MMIO_IN32(pSiS->IOBase, CS(12)); \
+  temp = MMIO_IN32(pSiS->IOBase, CS(8)); \
+  temp &= 0x0fffffff; \
+  temp |= 0x40000000; \
+  MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
+  MMIO_OUT32(pSiS->IOBase, CS(11), temp1); \
+  MMIO_OUT32(pSiS->IOBase, CS(12), temp2); \
+  }
 
 #define sis301EnableHWARGBCursor310()\
-   { \
-   unsigned long temp, temp1, temp2; \
-   temp1 = MMIO_IN32(pSiS->IOBase, CS(11)); \
-   temp2 = MMIO_IN32(pSiS->IOBase, CS(12)); \
-   temp = MMIO_IN32(pSiS->IOBase, CS(8)); \
-   temp &= 0x0FFFFFFF; \
-   temp |= 0xE0000000; \
-   MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
-   MMIO_OUT32(pSiS->IOBase, CS(11), temp1); \
-   MMIO_OUT32(pSiS->IOBase, CS(12), temp2); \
-   }
+  { \
+  unsigned long temp, temp1, temp2; \
+  temp1 = MMIO_IN32(pSiS->IOBase, CS(11)); \
+  temp2 = MMIO_IN32(pSiS->IOBase, CS(12)); \
+  temp = MMIO_IN32(pSiS->IOBase, CS(8)); \
+  temp &= 0x0FFFFFFF; \
+  temp |= 0xE0000000; \
+  MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
+  MMIO_OUT32(pSiS->IOBase, CS(11), temp1); \
+  MMIO_OUT32(pSiS->IOBase, CS(12), temp2); \
+  }
 
 #define sis301SwitchToRGBCursor310() \
   { \
@@ -372,7 +377,7 @@
   temp |= 0xA0000000; \
   MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
   }
-  
+
 #define sis301SwitchToMONOCursor310() \
   { \
   unsigned long temp; \
@@ -380,7 +385,7 @@
   temp &= 0x4fffffff; \
   MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
   }
-  
+
 #define sis301DisableHWCursor310()\
   { \
   unsigned long temp; \
@@ -398,7 +403,7 @@
   MMIO_OUT32(pSiS->IOBase, CS(11), ((x) | ((preset) << 16)));
 #define sis301SetCursorPositionY310(y,preset)\
   MMIO_OUT32(pSiS->IOBase, CS(12), ((y) | ((preset) << 16)));
-  
+
 #define sis301SetCursorAddress310(address)\
   { \
   unsigned long temp; \
@@ -424,4 +429,78 @@
   temp |= (pat_id) << 24; \
   MMIO_OUT32(pSiS->IOBase,CS(8),temp); \
   }
+
+/* 330 series CRT2 */
+
+/* Mono cursor engine for CRT2 on SiS330 (Xabre) has bugs
+ * and cannot be used!
+ */
+
+/* 80000000 = RGB(1) - MONO(0)
+ * 40000000 = enable(1) - disable(0)
+ * 20000000 = 32(1) / 16(1) bit RGB
+ * 10000000 = "ghost"(1) - Alpha Blend(0)  ?
+ */
+
+#define sis301EnableHWCursor330()\
+  { \
+  unsigned long temp, temp1, temp2; \
+  andSISIDXREG(SISCR,0x5b,~0x10); \
+  temp1 = MMIO_IN32(pSiS->IOBase, CS(11)); \
+  temp2 = MMIO_IN32(pSiS->IOBase, CS(12)); \
+  temp = MMIO_IN32(pSiS->IOBase, CS(8)); \
+  temp &= 0x0fffffff; \
+  temp |= 0xE0000000; \
+  MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
+  MMIO_OUT32(pSiS->IOBase, CS(11), temp1); \
+  MMIO_OUT32(pSiS->IOBase, CS(12), temp2); \
+  orSISIDXREG(SISCR,0x5b,0x10); \
+  }
+
+#define sis301DisableHWCursor330()\
+  { \
+  unsigned long temp; \
+  andSISIDXREG(SISCR,0x5b,~0x10); \
+  temp = MMIO_IN32(pSiS->IOBase, CS(8)); \
+  temp &= 0xBFFFFFFF; \
+  MMIO_OUT32(pSiS->IOBase, CS(8), temp); \
+  orSISIDXREG(SISCR,0x5b,0x10); \
+  }
+
+#define sis301SetCursorPositionX330(x,preset)\
+  andSISIDXREG(SISCR,0x5b,~0x10); \
+  MMIO_OUT32(pSiS->IOBase, CS(11), ((x) | ((preset) << 16))); \
+  orSISIDXREG(SISCR,0x5b,0x10);
+
+#define sis301SetCursorPositionY330(y,preset)\
+  andSISIDXREG(SISCR,0x5b,~0x10); \
+  MMIO_OUT32(pSiS->IOBase, CS(12), ((y) | ((preset) << 16))); \
+  orSISIDXREG(SISCR,0x5b,0x10); \
+
+#define sis301SetCursorAddress330(address)\
+  { \
+  unsigned long temp, temp1, temp2; \
+  temp1 = MMIO_IN32(pSiS->IOBase, CS(11)); \
+  temp2 = MMIO_IN32(pSiS->IOBase, CS(12)); \
+  andSISIDXREG(SISCR,0x5b,~0x10); \
+  temp = MMIO_IN32(pSiS->IOBase, CS(8)); \
+  temp &= 0xFFF00000; \
+  temp |= address; \
+  MMIO_OUT32(pSiS->IOBase,CS(8),temp); \
+  MMIO_OUT32(pSiS->IOBase, CS(11), temp1); \
+  MMIO_OUT32(pSiS->IOBase, CS(12), temp2); \
+  orSISIDXREG(SISCR,0x5b,0x10); \
+  }
+
+#define sis301SetCursorPatternSelect330(pat_id)\
+  { \
+  unsigned long temp; \
+  andSISIDXREG(SISCR,0x5b,~0x10); \
+  temp = MMIO_IN32(pSiS->IOBase, CS(8)); \
+  temp &= 0xF0FFFFFF; \
+  temp |= (pat_id) << 24; \
+  MMIO_OUT32(pSiS->IOBase,CS(8),temp); \
+  orSISIDXREG(SISCR,0x5b,0x10); \
+  }
+
 

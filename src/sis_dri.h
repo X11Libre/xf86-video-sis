@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_dri.h,v 1.6 2001/05/16 13:43:17 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_dri.h,v 1.10 2003/10/30 18:53:42 twini Exp $ */
 
 /* modified from tdfx_dri.h */
 
@@ -15,7 +15,20 @@ typedef struct {
   int QueueLength;
   unsigned int AGPCmdBufNext;
   unsigned int FrameCount;
-} SISSAREAPriv;
+#ifdef SIS315DRI
+  /* For 315 series */
+  unsigned long sharedWPoffset;
+#endif
+#if 0
+  unsigned char *AGPCmdBufBase;
+  unsigned long AGPCmdBufAddr;
+  unsigned long AGPCmdBufOffset;
+  unsigned int  AGPCmdBufSize;
+  unsigned long AGPCmdBufNext;
+#endif
+} SISSAREAPriv, *SISSAREAPrivPtr;
+
+#define AGPVtxBufNext AGPCmdBufNext
 
 #define SIS_FRONT 0
 #define SIS_BACK 1
@@ -32,20 +45,23 @@ typedef struct {
   int deviceID;
   int width;
   int height;
-  int mem;
+  int mem;				/* unused in Mesa 3 DRI */
   int bytesPerPixel;
-  int priv1;
-  int priv2;
-  int fbOffset;
-  int backOffset;
-  int depthOffset;
-  int textureOffset;
-  int textureSize;
+  int priv1;				/* unused in Mesa 3 DRI */
+  int priv2;				/* unused in Mesa 3 DRI */
+  int fbOffset;				/* unused in Mesa 3 DRI */
+  int backOffset;			/* unused in Mesa 3 DRI */
+  int depthOffset;			/* unused in Mesa 3 DRI */
+  int textureOffset;			/* unused in Mesa 3 DRI */
+  int textureSize;			/* unused in Mesa 3 DRI */
   unsigned int AGPCmdBufOffset;
   unsigned int AGPCmdBufSize;
-  int irqEnabled;
-  unsigned int scrnX, scrnY;
+  int irqEnabled;			/* unused in Mesa 3 DRI */
+  unsigned int scrnX, scrnY;		/* unused in Mesa 3 DRI */
 } SISDRIRec, *SISDRIPtr;
+
+#define AGPVtxBufOffset AGPCmdBufOffset
+#define AGPVtxBufSize AGPCmdBufSize
 
 typedef struct {
   /* Nothing here yet */

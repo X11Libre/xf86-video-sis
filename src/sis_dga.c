@@ -1,7 +1,9 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_dga.c,v 1.5 2003/01/29 15:42:17 eich Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_dga.c,v 1.11 2003/10/30 18:53:42 twini Exp $ */
 /*
+ * SiS DGA handling
+ *
  * Copyright 2000 by Alan Hourihane, Sychdyn, North Wales, UK.
- * Copyright 2002 by Thomas Winischhofer, Vienna, Austria
+ * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria
  *
  * Portions from radeon_dga.c which is
  *          Copyright 2000 ATI Technologies Inc., Markham, Ontario, and
@@ -99,7 +101,7 @@ SISSetupDGAMode(
 
    pMode = firstMode = pScrn->modes;
 
-   while (pMode) {
+   while(pMode) {
 
 	otherPitch = secondPitch ? secondPitch : pMode->HDisplay;
 
@@ -138,9 +140,9 @@ SECOND_PASS:
                currentMode->flags  |= DGA_BLIT_RECT_TRANS;
             }
 	}
-	if (pMode->Flags & V_DBLSCAN)
+	if(pMode->Flags & V_DBLSCAN)
 	    currentMode->flags     |= DGA_DOUBLESCAN;
-	if (pMode->Flags & V_INTERLACE)
+	if(pMode->Flags & V_INTERLACE)
 	    currentMode->flags     |= DGA_INTERLACED;
 	currentMode->byteOrder      = pScrn->imageByteOrder;
 	currentMode->depth          = depth;
@@ -188,8 +190,8 @@ SECOND_PASS:
 	}
 
 	pMode = pMode->next;
-	if (pMode == firstMode)
-	    break;
+	if(pMode == firstMode)
+	   break;
     }
 
     return modes;
@@ -205,17 +207,23 @@ SISDGAInit(ScreenPtr pScreen)
    int num = 0;
 
    /* 8 */
-#ifdef SISDUALHEAD
-   /* TW: We don't ever use 8bpp modes in dual head mode,
-          so don't offer them to DGA either
+   /* We don't support 8bpp modes in dual head or MergedFB mode,
+    * so don't offer them to DGA either.
     */
+#ifdef SISDUALHEAD
    if(!pSiS->DualHeadMode) {
 #endif
-      modes = SISSetupDGAMode(pScrn, modes, &num, 8, 8,
-	 	              (pScrn->bitsPerPixel == 8),
-			      ((pScrn->bitsPerPixel != 8)
-			          ? 0 : pScrn->displayWidth),
-			      0, 0, 0, PseudoColor);
+#ifdef SISMERGED
+      if(!(pSiS->MergedFB)) {
+#endif
+         modes = SISSetupDGAMode(pScrn, modes, &num, 8, 8,
+	   	                 (pScrn->bitsPerPixel == 8),
+			         ((pScrn->bitsPerPixel != 8)
+			             ? 0 : pScrn->displayWidth),
+				 0, 0, 0, PseudoColor);
+#ifdef SISMERGED
+      }
+#endif
 #ifdef SISDUALHEAD
    }
 #endif
@@ -228,21 +236,21 @@ SISDGAInit(ScreenPtr pScreen)
 			   0xf800, 0x07e0, 0x001f, TrueColor);
 
    if((pSiS->VGAEngine == SIS_530_VGA) || (pSiS->VGAEngine == SIS_OLD_VGA)) {
-     /* 24 */
-     modes = SISSetupDGAMode(pScrn, modes, &num, 24, 24,
-	 		     (pScrn->bitsPerPixel == 24),
-			     ((pScrn->bitsPerPixel != 24)
-				? 0 : pScrn->displayWidth),
+      /* 24 */
+      modes = SISSetupDGAMode(pScrn, modes, &num, 24, 24,
+	  		      (pScrn->bitsPerPixel == 24),
+			      ((pScrn->bitsPerPixel != 24)
+			 	 ? 0 : pScrn->displayWidth),
 			      0xff0000, 0x00ff00, 0x0000ff, TrueColor);
    }
 
    if(pSiS->VGAEngine != SIS_OLD_VGA) {
-     /* 32 */
-     modes = SISSetupDGAMode(pScrn, modes, &num, 32, 24,
-			   (pScrn->bitsPerPixel == 32),
-			   ((pScrn->bitsPerPixel != 32)
-				? 0 : pScrn->displayWidth),
-			   0xff0000, 0x00ff00, 0x0000ff, TrueColor);
+      /* 32 */
+      modes = SISSetupDGAMode(pScrn, modes, &num, 32, 24,
+			      (pScrn->bitsPerPixel == 32),
+			      ((pScrn->bitsPerPixel != 32)
+				  ? 0 : pScrn->displayWidth),
+			      0xff0000, 0x00ff00, 0x0000ff, TrueColor);
    }
 
    pSiS->numDGAModes = num;
