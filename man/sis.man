@@ -14,7 +14,7 @@ sis \- SiS video driver
 .fi
 .SH DESCRIPTION
 .B sis
-is an XFree86 driver for SiS (Silicon Integrated Systems) video chips. The
+is an __xservername__ driver for SiS (Silicon Integrated Systems) video chips. The
 driver is accelerated, and provides support for colordepths of 8, 16 and 24 bpp.
 XVideo, Render and other extensions are supported as well.
 .SH SUPPORTED HARDWARE
@@ -47,7 +47,7 @@ for SiS315/H/PRO, 55x and (M)65x/(M)661xX/74x, 330, 760
 .PP
 Note: Support for 661FX, M661FX, M661MX, 741 and 760 is untested.
 .SH CONFIGURATION DETAILS
-Please refer to XF86Config(__filemansuffix__) for general configuration
+Please refer to __xconfigfile__(__filemansuffix__) for general configuration
 details.  This section only covers configuration details specific to this
 driver.
 .PP
@@ -364,7 +364,7 @@ more information.
 DRI is supported on the 300 series only. On Linux, DRI requires the
 kernel's SiS framebuffer driver (
 .B sisfb
-) and some other modules which come with either the kernel or XFree86.
+) and some other modules which come with either the kernel or __xservername__.
 .PP
 Sisfb takes care of memory management for texture data. In order to
 prevent the X Server and sisfb from overwriting each other's data,
@@ -409,7 +409,7 @@ The amount is to be specified in megabyte, the default is 8.
 .SH "KNOWN BUGS"
 none.
 .SH "SEE ALSO"
-XFree86(1), XF86Config(__filemansuffix__), xf86config(1), Xserver(1), X(__miscmansuffix__)
+__xservername__(__appmansuffix__), __xconfigfile__(__filemansuffix__), xorgconfig(__appmansuffix__), Xserver(__appmansuffix__), X(__miscmansuffix__)
 .PP
 .B "http://www.winischhofer.net/linuxsisvga.shtml"
 for more information and updates
