@@ -102,7 +102,7 @@ static int      	SISEntityIndex = -1;
 
 #ifdef SISMERGED
 #ifdef SISXINERAMA
-static Bool 		SiSnoXineramaExtension = TRUE;
+static Bool 		SiSnoPanoramiXExtension = TRUE;
 int 			SiSXineramaPixWidth = 0;
 int 			SiSXineramaPixHeight = 0;
 int 			SiSXineramaNumScreens = 0;
@@ -1574,7 +1574,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 
     if(!pSiS->MergedFB) return;
 
-    if(SiSnoXineramaExtension) return;
+    if(SiSnoPanoramiXExtension) return;
 
     if(!SiSXineramadataPtr) return;
 
@@ -1773,7 +1773,7 @@ SiSProcXineramaGetState(ClientPtr client)
     rep.type = X_Reply;
     rep.length = 0;
     rep.sequenceNumber = client->sequence;
-    rep.state = !SiSnoXineramaExtension;
+    rep.state = !SiSnoPanoramiXExtension;
     if(client->swapped) {
        swaps (&rep.sequenceNumber, n);
        swapl (&rep.length, n);
@@ -1845,7 +1845,7 @@ SiSProcXineramaIsActive(ClientPtr client)
     rep.type = X_Reply;
     rep.length = 0;
     rep.sequenceNumber = client->sequence;
-    rep.state = !SiSnoXineramaExtension;
+    rep.state = !SiSnoPanoramiXExtension;
     if(client->swapped) {
 	register int n;
 	swaps(&rep.sequenceNumber, n);
@@ -1865,7 +1865,7 @@ SiSProcXineramaQueryScreens(ClientPtr client)
 
     rep.type = X_Reply;
     rep.sequenceNumber = client->sequence;
-    rep.number = (SiSnoXineramaExtension) ? 0 : SiSXineramaNumScreens;
+    rep.number = (SiSnoPanoramiXExtension) ? 0 : SiSXineramaNumScreens;
     rep.length = rep.number * sz_XineramaScreenInfo >> 2;
     if(client->swapped) {
        register int n;
@@ -1875,7 +1875,7 @@ SiSProcXineramaQueryScreens(ClientPtr client)
     }
     WriteToClient(client, sizeof(xXineramaQueryScreensReply), (char *)&rep);
 
-    if(!SiSnoXineramaExtension) {
+    if(!SiSnoPanoramiXExtension) {
        xXineramaScreenInfo scratch;
        int i;
 
@@ -2021,20 +2021,20 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
     if(!(SiSXineramadataPtr)) {
 
        if(!pSiS->MergedFB) {
-          SiSnoXineramaExtension = TRUE;
+          SiSnoPanoramiXExtension = TRUE;
           return;
        }
 
-#ifdef XINERAMA
+#ifdef PANORAMIX
        if(!noPanoramiXExtension) {
           xf86DrvMsg(pScrn->scrnIndex, X_INFO,
        	     "Xinerama active, not initializing SiS Pseudo-Xinerama\n");
-          SiSnoXineramaExtension = TRUE;
+          SiSnoPanoramiXExtension = TRUE;
           return;
        }
 #endif
 
-       if(SiSnoXineramaExtension) {
+       if(SiSnoPanoramiXExtension) {
           xf86DrvMsg(pScrn->scrnIndex, X_INFO,
        	      "SiS Pseudo-Xinerama disabled\n");
           return;
@@ -2043,14 +2043,14 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
        if(pSiS->CRT2Position == sisClone) {
           xf86DrvMsg(pScrn->scrnIndex, X_INFO,
        	     "Running MergedFB in Clone mode, SiS Pseudo-Xinerama disabled\n");
-          SiSnoXineramaExtension = TRUE;
+          SiSnoPanoramiXExtension = TRUE;
           return;
        }
 
        if(!(pSiS->AtLeastOneNonClone)) {
           xf86DrvMsg(pScrn->scrnIndex, X_INFO,
        	     "Only Clone modes defined, SiS Pseudo-Xinerama disabled\n");
-          SiSnoXineramaExtension = TRUE;
+          SiSnoPanoramiXExtension = TRUE;
           return;
        }
 
@@ -2075,7 +2075,7 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
 
        if(!success) {
           SISErrorLog(pScrn, "Failed to initialize SiS Pseudo-Xinerama extension\n");
-          SiSnoXineramaExtension = TRUE;
+          SiSnoPanoramiXExtension = TRUE;
           return;
        }
 
@@ -5399,7 +5399,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     	pSiS->SiS_SD_Flags |= SiS_SD_ISDUALHEAD;
 	if(pSiS->SecondHead)      pSiS->SiS_SD_Flags |= SiS_SD_ISDHSECONDHEAD;
 	else			  pSiS->SiS_SD_Flags &= ~(SiS_SD_SUPPORTXVGAMMA1);
-#ifdef XINERAMA
+#ifdef PANORAMIX
 	if(!noPanoramiXExtension) {
 	   pSiS->SiS_SD_Flags |= SiS_SD_ISDHXINERAMA;
 	   pSiS->SiS_SD_Flags &= ~(SiS_SD_SUPPORTXVGAMMA1);
@@ -7015,13 +7015,13 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
        pSiS->ShadowFB = FALSE;
 #ifdef SISXINERAMA
        if(pSiS->UseSiSXinerama) {
-          SiSnoXineramaExtension = FALSE;
+          SiSnoPanoramiXExtension = FALSE;
           SiSXineramaExtensionInit(pScrn);
-	  if(!SiSnoXineramaExtension) {
+	  if(!SiSnoPanoramiXExtension) {
 #if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
-	     xf86DisableRandR();
-	     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-	     "SiS Pseudo-Xinerama enabled, RandR disabled\n");
+             xf86DisableRandR();
+             xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+	  	 "SiS Pseudo-Xinerama enabled, RandR disabled\n");
 #endif
 	     pSiS->SiS_SD_Flags |= SiS_SD_PSEUDOXINERAMA;
 	  }
