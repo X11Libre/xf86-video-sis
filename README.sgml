@@ -1,4 +1,4 @@
-<!DOCTYPE linuxdoc PUBLIC "-//XFree86//DTD linuxdoc//EN" [
+<!DOCTYPE linuxdoc PUBLIC "-//Xorg//DTD linuxdoc//EN" [
 <!ENTITY % defs SYSTEM "defs.ent"> %defs;
 ]>
 
@@ -10,7 +10,6 @@
 <date>5 October 2003
 
 <ident>
-$XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/SiS.sgml,v 3.8 2003/10/19 19:29:14 dawes Exp $
 </ident>
 
 <!-- Table of contents -->
@@ -32,7 +31,7 @@ It currently supports the following chipsets:
 The driver supports:
 <itemize>
   <item>8/16/24 bits color depth; old series also 15;
-  <item>XAA (XFree86 Acceleration Architecture)
+  <item>XAA 
   <item>XVideo (Xv)
   <item>Render (XRAND)
   <item>Hardware cursor; 315/330 series: Color HW cursor;
@@ -47,11 +46,11 @@ Please see http://www.winischhofer.net/linuxsisvga.shtml for detailed documentat
 and updates. Support for the 661, 741 and 760 is entirely untested as of this writing,
 and possibly incomplete for LCD output.
 
-<sect> XF86Config Options <p>
+<sect> xorg.conf Options <p>
 
 The following options are of particular interest for the SiS
 driver. Each of them must be specified in the Device section of the
-XF86Config file for this card.
+xorg.conf file for this card.
 
 <sect1>For all chipsets<p>
 
@@ -158,7 +157,7 @@ XF86Config file for this card.
 <descrip>
 <tag>Option "MaxXFBMem"</tag>
 	DRI requires the linux kernel's SiS framebuffer driver "sisfb" and some
-	other modules which come with either the linux kernel or XFree86. (On *BSD,
+	other modules which come with either the linux kernel or X11R&relvers;. (On *BSD,
 	the DRI driver does not require any framebuffer driver.)
   	Sisfb takes care of memory management for texture data. In order to prevent
 	the X driver and sisfb from overwriting each others video memory, sisfb
@@ -168,7 +167,8 @@ XF86Config file for this card.
 	the amount of RAM sisfb reserved. For this purpose, the Option "MaxXFBMem" exists.
 
 	XFree 4.3.0 disabled SiS DRI support due to a lack of maintenance of the SiS DRI
-	driver. XFree86 4.4 contains a newly written SiS DRI driver by Eric Anholt.
+	driver. X11R&relvers; and X11R&relvers; and XFree86 4.4 contains a newly written 
+        SiS DRI driver by Eric Anholt.
 
 	If you intend to use DRI, I recommend setting the total video memory in the BIOS
 	to 64MB in order to at least overcome the lack of memory swap functions.
