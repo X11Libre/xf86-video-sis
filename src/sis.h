@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.h,v 1.108 2004/01/27 11:58:27 twini Exp $ */
+/* $XFree86$ */
 /*
  * Main global data and definitions
  *
@@ -12,10 +12,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement: "This product includes
- *    software developed by Thomas Winischhofer, Vienna, Austria."
- * 4) The name of the author may not be used to endorse or promote products
+ * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
@@ -41,12 +38,14 @@
 #define UNLOCK_ALWAYS
 
 #define SISDRIVERVERSIONYEAR    4
-#define SISDRIVERVERSIONMONTH   1
-#define SISDRIVERVERSIONDAY     27
+#define SISDRIVERVERSIONMONTH   2
+#define SISDRIVERVERSIONDAY     26
 #define SISDRIVERREVISION       1
 
-#define SISDRIVERIVERSION (SISDRIVERVERSIONYEAR << 16) | (SISDRIVERVERSIONMONTH << 8) \
-                          | SISDRIVERVERSIONDAY | (SISDRIVERREVISION << 24)
+#define SISDRIVERIVERSION (SISDRIVERVERSIONYEAR << 16) |  \
+			  (SISDRIVERVERSIONMONTH << 8) |  \
+                          SISDRIVERVERSIONDAY 	       |  \
+			  (SISDRIVERREVISION << 24)
 
 #if 0
 #define TWDEBUG    /* for debugging */
@@ -184,8 +183,8 @@
 
 /* VBFlags - if anything is changed here, increase VBFlagsVersion! */
 #define CRT2_DEFAULT            0x00000001
-#define CRT2_LCD                0x00000002  /* TW: Never change the order of the CRT2_XXX entries */
-#define CRT2_TV                 0x00000004  /*     (see SISCycleCRT2Type())                       */
+#define CRT2_LCD                0x00000002  /* Never change the order of the CRT2_XXX entries */
+#define CRT2_TV                 0x00000004  
 #define CRT2_VGA                0x00000008
 #define TV_NTSC                 0x00000010
 #define TV_PAL                  0x00000020
@@ -194,7 +193,8 @@
 #define TV_AVIDEO               0x00000100
 #define TV_SVIDEO               0x00000200
 #define TV_SCART                0x00000400
-#define VB_CONEXANT		0x00000800
+#define VB_CONEXANT		0x00000800   /* 661 series only */
+#define VB_TRUMPION		VB_CONEXANT  /* 300 series only */
 #define TV_PALM                 0x00001000
 #define TV_PALN                 0x00002000
 #define TV_NTSCJ		0x00001000
@@ -265,6 +265,7 @@
 #define VB_LCD_848x480		0x00008000	/* LVDS only, otherwise handled as custom */
 #define VB_LCD_1280x800		0x00010000
 #define VB_LCD_1680x1050	0x00020000
+#define VB_LCD_1280x720         0x00040000
 #define VB_LCD_BARCO1366        0x20000000
 #define VB_LCD_CUSTOM  		0x40000000
 #define VB_LCD_EXPANDING	0x80000000
@@ -380,6 +381,8 @@ typedef unsigned char UChar;
 #define SiS_SD_SUPPORTYPBPR    0x00800000   /* CRT2=YPbPr (525i, 525p, 750p, 1080i) is supported */
 #define SiS_SD_SUPPORTHIVISION 0x01000000   /* CRT2=HiVision is supported */
 #define SiS_SD_SUPPORTYPBPRAR  0x02000000   /* YPbPr aspect ratio is supported */
+#define SiS_SD_SUPPORTSCALE    0x04000000   /* Scaling of LCD panel supported */
+#define SiS_SD_SUPPORTCENTER   0x08000000   /* If scaling supported: Centering of screen [NOT] supported (TMDS only) */
 
 #define SIS_DIRECTKEY         0x03145792
 
@@ -532,12 +535,12 @@ typedef struct {
     int			sistvyfilter;
     int			tvxpos, tvypos;
     int		      	tvxscale, tvyscale;
-    int			ForceTVType;
+    int			ForceTVType, SenseYPbPr;
     unsigned long	ForceYPbPrType, ForceYPbPrAR;
     int			chtvtype;
     int                 NonDefaultPAL, NonDefaultNTSC;
     unsigned short	tvx, tvy;
-    unsigned char	p2_01, p2_02, p2_1f, p2_20;
+    unsigned char	p2_01, p2_02, p2_1f, p2_20, p2_43, p2_42, p2_2b;
     unsigned char	p2_44, p2_45, p2_46;
     unsigned long       sistvccbase;
     unsigned char       p2_35, p2_36, p2_37, p2_38, p2_48, p2_49, p2_4a;
@@ -550,7 +553,7 @@ typedef struct {
     int			GammaBriR, GammaBriG, GammaBriB;	/* strictly for Xinerama */
     int			GammaPBriR, GammaPBriG, GammaPBriB;	/* strictly for Xinerama */
     int			curxvcrtnum;
-    int			UsePanelScaler;
+    int			UsePanelScaler, CenterLCD;
     int			AllowHotkey;
     BOOLEAN		enablesisctrl;
     unsigned long	cmdQ_SharedWritePort_2D;
@@ -559,6 +562,7 @@ typedef struct {
     unsigned long	OnScreenSize1;
     unsigned char       OldMode;
     int			HWCursorMBufNum, HWCursorCBufNum;
+    BOOLEAN		ROM661New;
 #ifdef SIS_CP
     SIS_CP_H_ENT
 #endif
@@ -642,7 +646,7 @@ typedef struct {
     unsigned long       VBFlags_backup;         /* Backup for SlaveMode-modes */
     unsigned long	VBLCDFlags;             /* Moved LCD panel size bits here */
     int                 ChrontelType;           /* CHRONTEL_700x or CHRONTEL_701x */
-    int                 PDC;			/* PanelDelayCompensation */
+    unsigned int        PDC, PDCA;		/* PanelDelayCompensation */
     short               scrnOffset;		/* Screen pitch (data) */
     short               scrnPitch;		/* Screen pitch (display; regarding interlace) */
     short               DstColor;
@@ -835,7 +839,7 @@ typedef struct {
     int			sis6326fscadjust;
     BOOL		sisfbfound;
     BOOL		donttrustpdc;		/* Don't trust the detected PDC */
-    unsigned char	sisfbpdc;
+    unsigned char	sisfbpdc, sisfbpdca;
     unsigned char       sisfblcda;
     int			sisfbscalelcd;
     unsigned long	sisfbspecialtiming;
@@ -845,12 +849,12 @@ typedef struct {
     int			NoYV12;			/* Disable Xv YV12 support (old series) */
     unsigned char       postVBCR32;
     int			newFastVram;		/* Replaces FastVram */
-    int			ForceTVType;
+    int			ForceTVType, SenseYPbPr;
     int                 NonDefaultPAL, NonDefaultNTSC;
     unsigned long	ForceYPbPrType, ForceYPbPrAR;
     unsigned long       lockcalls;		/* Count unlock calls for debug */
     unsigned short	tvx, tvy;		/* Backup TV position registers */
-    unsigned char	p2_01, p2_02, p2_1f, p2_20;    /* Backup TV position registers */
+    unsigned char	p2_01, p2_02, p2_1f, p2_20, p2_43, p2_42, p2_2b; /* Backup TV position registers */
     unsigned short      tvx1, tvx2, tvx3, tvy1; /* Backup TV position registers */
     unsigned char	p2_44, p2_45, p2_46;
     unsigned long       sistvccbase;
@@ -872,7 +876,7 @@ typedef struct {
     Atom		xv_TTE, xv_TCO, xv_TCC, xv_TCF, xv_TLF, xv_CMD, xv_CMDR, xv_CT1, xv_SGA;
     Atom		xv_GDV, xv_GHI, xv_OVR, xv_GBI, xv_TXS, xv_TYS, xv_CFI, xv_COC, xv_COF;
     Atom		xv_YFI, xv_GSS, xv_BRR, xv_BRG, xv_BRB, xv_PBR, xv_PBG, xv_PBB, xv_SHC;
-    Atom		xv_BRR2, xv_BRG2, xv_BRB2, xv_PBR2, xv_PBG2, xv_PBB2;
+    Atom		xv_BRR2, xv_BRG2, xv_BRB2, xv_PBR2, xv_PBG2, xv_PBB2, xv_PMD;
 #ifdef TWDEBUG
     Atom		xv_STR;
 #endif        
@@ -906,7 +910,7 @@ typedef struct {
     BOOLEAN		disablecolorkeycurrent;
     CARD32		colorKey;
     CARD32		MiscFlags;
-    int			UsePanelScaler;
+    int			UsePanelScaler, CenterLCD;
     FBLinearPtr		AccelLinearScratch;
     void		(*AccelRenderCallback)(ScrnInfoPtr);
     float		zClearVal;
@@ -926,6 +930,8 @@ typedef struct {
     Bool		HWCursorIsVisible;
     unsigned long       HWCursorBackup[16];
     int			HWCursorMBufNum, HWCursorCBufNum;
+    unsigned long	mmioSize;
+    BOOLEAN		ROM661New;
 #ifdef SISMERGED
     Bool		MergedFB, MergedFBAuto;
     SiSScrn2Rel		CRT2Position;

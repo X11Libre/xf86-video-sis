@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_vga.c,v 1.43 2004/01/23 22:29:06 twini Exp $ */
+/* $XFree86$ */
 /*
  * Mode setup and basic video bridge detection
  *
@@ -12,10 +12,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement: "This product includes
- *    software developed by Thomas Winischhofer, Vienna, Austria."
- * 4) The name of the author may not be used to endorse or promote products
+ * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
@@ -47,14 +44,9 @@
 #include "sis_regs.h"
 #include "sis_dac.h"
 
-#if 0
-#define TV6326TEST
-#endif
-
 static Bool  SISInit(ScrnInfoPtr pScrn, DisplayModePtr mode);
 static Bool  SIS300Init(ScrnInfoPtr pScrn, DisplayModePtr mode);
-/* To be used internally only */
-static int   SISDoSense(ScrnInfoPtr pScrn, int tempbl, int tempbh, int tempcl, int tempch);
+static int   SISDoSense(ScrnInfoPtr pScrn, unsigned short type, unsigned short test);
 static void  SISSense30x(ScrnInfoPtr pScrn);
 static int   SIS6326DoSense(ScrnInfoPtr pScrn, int tempbh, int tempbl, int tempch, int tempcl);
 static void  SISSense6326(ScrnInfoPtr pScrn);
@@ -72,17 +64,6 @@ const CARD8 SiS6326TVRegs1_NTSC[6][14] = {
     {0x81,0x3f,0x24,0x8e,0x26,0x09,0x00,0x09,0x02,0x30,0x10,0x3b,0x51,0x60},  /* 640x400, 640x480 */
     {0x83,0x5d,0x21,0xbe,0x75,0x03,0x00,0x09,0x08,0x42,0x10,0x4d,0x61,0x79}   /* 640x480u */
 };
-
-#ifdef TV6326TEST
-const CARD8 SiS6326TVRegs1_NTSC_2[6][3] = {
-    {          0x00,0x00,0x00},
-    {          0x00,0x00,0x00},
-    {          0x24,0x92,0x49},
-    {          0x24,0x92,0x49},  			/* 8a50 */
-    {          0x24,0x92,0x49},  /* 640x400, 640x480 */ /* 8afc */
-    {          0x21,0xbe,0x75}   /* 640x480u */         /* n/a  */
-};
-#endif
 
 const CARD8 SiS6326TVRegs2_NTSC[6][54] = {
     {0x11, 0x17, 0x03, 0x09, 0x94, 0x02, 0x05, 0x06, 0x09, 0x50, 0x0C,
@@ -126,17 +107,6 @@ const CARD8 SiS6326TVRegs1_PAL[6][14] = {
     {0x81,0x63,0xa4,0x03,0xd9,0x01,0x00,0x09,0x10,0x9f,0x10,0xaa,0x71,0x59}   /* 720x540  */
 };
 
-#ifdef TV6326TEST
-const CARD8 SiS6326TVRegs1_PAL_2[6][3] = {
-    {          0x00,0x00,0x00},
-    {          0x00,0x00,0x00},
-    {          0xa4,0x07,0xd9},   /* 640x480  */  /* 887e */
-    {          0xa4,0x08,0x19},   /* 800x600  */  /* 8828 */
-    {          0xa1,0x7e,0xa3},   /* 800x600u */  /* n/a  */
-    {          0xa4,0x07,0xd9}    /* 720x540  */  /* n/a  */
-};
-#endif
-
 const CARD8 SiS6326TVRegs2_PAL[6][54] = {
     {0x15, 0x4E, 0x35, 0x6E, 0x94, 0x02, 0x04, 0x38, 0x3A, 0x50, 0x3D,
      0x70, 0x06, 0x3E, 0x35, 0x6D, 0x94, 0x05, 0x3F, 0x36, 0x6E, 0x94,
@@ -169,7 +139,6 @@ const CARD8 SiS6326TVRegs2_PAL[6][54] = {
      0xA5, 0x00, 0x4F, 0x3F, 0x40, 0x62, 0x52, 0x73, 0x57, 0x47, 0x40,
      0x6A, 0x5A, 0x73, 0xA0, 0xC1, 0x95, 0x73, 0xB6, 0x03, 0xA0}
 };
-
 
 const CARD8 SiS6326CR[9][15] = {
      {0x79,0x63,0x64,0x1d,0x6a,0x93,0x00,0x6f,0xf0,0x58,0x8a,0x57,0x57,0x70,0x20},  /* PAL 800x600   */
@@ -813,11 +782,6 @@ SISInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	     for(i=0; i<14; i++) {
 	        pReg->sis6326tv[SiS6326TVRegs1[i]] = SiS6326TVRegs1_PAL[index][i];
 	     }
-#ifdef TV6326TEST
-             for(i=0, j=2; i<3; i++, j++) {
-	        pReg->sis6326tv[j] = SiS6326TVRegs1_PAL_2[index][i];
-	     }
-#endif
              fsc = (SiS6326TVRegs1_PAL[index][2] << 16) |
 	           (SiS6326TVRegs1_PAL[index][3] << 8)  |
 	           (SiS6326TVRegs1_PAL[index][4]);
@@ -828,11 +792,6 @@ SISInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
              for(i=0; i<14; i++) {
 	        pReg->sis6326tv[SiS6326TVRegs1[i]] = SiS6326TVRegs1_NTSC[index][i];
 	     }
-#ifdef TV6326TEST
-             for(i=0, j=2; i<3; i++, j++) {
-	        pReg->sis6326tv[j] = SiS6326TVRegs1_NTSC_2[index][i];
-	     }
-#endif
              fsc = (SiS6326TVRegs1_NTSC[index][2] << 16) |
 	           (SiS6326TVRegs1_NTSC[index][3] << 8)  |
 	           (SiS6326TVRegs1_NTSC[index][4]);
@@ -975,302 +934,183 @@ SIS300Init(ScrnInfoPtr pScrn, DisplayModePtr mode)
 }
 
 static int
-SISDoSense(ScrnInfoPtr pScrn, int tempbl, int tempbh, int tempcl, int tempch)
+SISDoSense(ScrnInfoPtr pScrn, unsigned short type, unsigned short test)
 {
-    SISPtr  pSiS = SISPTR(pScrn);
-    int temp;
+    SISPtr pSiS = SISPTR(pScrn);
+    int    temp, mytest, result, i, j;
 
-    outSISIDXREG(SISPART4,0x11,tempbl);
-    temp = tempbh | tempcl;
-    setSISIDXREG(SISPART4,0x10,0xe0,temp);
-    SiS_DDC2Delay(pSiS->SiS_Pr, 0x1500);
-    tempch &= 0x7f;
-    inSISIDXREG(SISPART4,0x03,temp);
-    temp ^= 0x0e;
-    temp &= tempch;
-    return((temp == tempch));
+#ifdef TWDEBUG
+    xf86DrvMsg(0, X_INFO, "Sense: %x %x\n", type, test);
+#endif
+
+    for(j = 0; j < 10; j++) {
+       result = 0;
+       for(i = 0; i < 3; i++) {
+          mytest = test;
+          outSISIDXREG(SISPART4,0x11,(type & 0x00ff));
+          temp = (type >> 8) | (mytest & 0x00ff);
+          setSISIDXREG(SISPART4,0x10,0xe0,temp);
+          SiS_DDC2Delay(pSiS->SiS_Pr, 0x1500);
+          mytest >>= 8;
+          mytest &= 0x7f;
+          inSISIDXREG(SISPART4,0x03,temp);
+          temp ^= 0x0e;
+          temp &= mytest;
+          if(temp == mytest) result++;
+#if 1
+	  outSISIDXREG(SISPART4,0x11,0x00);
+	  andSISIDXREG(SISPART4,0x10,0xe0);
+	  SiS_DDC2Delay(pSiS->SiS_Pr, 0x1000);
+#endif
+       }
+       if((result == 0) || (result >= 2)) break;
+    }
+    return(result);
 }
+
+#define GETROMWORD(w) (pSiS->BIOS[w] | (pSiS->BIOS[w+1] << 8))
 
 /* Sense connected devices on 30x */
 static void
 SISSense30x(ScrnInfoPtr pScrn)
 {
     SISPtr  pSiS = SISPTR(pScrn);
-    unsigned char backupP4_0d,backupP2_00,biosflag=0;
-    unsigned char svhs_bl=0, svhs_bh=0;
-    unsigned char cvbs_bl=0, cvbs_bh=0;
-    unsigned char vga2_bl=0, vga2_bh=0;
-    unsigned char svhs_cl, svhs_ch;
-    unsigned char cvbs_cl, cvbs_ch;
-    unsigned char vga2_cl, vga2_ch;
-    int myflag, result=0, i, j;
-    unsigned short temp;
+    unsigned char backupP4_0d,backupP2_00,backupP2_4d,biosflag=0;
+    unsigned short svhs=0, svhs_c=0;
+    unsigned short cvbs=0, cvbs_c=0;
+    unsigned short vga2=0, vga2_c=0;
+    int myflag, result; /* , i; */
 
     inSISIDXREG(SISPART4,0x0d,backupP4_0d);
-    if(!(pSiS->VBFlags & (VB_301C | VB_302ELV))) {
-       outSISIDXREG(SISPART4,0x0d,(backupP4_0d | 0x04));
-    }
+    outSISIDXREG(SISPART4,0x0d,(backupP4_0d | 0x04));
+    SiS_DDC2Delay(pSiS->SiS_Pr, 0x2000);
 
     inSISIDXREG(SISPART2,0x00,backupP2_00);
-    outSISIDXREG(SISPART2,0x00,(backupP2_00 | 0x1c));
+    outSISIDXREG(SISPART2,0x00,((backupP2_00 | 0x1c) & 0xfc));
 
-    SISDoSense(pScrn, 0, 0, 0, 0);
+    inSISIDXREG(SISPART2,0x4d,backupP2_4d);
+    if(pSiS->VBFlags & (VB_301C|VB_301LV|VB_302LV|VB_302ELV)) {
+       outSISIDXREG(SISPART2,0x4d,(backupP2_4d & ~0x10));
+    }
 
-    if(pSiS->VGAEngine == SIS_300_VGA) {
+    SISDoSense(pScrn, 0, 0);
 
-        if(pSiS->sishw_ext.UseROM) {
-	   vga2_bh = pSiS->BIOS[0xf9]; vga2_bl = pSiS->BIOS[0xf8];
-	   svhs_bh = pSiS->BIOS[0xfb]; svhs_bl = pSiS->BIOS[0xfa];
-	   cvbs_bh = pSiS->BIOS[0xfd]; cvbs_bl = pSiS->BIOS[0xfc];
-	   biosflag = pSiS->BIOS[0xfe];
-	} else {
-	   vga2_bh = 0x00; vga2_bl = 0xd1;
-           svhs_bh = 0x00; svhs_bl = 0xb9;
-	   cvbs_bh = 0x00; cvbs_bl = 0xb3;
-	   biosflag = 2;
-	}
+    if(pSiS->VBFlags & VB_301) {
+       svhs = 0x00b9; cvbs = 0x00b3; vga2 = 0x00d1;
+       inSISIDXREG(SISPART4,0x01,myflag);
+       if(myflag & 0x04) {
+	  svhs = 0x00dd; cvbs = 0x00ee; vga2 = 0x00fd;
+       }
+    } else if(pSiS->VBFlags & (VB_301B | VB_302B)) {
+       svhs = 0x016b; cvbs = 0x0174; vga2 = 0x0190;
+    } else if(pSiS->VBFlags & (VB_301LV | VB_302LV)) {
+       svhs = 0x0200; cvbs = 0x0100;
+    } else if(pSiS->VBFlags & (VB_301C | VB_302ELV)) {
+       svhs = 0x016b; cvbs = 0x0110; vga2 = 0x0190;
+    } else return;
 
-	if(pSiS->VBFlags & (VB_301B|VB_302B|VB_301LV|VB_302LV)) {
-	   vga2_bh = 0x01; vga2_bl = 0x90;
-	   svhs_bh = 0x01; svhs_bl = 0x6b;
-	   cvbs_bh = 0x01; cvbs_bl = 0x74;
-	} else if(pSiS->VBFlags & (VB_301C | VB_302ELV)) {
-	   vga2_bh = 0x01; vga2_bl = 0x90;
-	   svhs_bh = 0x01; svhs_bl = 0x6b;
-	   cvbs_bh = 0x01; cvbs_bl = 0x10;
-	} else {
-	   inSISIDXREG(SISPART4,0x01,myflag);
-	   if(myflag & 0x04) {
-	      vga2_bh = 0x00; vga2_bl = 0xfd;
-	      svhs_bh = 0x00; svhs_bl = 0xdd;
-	      cvbs_bh = 0x00; cvbs_bl = 0xee;
-	   }
-	}
+    vga2_c = 0x0e08; svhs_c = 0x0404; cvbs_c = 0x0804;
+    if(pSiS->VBFlags & (VB_301LV|VB_302LV|VB_302ELV)) {
+       svhs_c = 0x0408; cvbs_c = 0x0808;
+    }
+    biosflag = 2;
 
-	vga2_ch = 0x0e;	vga2_cl = 0x08;
-	svhs_ch = 0x04;	svhs_cl = 0x04;
-	cvbs_ch = 0x08; cvbs_cl = 0x04;
+    if(pSiS->Chipset == PCI_CHIP_SIS300) {
+       inSISIDXREG(SISSR,0x3b,myflag);
+       if(!(myflag & 0x01)) vga2 = vga2_c = 0;
+    }
 
-	if(pSiS->VBFlags & (VB_301LV|VB_302LV|VB_302ELV)) {
-	   vga2_bh = 0x00; vga2_bl = 0x00;
-	   vga2_ch = 0x00; vga2_cl = 0x00;
-	   svhs_ch = 0x04; svhs_cl = 0x08;
-	   cvbs_ch = 0x08; cvbs_cl = 0x08;
-	}
+    if(pSiS->sishw_ext.UseROM) {
+       if(pSiS->VGAEngine == SIS_300_VGA) {
+          if(pSiS->VBFlags & VB_301) {
+	     inSISIDXREG(SISPART4,0x01,myflag);
+             if(!(myflag & 0x04)) {
+                vga2 = GETROMWORD(0xf8); svhs = GETROMWORD(0xfa); cvbs = GETROMWORD(0xfc);
+	     }
+	  }
+	  biosflag = pSiS->BIOS[0xfe];
+       } else if(pSiS->Chipset == PCI_CHIP_SIS660) {
+          if(pSiS->ROM661New) {
+	     biosflag = 2;
+	     vga2 = GETROMWORD(0x63); svhs = cvbs = GETROMWORD(0x65);
+	     if(pSiS->BIOS[0x5d] & 0x04) biosflag |= 0x01;
+	  }
+       } else if(!pSiS->ROM661New) {
+#if 0	  /* eg. 1.15.23 has wrong values here */
+          myflag = 0;
+          if(pSiS->VBFlags & VB_301) {
+	     if(pSiS->Chipset == PCI_CHIP_SIS330) {
+	        myflag = 0xe5; i = 0x11b;
+	     } else {
+	        myflag = 0xbd; i = 0xf3
+	     }
+	  } else if(pSiS->VBFlags & (VB_301B|VB_302B|VB_301LV|VB_302LV)) {
+	     if(pSiS->Chipset == PCI_CHIP_SIS330) {
+	        myflag = 0xeb; i = 0x11b;
+	     } else {
+	        myflag = 0xc3; i = 0xf3
+	     }
+	  }
+	  if(myflag) {
+	     biosflag = pSiS->BIOS[i];    vga2 = GETROMWORD(myflag);
+	     svhs = GETROMWORD(myflag+2); cvbs = GETROMWORD(myflag+4);
+	  }
+#endif
+       }
+    }
 
-	if(pSiS->Chipset == PCI_CHIP_SIS300) {
-	   inSISIDXREG(SISSR,0x3b,myflag);
-	   if(!(myflag & 0x01)) {
-	      vga2_bh = 0x00; vga2_bl = 0x00;
-	      vga2_ch = 0x00; vga2_cl = 0x00;
-	   }
-	}
-
-    } else if(pSiS->Chipset == PCI_CHIP_SIS660) {
-
-        if(pSiS->sishw_ext.UseROM) {
-	   biosflag = pSiS->BIOS[0x58];
-	   temp = pSiS->BIOS[0x254] | (pSiS->BIOS[0x255] << 8);
-	   if(pSiS->VBFlags & VB_301)         temp +=  6;
-	   else if(pSiS->VBFlags & VB_301B)   temp += 12;
-	   else if(pSiS->VBFlags & VB_301C)   temp += 18;
-	   else if(pSiS->VBFlags & VB_301LV)  temp += 12;
-	   else if(pSiS->VBFlags & VB_302LV)  temp += 12;
-	   else if(pSiS->VBFlags & VB_302ELV) temp += 18;
-	   vga2_bh = pSiS->BIOS[temp+1]; vga2_bl = pSiS->BIOS[temp];
-	   svhs_bh = pSiS->BIOS[temp+3]; svhs_bl = pSiS->BIOS[temp+2];
-	   cvbs_bh = pSiS->BIOS[temp+5]; cvbs_bl = pSiS->BIOS[temp+4];
-	} else {
-	   biosflag = 2;
-	   if(pSiS->VBFlags & (VB_301B | VB_301LV | VB_302LV)) {
-	      vga2_bh = 0x01; vga2_bl = 0x90;
-	      svhs_bh = 0x01; svhs_bl = 0x6b; /* Are these really correct for LV? */
-	      cvbs_bh = 0x01; cvbs_bl = 0x74;
-	   } else if(pSiS->VBFlags & (VB_301C | VB_302ELV)) {
-	      vga2_bh = 0x01; vga2_bl = 0x90;
-	      svhs_bh = 0x01; svhs_bl = 0x6b;
-	      cvbs_bh = 0x01; cvbs_bl = 0x10;
-	   } else {
-	      vga2_bh = 0x00; vga2_bl = 0xfd;
-	      svhs_bh = 0x00; svhs_bl = 0xdd;
-	      cvbs_bh = 0x00; cvbs_bl = 0xee;
-	   }
-	}
-
-	vga2_ch = 0x0e;	vga2_cl = 0x08;
-	svhs_ch = 0x04;	svhs_cl = 0x04;
-	cvbs_ch = 0x08; cvbs_cl = 0x04;
-
-	if(pSiS->VBFlags & (VB_301LV|VB_302LV|VB_302ELV)) {
-	   vga2_bh = 0x00; vga2_bl = 0x00;
-	   vga2_ch = 0x00; vga2_cl = 0x00;
-	   svhs_ch = 0x04; svhs_cl = 0x08;
-	   cvbs_ch = 0x08; cvbs_cl = 0x08;
-	}
-
-    } else {
-
-	if(pSiS->VBFlags & VB_301) {
-
-	   if(pSiS->sishw_ext.UseROM) {
-	      if(pSiS->Chipset == PCI_CHIP_SIS330) {
-	         vga2_bh = pSiS->BIOS[0xe6]; vga2_bl = pSiS->BIOS[0xe5];
-	         svhs_bh = pSiS->BIOS[0xe8]; svhs_bl = pSiS->BIOS[0xe7];
-	         cvbs_bh = pSiS->BIOS[0xea]; cvbs_bl = pSiS->BIOS[0xe9];
-	         biosflag = pSiS->BIOS[0x11b];
-	      } else {
-	         vga2_bh = pSiS->BIOS[0xbe]; vga2_bl = pSiS->BIOS[0xbd];
-	         svhs_bh = pSiS->BIOS[0xc0]; svhs_bl = pSiS->BIOS[0xbf];
-	         cvbs_bh = pSiS->BIOS[0xc2]; cvbs_bl = pSiS->BIOS[0xc1];
-	         biosflag = pSiS->BIOS[0xf3];
-	      }
-	   } else {
-	      vga2_bh = 0x00; vga2_bl = 0xd1;
-              svhs_bh = 0x00; svhs_bl = 0xb9;
-	      cvbs_bh = 0x00; cvbs_bl = 0xb3;
-	      biosflag = 2;
-	   }
-	   inSISIDXREG(SISPART4,0x01,myflag);
-	   if(myflag & 0x04) {
-	      vga2_bh = 0x00; vga2_bl = 0xfd;
-	      svhs_bh = 0x00; svhs_bl = 0xdd;
-	      cvbs_bh = 0x00; cvbs_bl = 0xee;
-	   }
-
-	} else if(pSiS->VBFlags & (VB_301B|VB_302B|VB_301LV|VB_302LV)) {
-
-	   if(pSiS->sishw_ext.UseROM) {
-	      if(pSiS->Chipset == PCI_CHIP_SIS330) {
-	         vga2_bh = pSiS->BIOS[0xec]; vga2_bl = pSiS->BIOS[0xeb];
-	         svhs_bh = pSiS->BIOS[0xee]; svhs_bl = pSiS->BIOS[0xed];
-	         cvbs_bh = pSiS->BIOS[0xf0]; cvbs_bl = pSiS->BIOS[0xef];
-	      } else {
-	         vga2_bh = pSiS->BIOS[0xc4]; vga2_bl = pSiS->BIOS[0xc3];
-	         svhs_bh = pSiS->BIOS[0xc6]; svhs_bl = pSiS->BIOS[0xc5];
-	         cvbs_bh = pSiS->BIOS[0xc8]; cvbs_bl = pSiS->BIOS[0xc7];
-	      }
-	   } else {
-	      if(pSiS->VBFlags & (VB_301B|VB_302B)) {
-	         vga2_bh = 0x01; vga2_bl = 0x90;
-	         svhs_bh = 0x01; svhs_bl = 0x6b;
-	         cvbs_bh = 0x01; cvbs_bl = 0x74;
-	      } else {
-		 vga2_bh = 0x00; vga2_bl = 0x00;
-	         svhs_bh = 0x02; svhs_bl = 0x00;
-	         cvbs_bh = 0x01; cvbs_bl = 0x00;
-	      }
-	   }
-
-	} else if(pSiS->VBFlags & (VB_301C | VB_302ELV)) {
-
-	   vga2_bh = 0x01; vga2_bl = 0x90;
-	   svhs_bh = 0x01; svhs_bl = 0x6b;
-	   cvbs_bh = 0x01; cvbs_bl = 0x10;
-
-	}
-	
-	if(pSiS->VBFlags & (VB_301LV|VB_302LV|VB_302ELV)) {
-	   /* No VGA2 or SCART on LV bridges */
-	   vga2_bh = 0x00; vga2_bl = 0x00;
-	   vga2_ch = 0x00; vga2_cl = 0x00;
-	   svhs_ch = 0x04; svhs_cl = 0x08;
-	   cvbs_ch = 0x08; cvbs_cl = 0x08;
-	} else {
-	   vga2_ch = 0x0e; vga2_cl = 0x08;
-	   svhs_ch = 0x04; svhs_cl = 0x04;
-	   cvbs_ch = 0x08; cvbs_cl = 0x04;
-	}
-
-    } 
+    if(pSiS->VBFlags & (VB_301LV|VB_302LV|VB_302ELV)) {
+       vga2 = vga2_c = 0;
+    }
 
     andSISIDXREG(SISCR, 0x32, ~0x14);
     pSiS->postVBCR32 &= ~0x14;
     
-    if(vga2_ch || vga2_cl || vga2_bh || vga2_bl) {
-#ifdef TWDEBUG
-       xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-                "SiS30x: Scanning for VGA2/SCART (%x %x %x %x)\n",
-    		vga2_bh, vga2_bl, vga2_ch, vga2_cl);
-#endif
-
-       for(j = 0; j < 10; j++) {
-          result = 0;
-          for(i = 0; i < 3; i++) {
-             if(SISDoSense(pScrn, vga2_bl, vga2_bh, vga2_cl, vga2_ch))
-	        result++;
-          }
-	  if((result == 0) || (result >= 2)) break;
-       }
-       if(result) {
-           if(biosflag & 0x01) {
-	      xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
+    if(vga2_c || vga2) {
+       if(SISDoSense(pScrn, vga2, vga2_c)) {
+          if(biosflag & 0x01) {
+	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
 	         "SiS30x: Detected TV connected to SCART output\n");
-	      pSiS->VBFlags |= TV_SCART;
-	      orSISIDXREG(SISCR, 0x32, 0x04);
-	      pSiS->postVBCR32 |= 0x04;
-	   } else {
-	      xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
+	     pSiS->VBFlags |= TV_SCART;
+	     orSISIDXREG(SISCR, 0x32, 0x04);
+	     pSiS->postVBCR32 |= 0x04;
+	  } else {
+	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
 	         "SiS30x: Detected secondary VGA connection\n");
-	      pSiS->VBFlags |= VGA2_CONNECTED;
-	      orSISIDXREG(SISCR, 0x32, 0x10);
-	      pSiS->postVBCR32 |= 0x10;
-	   }
+	     pSiS->VBFlags |= VGA2_CONNECTED;
+	     orSISIDXREG(SISCR, 0x32, 0x10);
+	     pSiS->postVBCR32 |= 0x10;
+	  }
        }
        if(biosflag & 0x01) pSiS->SiS_SD_Flags |= SiS_SD_VBHASSCART;
-    }
-
-    if(pSiS->VBFlags & (VB_301C | VB_302ELV)) {
-       orSISIDXREG(SISPART4,0x0d,0x04);
     }
 
     andSISIDXREG(SISCR, 0x32, 0x3f);
     pSiS->postVBCR32 &= 0x3f;
 
     if((pSiS->VGAEngine == SIS_315_VGA) && (pSiS->VBFlags & (VB_301C|VB_301LV|VB_302LV|VB_302ELV))) {
-       outSISIDXREG(SISPART4,0x11,svhs_bl);
-       setSISIDXREG(SISPART4,0x10,0xE0,(svhs_bh|0x04));
-       SiS_DDC2Delay(pSiS->SiS_Pr, 0x1000);
-       inSISIDXREG(SISPART4,0x03,temp);
-       temp ^= 0x0E;
-       temp &= 0x06;
-       if(temp == 0x06) {
-          outSISIDXREG(SISPART4,0x11,cvbs_bl);
-	  setSISIDXREG(SISPART4,0x10,0xE0,(cvbs_bh|0x04));
-	  SiS_DDC2Delay(pSiS->SiS_Pr, 0x1000);
-	  inSISIDXREG(SISPART4,0x03,temp);
-          temp ^= 0x0E;
-	  temp &= 0x08;
-	  if(temp) {
-	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-     		"SiS30x: Detected TV connected to YPBPR output\n");
-	     orSISIDXREG(SISCR,0x32,0x80);
-	     pSiS->VBFlags |= TV_YPBPR;
-	     pSiS->postVBCR32 |= 0x80;
-	  }
+       if(pSiS->SenseYPbPr) {
+          outSISIDXREG(SISPART2,0x4d,(backupP2_4d | 0x10));
+          SiS_DDC2Delay(pSiS->SiS_Pr, 0x2000);
+          if((result = SISDoSense(pScrn, svhs, 0x0604))) {
+             if((result = SISDoSense(pScrn, cvbs, 0x0804))) {
+	        xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
+     			"SiS30x: Detected TV connected to YPbPr component output\n");
+	        orSISIDXREG(SISCR,0x32,0x80);
+	        pSiS->VBFlags |= TV_YPBPR;
+	        pSiS->postVBCR32 |= 0x80;
+	     }
+          }
+          outSISIDXREG(SISPART2,0x4d,backupP2_4d);
        }
     }
-
-#ifdef TWDEBUG
-    xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-                "SiS30x: Scanning for TV (%x %x %x %x; %x %x %x %x)\n",
-    		svhs_bh, svhs_bl, svhs_ch, svhs_cl,
-		cvbs_bh, cvbs_bl, cvbs_ch, cvbs_cl);
-#endif
 
     andSISIDXREG(SISCR, 0x32, ~0x03);
     pSiS->postVBCR32 &= ~0x03;
 
     if(!(pSiS->VBFlags & TV_YPBPR)) {
 
-       for(j = 0; j < 10; j++) {
-          result = 0;
-          for(i = 0; i < 3; i++) {
-             if(SISDoSense(pScrn, svhs_bl, svhs_bh, svhs_cl, svhs_ch))
-	        result++;
-          }
-          if((result == 0) || (result >= 2)) break;
-       }
-       if(result) {
+       if((result = SISDoSense(pScrn, svhs, svhs_c))) {
           xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
      		"SiS30x: Detected TV connected to SVIDEO output\n");
           pSiS->VBFlags |= TV_SVIDEO;
@@ -1278,17 +1118,8 @@ SISSense30x(ScrnInfoPtr pScrn)
           pSiS->postVBCR32 |= 0x02;
        }
 
-       if((biosflag & 0x02) || (!(result))) {
-
-          for(j = 0; j < 10; j++) {
-             result = 0;
-             for(i = 0; i < 3; i++) {
-                if(SISDoSense(pScrn, cvbs_bl, cvbs_bh, cvbs_cl, cvbs_ch))
-	           result++;
-             }
-             if((result == 0) || (result >= 2)) break;
-          }
-          if(result) {
+       if((biosflag & 0x02) || (!result)) {
+          if(SISDoSense(pScrn, cvbs, cvbs_c)) {
 	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
 	             "SiS30x: Detected TV connected to COMPOSITE output\n");
 	     pSiS->VBFlags |= TV_AVIDEO;
@@ -1299,7 +1130,7 @@ SISSense30x(ScrnInfoPtr pScrn)
 
     }
 
-    SISDoSense(pScrn, 0, 0, 0, 0);
+    SISDoSense(pScrn, 0, 0);
 
     outSISIDXREG(SISPART2,0x00,backupP2_00);
     outSISIDXREG(SISPART4,0x0d,backupP4_0d);
@@ -1710,8 +1541,9 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
 	               "Detected Conexant video bridge - UNSUPPORTED\n");
 	}
 	if((pSiS->VGAEngine == SIS_300_VGA) && (temp == 3)) {
+	    pSiS->VBFlags |= VB_TRUMPION;
 	    xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-	               "Detected Trumpion Zurac (I/II/III) LVDS scaler - UNSUPPORTED\n");
+	               "Detected Trumpion Zurac (I/II/III) LVDS scaler\n");
 	}
 	if(temp > upperlimitvb) {
 	    xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
@@ -1785,22 +1617,12 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
 	           pSiS->ChipFlags |= SiSCF_UseLCDA;
 		   pSiS->SiS_Pr->Backup = TRUE;
 	        } else {
-		   inSISIDXREG(SISCR,0x35,temp);
-		   if(temp & 0x01) {
+		   orSISIDXREG(SISPART1,0x2f,0x01);  /* Unlock CRT2 */
+		   inSISIDXREG(SISPART1,0x13,temp);
+		   if(temp & 0x04) {
 		      pSiS->SiS_Pr->SiS_UseLCDA = TRUE;
 	              pSiS->ChipFlags |= SiSCF_UseLCDA;
 		      pSiS->SiS_Pr->Backup = TRUE;
-		   } else {
-	              inSISIDXREG(SISCR,0x30,temp);
-	 	      if(temp & 0x20) {
-		         orSISIDXREG(SISPART1,0x2f,0x01);  /* Unlock CRT2 */
-		         inSISIDXREG(SISPART1,0x13,temp);
-		         if(temp & 0x04) {
-		            pSiS->SiS_Pr->SiS_UseLCDA = TRUE;
-	                    pSiS->ChipFlags |= SiSCF_UseLCDA;
-			    pSiS->SiS_Pr->Backup = TRUE;
-		         }
-		      } 
 		   }
 	        }
 	     }

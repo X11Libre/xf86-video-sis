@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.36 2004/01/23 22:29:05 twini Exp $ */
+/* $XFree86$ */
 /*
  * Global data and definitions
  *
@@ -12,10 +12,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement: "This product includes
- *    software developed by Thomas Winischhofer, Vienna, Austria."
- * 4) The name of the author may not be used to endorse or promote products
+ * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
@@ -87,14 +84,16 @@ static const struct _sis_vrate {
 	{1, 1152,  864,  75,  TRUE}, {2, 1152,  864,  84, FALSE},
 	{1, 1280,  720,  60,  TRUE}, {2, 1280,  720,  75, FALSE}, {3, 1280,  720,  85,  TRUE},
 	{1, 1280,  768,  60,  TRUE},
+	{1, 1280,  800,  60,  TRUE},
 	{1, 1280,  960,  60,  TRUE}, {2, 1280,  960,  85,  TRUE},
 	{1, 1280, 1024,  43, FALSE}, {2, 1280, 1024,  60,  TRUE}, {3, 1280, 1024,  75, FALSE},
 	{4, 1280, 1024,  85,  TRUE},
 	{1, 1360,  768,  60,  TRUE},
 	{1, 1400, 1050,  60,  TRUE}, {2, 1400, 1050,  75,  TRUE},
-	{1, 1600, 1200,  60,  TRUE}, {2, 1600, 1200,  65,  TRUE}, {3, 1600, 1200,  70,  TRUE}, 
-	{4, 1600, 1200,  75,  TRUE}, {5, 1600, 1200,  85,  TRUE}, {6, 1600, 1200, 100,  TRUE}, 
+	{1, 1600, 1200,  60,  TRUE}, {2, 1600, 1200,  65,  TRUE}, {3, 1600, 1200,  70,  TRUE},
+	{4, 1600, 1200,  75,  TRUE}, {5, 1600, 1200,  85,  TRUE}, {6, 1600, 1200, 100,  TRUE},
 	{7, 1600, 1200, 120,  TRUE},
+	{1, 1680, 1050,  60,  TRUE},
 	{1, 1920, 1440,  60,  TRUE}, {2, 1920, 1440,  65,  TRUE}, {3, 1920, 1440,  70,  TRUE},
 	{4, 1920, 1440,  75,  TRUE}, {5, 1920, 1440,  85,  TRUE}, {6, 1920, 1440, 100,  TRUE},
 	{1, 2048, 1536,  60,  TRUE}, {2, 2048, 1536,  65,  TRUE}, {3, 2048, 1536,  70,  TRUE}, 
@@ -217,7 +216,7 @@ const customttable mycustomttable[] = {
 	  0x14c0, 0x0012,
 	  "Compal", "??? (V1)", CUT_COMPAL1400_1, "COMPAL_1400_1"
 	},
-	{ SIS_650, "1.10.7x", "",
+	{ SIS_650, "1.10.7x", "", /* New BIOS on its way (from BG.) */
 	  0,	/* For EMI */
 	  { 0, 0, 0, 0, 0 },
 	  { 0, 0, 0, 0, 0 },
@@ -1316,12 +1315,14 @@ unsigned char  SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, USHORT offset, unsigned 
 static void    SiSDumpModeInfo(ScrnInfoPtr pScrn, DisplayModePtr mode);
 #endif
 
-extern USHORT   SiS_GetModeID(int VGAEngine, ULONG VBFlags, int HDisplay, int VDisplay, int Depth, BOOL FSTN);
+extern USHORT   SiS_GetModeID(int VGAEngine, ULONG VBFlags, int HDisplay, int VDisplay,
+				  int Depth, BOOL FSTN, int LCDwith, int LCDheight);
 extern USHORT   SiS_GetModeID_LCD(int VGAEngine, ULONG VBFlags, int HDisplay, int VDisplay, int Depth,
 				  BOOLEAN FSTN, USHORT CustomT, int LCDwith, int LCDheight);
 extern USHORT   SiS_GetModeID_TV(int VGAEngine, ULONG VBFlags, int HDisplay, int VDisplay, int Depth);
 extern USHORT   SiS_GetModeID_VGA2(int VGAEngine, ULONG VBFlags, int HDisplay, int VDisplay, int Depth);
 extern int      SiSTranslateToVESA(ScrnInfoPtr pScrn, int modenumber);
+extern BOOLEAN  SiSDetermineROMLayout661(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo);
 extern BOOLEAN 	SiSBIOSSetMode(SiS_Private *SiS_Pr, PSIS_HW_INFO HwDeviceExtension,
                                ScrnInfoPtr pScrn, DisplayModePtr mode, BOOLEAN IsCustom);
 extern BOOLEAN  SiSSetMode(SiS_Private *SiS_Pr, PSIS_HW_INFO HwDeviceExtension,

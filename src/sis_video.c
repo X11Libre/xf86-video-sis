@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_video.c,v 1.48 2004/01/23 22:29:06 twini Exp $ */
+/* $XFree86$ */
 /*
  * Xv driver for SiS 300, 315 and 330 series.
  *
@@ -12,10 +12,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement: "This product includes
- *    software developed by Thomas Winischhofer, Vienna, Austria."
- * 4) The name of the author may not be used to endorse or promote products
+ * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
@@ -248,16 +245,17 @@ static char sisxvsdstorepbrir2[] 			= "XV_SD_STOREDGAMMAPBRIR2";
 static char sisxvsdstorepbrig2[] 			= "XV_SD_STOREDGAMMAPBRIG2";
 static char sisxvsdstorepbrib2[] 			= "XV_SD_STOREDGAMMAPBRIB2";
 static char sisxvsdhidehwcursor[] 			= "XV_SD_HIDEHWCURSOR";
+static char sisxvsdpanelmode[] 				= "XV_SD_PANELMODE";
 #ifdef TWDEBUG
 static char sisxvsetreg[]				= "XV_SD_SETREG";
 #endif
 
 #ifndef SIS_CP
-#define NUM_ATTRIBUTES_300 56
+#define NUM_ATTRIBUTES_300 57
 #ifdef TWDEBUG
-#define NUM_ATTRIBUTES_315 63
+#define NUM_ATTRIBUTES_315 64
 #else
-#define NUM_ATTRIBUTES_315 62
+#define NUM_ATTRIBUTES_315 63
 #endif
 #endif
 
@@ -319,6 +317,7 @@ static XF86AttributeRec SISAttributes_300[NUM_ATTRIBUTES_300] =
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrir2},
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrig2},
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrib2},
+   {XvSettable | XvGettable, 0, 15,            sisxvsdpanelmode},
 #ifdef SIS_CP
    SIS_CP_VIDEO_ATTRIBUTES
 #endif
@@ -387,6 +386,7 @@ static XF86AttributeRec SISAttributes_315[NUM_ATTRIBUTES_315] =
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrig2},
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrib2},
    {XvSettable | XvGettable, 0, 1,             sisxvsdhidehwcursor},
+   {XvSettable | XvGettable, 0, 15,            sisxvsdpanelmode},
 #ifdef TWDEBUG
    {XvSettable             , 0, 0xffffffff,    sisxvsetreg},
 #endif
@@ -1392,6 +1392,7 @@ SISSetupImageVideo(ScreenPtr pScreen)
     pSiS->xv_PBG2	      = MAKE_ATOM(sisxvsdstorepbrig2);
     pSiS->xv_PBB2	      = MAKE_ATOM(sisxvsdstorepbrib2);
     pSiS->xv_SHC	      = MAKE_ATOM(sisxvsdhidehwcursor);
+    pSiS->xv_PMD	      = MAKE_ATOM(sisxvsdpanelmode);
 #ifdef TWDEBUG
     pSiS->xv_STR	      = MAKE_ATOM(sisxvsetreg);
 #endif
@@ -1817,6 +1818,19 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 	   pSiS->HWCursorIsVisible = VisibleBackup;
 	}
      }
+  } else if(attribute == pSiS->xv_PMD) {
+     if(pSiS->xv_sisdirectunlocked) {
+        if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTSCALE) {
+	   if(value & 0x01)      pSiS->SiS_Pr->UsePanelScaler = -1;
+	   else if(value & 0x02) pSiS->SiS_Pr->UsePanelScaler = 1;
+	   else			 pSiS->SiS_Pr->UsePanelScaler = 0;
+	   if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTCENTER) {
+	      if(value & 0x04)      pSiS->SiS_Pr->CenterScreen = -1;
+	      else if(value & 0x08) pSiS->SiS_Pr->CenterScreen = 1;
+	      else		    pSiS->SiS_Pr->CenterScreen = 0;
+	   }
+        }
+     }
 #ifdef TWDEBUG
   } else if(attribute == pSiS->xv_STR) {
      unsigned short port;
@@ -1960,6 +1974,7 @@ SISGetPortAttribute(
   } else if(attribute == pSiS->xv_CMDR) {
      *value = pSiS->xv_sd_result;
   } else if(attribute == pSiS->xv_OVR) {
+     /* Changing of CRT2 settings not supported in DHM! */
      *value = 0;
      if(pSiS->OptTVSOver == 1)         *value = 3;
      else if(pSiS->UseCHOverScan == 1) *value = 2;
@@ -2034,6 +2049,20 @@ SISGetPortAttribute(
           *value = pSiS->GammaPBriB;
   } else if(attribute == pSiS->xv_SHC) {
      *value = pSiS->HideHWCursor ? 1 : 0;
+  } else if(attribute == pSiS->xv_PMD) {
+     *value = 0;
+     if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTSCALE) {
+        switch(pSiS->SiS_Pr->UsePanelScaler) {
+           case -1: *value |= 0x01; break;
+           case 1:  *value |= 0x02; break;
+        }
+	if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTCENTER) {
+           switch(pSiS->SiS_Pr->CenterScreen) {
+              case -1: *value |= 0x04; break;
+              case 1:  *value |= 0x08; break;
+           }
+	}
+     }
 #ifdef SIS_CP
   SIS_CP_VIDEO_GETATTRIBUTE
 #endif

@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_dri.h,v 1.12 2004/01/04 18:08:00 twini Exp $ */
+/* $XFree86$ */
 /*
  * SiS DRI wrapper
  *
