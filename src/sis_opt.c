@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_opt.c,v 1.45 2003/11/11 18:04:31 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_opt.c,v 1.49 2003/12/02 12:15:33 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_opt.c,v 1.49 2003/12/02 12:15:33 twini Exp $ */
 /*
  * SiS driver option evaluation
  *
@@ -58,6 +59,7 @@ typedef enum {
     OPTION_FORCECRT1,
     OPTION_XVONCRT2,
     OPTION_PDC,
+    OPTION_EMI,
     OPTION_TVSTANDARD,
     OPTION_USEROMDATA,
     OPTION_NOINTERNALMODES,
@@ -160,6 +162,9 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_FORCECRT1,         	"ForceCRT1",              OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_XVONCRT2,          	"XvOnCRT2",               OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_PDC,               	"PanelDelayCompensation", OPTV_INTEGER,   {0}, -1    },
+    { OPTION_EMI,               	"EMI", 			  OPTV_INTEGER,   {0}, -1    },
+    { OPTION_LVDSHL,			"LVDSHL", 	  	  OPTV_INTEGER,   {0}, -1    },
+    { OPTION_SPECIALTIMING,        	"SpecialTiming",          OPTV_STRING,    {0}, -1    },
     { OPTION_TVSTANDARD,        	"TVStandard",             OPTV_STRING,    {0}, -1    },
     { OPTION_USEROMDATA,		"UseROMData",	          OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_NOINTERNALMODES,   	"NoInternalModes",        OPTV_BOOLEAN,   {0}, FALSE },
@@ -218,8 +223,6 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_XVMEMCPY,			"XvUseMemcpy",  	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_SCALELCD,			"ScaleLCD",	   	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_ENABLEHOTKEY,		"EnableHotkey",	   	  OPTV_BOOLEAN,   {0}, -1    },
-    { OPTION_SPECIALTIMING,        	"SpecialTiming",          OPTV_STRING,    {0}, -1    },
-    { OPTION_LVDSHL,			"LVDSHL", 	  	  OPTV_INTEGER,   {0}, -1    },
     { OPTION_ENABLESISCTRL,		"EnableSiSCtrl",   	  OPTV_BOOLEAN,   {0}, -1    },
 #ifdef SISMERGED
     { OPTION_MERGEDFB,			"MergedFB",		  OPTV_BOOLEAN,	  {0}, FALSE },
@@ -235,7 +238,7 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_MERGEDDPI,			"MergedDPI", 		  OPTV_STRING,	  {0}, FALSE },
 #ifdef SISXINERAMA
     { OPTION_NOSISXINERAMA,		"NoMergedXinerama",	  OPTV_BOOLEAN,	  {0}, FALSE },
-    { OPTION_NOSISXINERAMA2,		"NoTwinviewXineramaInfo",  OPTV_BOOLEAN,  {0}, FALSE },   /* alias */
+    { OPTION_NOSISXINERAMA2,		"NoTwinviewXineramaInfo", OPTV_BOOLEAN,   {0}, FALSE },   /* alias */
     { OPTION_CRT2ISSCRN0,		"MergedXineramaCRT2IsScreen0",OPTV_BOOLEAN,{0},FALSE },
 #endif
 #endif
@@ -250,7 +253,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 {
     SISPtr      pSiS = SISPTR(pScrn);
     MessageType from;
-/*  double      temp;  */
     char        *strptr;
     static const char *mybadparm = "\"%s\" is is not a valid parameter for option \"%s\"\n";
     static const char *disabledstr = "disabled";
@@ -271,7 +273,6 @@ SiSOptions(ScrnInfoPtr pScrn)
     
     pSiS->newFastVram = -1;
     pSiS->NoHostBus = FALSE;
-/*  pSiS->UsePCIRetry = TRUE; */
     pSiS->TurboQueue = TRUE;
 #ifdef SISVRAMQ
     /* TODO: Option (315 series VRAM command queue) */
@@ -282,7 +283,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->HWCursor = TRUE;
     pSiS->Rotate = FALSE;
     pSiS->ShadowFB = FALSE;
-    pSiS->loadDRI = TRUE;
+    pSiS->loadDRI = FALSE;
     pSiS->agpWantedPages = AGP_PAGES;
     pSiS->VESA = -1;
     pSiS->NoXvideo = FALSE;
@@ -293,6 +294,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->XvOnCRT2 = FALSE;
     pSiS->NoYV12 = -1;
     pSiS->PDC = -1;
+    pSiS->EMI = -1;
     pSiS->OptTVStand = -1;
     pSiS->OptROMUsage = -1;
     pSiS->noInternalModes = FALSE;
@@ -394,6 +396,14 @@ SiSOptions(ScrnInfoPtr pScrn)
          pSiS->HWCursor = FALSE;
     }
 
+    /* DRI only supported on 300 series,
+     * so don't load DRI by default on
+     * others.
+     */
+    if(pSiS->VGAEngine == SIS_300_VGA) {
+       pSiS->loadDRI = TRUE;
+    }
+
 #if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
     pSiS->OptUseColorCursor = 0;
 #else
@@ -405,6 +415,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     	pSiS->OptUseColorCursor = 1;
     }
 #endif
+
     if(pSiS->VGAEngine == SIS_300_VGA) {
        pSiS->AllowHotkey = 0;
     } else if(pSiS->VGAEngine == SIS_315_VGA) {
@@ -732,6 +743,9 @@ SiSOptions(ScrnInfoPtr pScrn)
        if(xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &vali)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "PanelDelayCompensation");
        }
+       if(xf86GetOptValInteger(pSiS->Options, OPTION_EMI, &vali)) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "EMI");
+       }
        if(xf86GetOptValString(pSiS->Options, OPTION_SPECIALTIMING)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "SpecialTiming");
        }
@@ -911,7 +925,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 	  /* ForceCRT1Type (315/330 series only)
 	   * Used for forcing the driver to initialize CRT1 as
 	   * VGA (analog) or LCDA (for simultanious LCD and TV
-           * display) - on M650/651 with 30xLV only!
+           * display) - on M650/651 and 661 or later with 301C/30xLV only!
            */
 	  if(pSiS->VGAEngine == SIS_315_VGA) {
              strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_FORCE_CRT1TYPE);
@@ -1104,6 +1118,28 @@ SiSOptions(ScrnInfoPtr pScrn)
 	     }
           }
 
+	 /* EMI (315/330 series + 302LV/302ELV bridge only)
+          * This might be required if the LCD panel loses sync on
+	  * mode switches. So far, this problem should not show up
+	  * due to the auto-detection (from reading the values set
+	  * by the BIOS; however, the BIOS values are wrong sometimes
+	  * such as in the case of some Compal machines with a
+	  * 1400x1050, or some Inventec(Compaq) machines with a
+	  * 1280x1024 panel.
+          * The parameter is an integer from 0 to 0x60ffffff.
+          */
+          if(xf86GetOptValInteger(pSiS->Options, OPTION_EMI, &pSiS->EMI)) {
+	     if((pSiS->EMI < 0) || (pSiS->EMI > 0x60ffffff)) {
+	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+	            "Illegal EMI parameter, valid is 0 through 0x60ffffff\n");
+	        pSiS->EMI = -1;
+	     } else {
+	        pSiS->EMI &= 0x60ffffff;
+                xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
+                    "EMI will be 0x%04x\n", pSiS->EMI);
+	     }
+          }
+
        }
 
 
@@ -1158,7 +1194,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 
       /* CHTVType  (315/330 series only)
        * Used for telling the driver if the TV output shall
-       * be i480 HDTV or SCART.
+       * be 480i HDTV or SCART.
        */
        if(pSiS->VGAEngine == SIS_315_VGA) {
           strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_CHTVTYPE);

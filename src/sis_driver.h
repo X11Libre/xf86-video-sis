@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.27 2003/11/19 00:49:05 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.29 2003/11/29 12:08:02 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.29 2003/11/29 12:08:02 twini Exp $ */
 /*
  * Global data and definitions
  *
@@ -141,24 +142,24 @@ const customttable mycustomttable[] = {
 	  "Inventec (Compaq)", "3017cl/3045US", CUT_COMPAQ12802, "COMPAQ_1280"
 	},
 	{ SIS_650, "", "",
-	  0,
+	  0,	/* Special 1024x768 / dual link */
 	  { 0x00c, 0, 0, 0, 0 },
 	  { 'e'  , 0, 0, 0, 0 },
 	  0x1558, 0x0287,
 	  "Clevo", "L285/L287 (Version 1)", CUT_CLEVO1024, "CLEVO_L28X_1"
 	},
 	{ SIS_650, "", "",
-	  0,
+	  0,	/* Special 1024x768 / single link */
 	  { 0x00c, 0, 0, 0, 0 },
 	  { 'y'  , 0, 0, 0, 0 },
 	  0x1558, 0x0287,
 	  "Clevo", "L285/L287 (Version 2)", CUT_CLEVO10242, "CLEVO_L28X_2"
 	},
 	{ SIS_650, "", "",
-	  0,
+	  0,	/* Special 1400x1050 */
 	  { 0, 0, 0, 0, 0 },
 	  { 0, 0, 0, 0, 0 },
-	  0x1558, 0x0400,  /* possibly 401 and 402 as well; not panelsize specific (?) */
+	  0x1558, 0x0400,  /* possibly 401 and 402 as well; not panelsize specific? */
 	  "Clevo", "D400S/D410S/D400H/D410H", CUT_CLEVO1400, "CLEVO_D4X0"
 	},
 	{ SIS_650, "", "",
@@ -195,6 +196,34 @@ const customttable mycustomttable[] = {
 	  { 0, 0, 0, 0, 0 },
 	  0x1043, 0x1612,
 	  "Asus", "L3000D/L3500D", CUT_ASUSL3000D, "ASUS_L3X00"
+	},
+	{ SIS_650, "1.10.9k", "",
+	  0,	/* For EMI */
+	  { 0, 0, 0, 0, 0 },
+	  { 0, 0, 0, 0, 0 },
+	  0x1025, 0x0028,
+	  "Acer", "Aspire 1700", CUT_ACER1280, "ACER_ASPIRE1700"
+	},
+	{ SIS_650, "1.10.7w", "",
+	  0,	/* For EMI */
+	  { 0, 0, 0, 0, 0 },
+	  { 0, 0, 0, 0, 0 },
+	  0x14c0, 0x0012,
+	  "Compal", "??? (V1)", CUT_COMPAL1400_1, "COMPAL_1400_1"
+	},
+	{ SIS_650, "1.10.7x", "",
+	  0,	/* For EMI */
+	  { 0, 0, 0, 0, 0 },
+	  { 0, 0, 0, 0, 0 },
+	  0x14c0, 0x0012,
+	  "Compal", "??? (V2)", CUT_COMPAL1400_2, "COMPAL_1400_2"
+	},
+	{ SIS_650, "1.10.8o", "",
+	  0,	/* For EMI (unknown) */
+	  { 0, 0, 0, 0, 0 },
+	  { 0, 0, 0, 0, 0 },
+	  0x1043, 0x1612,
+	  "Asus", "A2H", CUT_ASUSA2H, "ASUS_A2H"
 	},
 	{ 4321, "", "",			/* never autodetected */
 	  0,

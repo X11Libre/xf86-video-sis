@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_vga.c,v 1.38 2003/11/19 00:49:06 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_vga.c,v 1.39 2003/11/24 19:08:53 twini Exp $ */
 /*
  * Mode setup and basic video bridge detection
  *
@@ -1337,9 +1338,10 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
     int     upperlimitch, lowerlimitch;
     int     chronteltype, chrontelidreg, upperlimitvb;
     unsigned char test[3];
+    static const char *detectvb = "Detected %s video bridge (ID %d; Revision 0x%x)\n";
 #if 0
     unsigned char sr17=0;
-#endif    
+#endif
     static const char  *ChrontelTypeStr[] = {
         "7004",
 	"7005",
@@ -1396,43 +1398,31 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
 		if(temp2 == 0xff) {
 	   	   pSiS->VBFlags |= VB_302LV;
 		   pSiS->sishw_ext.ujVBChipID = VB_CHIP_302LV;
-    		   xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS302LV video bridge (ID 1; Revision 0x%x)\n",
-				temp1);
+    		   xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb, "SiS302LV", 1, temp1);
 		} else {
 		   pSiS->VBFlags |= VB_302ELV;
 		   pSiS->sishw_ext.ujVBChipID = VB_CHIP_302ELV;
-    		   xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS302ELV video bridge (ID 1; Revision 0x%x)\n",
-				temp1);
+    		   xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb, "SiS302ELV", 1, temp1);
 		}
 	} else if(temp1 >= 0xD0) {
 	   	pSiS->VBFlags |= VB_301LV;
 		pSiS->sishw_ext.ujVBChipID = VB_CHIP_301LV;
-    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS301LV video bridge (ID 1; Revision 0x%x)\n",
-				temp1);
-	} else if(temp1 >= 0xC0) {   
+    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb, "SiS301LV", 1, temp1);
+	} else if(temp1 >= 0xC0) {
 	   	pSiS->VBFlags |= VB_301C;
 		pSiS->sishw_ext.ujVBChipID = VB_CHIP_301C;
-    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS301C video bridge (ID 1; Revision 0x%x)\n",
-				temp1);
+    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb, "SiS301C", 1, temp1);
 	} else if(temp1 >= 0xB0) {
 	        pSiS->VBFlags |= VB_301B;
 		pSiS->sishw_ext.ujVBChipID = VB_CHIP_301B;
 		inSISIDXREG(SISPART4, 0x23, temp2);
 		if(!(temp2 & 0x02)) pSiS->VBFlags |= VB_30xBDH;
-    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS301B%s video bridge (Revision 0x%x)\n",
-				(temp2 & 0x02) ? "" : " (DH)",
-				temp1);
+    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb,
+				(temp2 & 0x02) ? "SiS301B" : "SiS301B-DH", temp1);
 	} else {
 	        pSiS->VBFlags |= VB_301;
 		pSiS->sishw_ext.ujVBChipID = VB_CHIP_301;
-		xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS301 video bridge (Revision 0x%x)\n",
-				temp1);
+		xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb, "SiS301", 1, temp1);
 	}
 
 	SISSense30x(pScrn); 
@@ -1444,32 +1434,25 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
 	if(temp1 >= 0xE0) {
         	pSiS->VBFlags |= VB_302LV;
 		pSiS->sishw_ext.ujVBChipID = VB_CHIP_302LV;
-    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS302LV video bridge (ID 2; Revision 0x%x)\n",
-				temp1);
+    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb, "SiS302LV", 2, temp1);
 	} else if(temp1 >= 0xD0) {
         	pSiS->VBFlags |= VB_301LV;
 		pSiS->sishw_ext.ujVBChipID = VB_CHIP_301LV;
-    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS301LV video bridge (ID 2; Revision 0x%x)\n",
-				temp1);
+    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb, "SiS301LV", 2, temp1);
 	} else {
 	        pSiS->VBFlags |= VB_302B;
 		pSiS->sishw_ext.ujVBChipID = VB_CHIP_302B;
 		inSISIDXREG(SISPART4, 0x23, temp2);
 		if(!(temp & 0x02)) pSiS->VBFlags |= VB_30xBDH;
-    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		                "Detected SiS302B%s video bridge (Revision 0x%x)\n",
-				(temp2 & 0x02) ? "" : " (DH)",
-				temp1);
+    		xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb,
+				(temp2 & 0x02) ? "SiS302B" : "SiS302B-DH", temp1);
 	}
 
 	SISSense30x(pScrn);
 
     } else if (temp == 3) {
 
-    	xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-	           "Detected SiS303 video bridge - not supported\n");
+    	xf86DrvMsg(pScrn->scrnIndex, X_PROBED, detectvb, "unsupported SiS303", temp, 0);
 
     } else {
 
@@ -1499,7 +1482,7 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
 	if((temp >= lowerlimitlvds) && (temp <= upperlimitlvds)) {
                pSiS->VBFlags |= VB_LVDS;
     	       xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-	               "Detected LVDS transmitter (Bridge type %d)\n", temp);
+	               "Detected LVDS transmitter (External chip ID %d)\n", temp);
 	}
         if((temp >= lowerlimitch) && (temp <= upperlimitch))  {
 	    /* Set global for init301.c */
@@ -1543,7 +1526,7 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
 		   default:   temp2 = 8; pSiS->ChrontelType = CHRONTEL_701x; break;
 		}
    	        xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-	               "Detected Chrontel %s TV encoder (ID 0x%02x; bridge type %d)\n",
+	               "Detected Chrontel %s TV encoder (ID 0x%02x; chip ID %d)\n",
 		       			ChrontelTypeStr[temp2], temp1, temp);
 
 		/* Sense connected TV's */
@@ -1782,7 +1765,7 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
 	  }
 	  if(pSiS->ChipFlags & SiSCF_UseLCDA) {
 	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		"Bridge uses LCDA for low resolution and text modes\n");
+		"BIOS uses LCDA for low resolution and text modes\n");
 	     if(pSiS->SiS_Pr->Backup == TRUE) {
 	        inSISIDXREG(SISCR,0x34,pSiS->SiS_Pr->Backup_Mode);
                 inSISIDXREG(SISPART1,0x14,pSiS->SiS_Pr->Backup_14);

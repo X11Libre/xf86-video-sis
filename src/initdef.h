@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/initdef.h,v 1.24 2003/11/19 00:49:03 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/initdef.h,v 1.26 2003/11/29 12:08:02 twini Exp $ */
 /*
  * Global definitions for init.c and init301.c
  *
@@ -75,8 +76,9 @@
 #define SetCRT2ToSCART          0x0010
 #define SetCRT2ToLCD            0x0020
 #define SetCRT2ToRAMDAC         0x0040
-#define SetCRT2ToHiVisionTV     0x0080
-#define SetCRT2ToTV             0x009C   		/* alias */
+#define SetCRT2ToYPbPr	        0x0080	/* Needs change in sis_vga.c if changed (GPIO) */
+#define SetCRT2ToTV             (SetCRT2ToYPbPr | SetCRT2ToSCART | SetCRT2ToSVIDEO | SetCRT2ToAVIDEO)
+#define SetCRT2ToTVNoYPbPr  	(SetCRT2ToSCART | SetCRT2ToSVIDEO | SetCRT2ToAVIDEO)
 #define SetNTSCTV               0x0000   /* CR 31 */
 #define SetPALTV                0x0100   		/* Deprecated here, now in TVMode */
 #define SetInSlaveMode          0x0200
@@ -120,8 +122,9 @@
 #define SupportTV               0x0008
 #define SupportTV1024           0x0800
 #define SupportCHTV 		0x0800
-#define SupportHiVisionTV       0x0010
-#define SupportHiVisionTV2      0x1000
+#define Support64048060Hz       0x0800  /* Special for 640x480 LCD */
+#define SupportYPbPr            0x0010
+#define SupportYPbPr2           0x1000
 #define SupportLCD              0x0020
 #define SupportRAMDAC2          0x0040	/* All           (<= 100Mhz) */
 #define SupportRAMDAC2_135      0x0100  /* All except DH (<= 135Mhz) */
@@ -153,6 +156,13 @@
 #define TVSetTVSimuMode		0x0800
 #define TVRPLLDIV2XO		0x1000
 #define TVSetNTSC1024		0x2000
+
+/* YPbPr flag (YPbPr not supported yet) */
+#define YPbPr750                0x0001	/* 750p (must be a single bit, checked logially) */
+#define YPbPr525                0x0002	/* 525p (must be a single bit, checked logially) */
+#define YPbPrHiVision           0x0003	/* old HiVision */
+#define YPbPrModeMask           (YPbPr750 | YPbPr525 | YPbPrHiVision)
+#define YPbPrSetSVideo     	0x0004	/* (sets SVIDEO flag) */
 
 /* SysFlags (to identify special versions) */
 #define SF_Is651                0x0001
@@ -243,14 +253,15 @@
 #define LCDSyncShift               6
 
 /* CR38 (315 series) */
-#define EnableDualEdge 		0x01   
-#define SetToLCDA		0x02   /* LCD channel A (302B/30xLV and 650+LVDS only) */
-#define EnableSiSHiVision       0x04   /* HiVision (HDTV) on SiS bridge */
-#define EnableLVDSScart         0x04   /* Scart on Ch7019 (unofficial definition - TW) */
-#define EnableLVDSHiVision      0x08   /* YPbPr color format (480i HDTV); only on 650/Ch7019 systems */
-#define EnableHiVision750       0x08   /* Enable 750P HiVision mode (30xLV only) */
-#define EnableHiVision525       0x10   /* Enable 525P HiVision mode (30xLV only) */
-#define SiSHiVision2            0x20   /* ? - |  --- mask 0x38 combinations have different meaning! */
+#define EnableDualEdge 		0x01
+#define SetToLCDA		0x02   /* LCD channel A (301C/302B/30x(E)LV and 650+LVDS only) */
+#define EnableSiSYPbPr          0x04   /* YPbPr on SiS bridge (not used) */
+#define EnableCHScart           0x04   /* Scart on Ch7019 (unofficial definition - TW) */
+#define EnableCHYPbPr           0x08   /* YPbPr on Ch7019 (480i HDTV); only on 650/Ch7019 systems */
+#define EnableYPbPr750          0x08   /* Enable 750P YPbPr mode (30xLV/301C only) (not supported) */
+#define EnableYPbPr525          0x10   /* Enable 525P YPbPr mode (30xLV/301C only) (not supported) */
+#define EnableYPbPrHiVision     0x18   /* Enable HiVision (not supported) */
+#define EnableYPbPrsetSVideo    0x20   /* Enable YPbPr and set SVideo */
 #define EnablePALM              0x40   /* 1 = Set PALM */
 #define EnablePALN              0x80   /* 1 = Set PALN */
 #define EnableNTSCJ             EnablePALM  /* Not BIOS */

@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_vb.c,v 1.31 2003/11/19 00:49:06 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_vb.c,v 1.32 2003/11/23 19:44:26 twini Exp $ */
 /*
  * Video bridge detection and configuration for 300, 315 and 330 series
  *
@@ -388,16 +389,16 @@ void SISTVPreInit(ScrnInfoPtr pScrn)
        pSiS->VBFlags |= TV_SVIDEO;
     else if(CR32 & 0x01)
        pSiS->VBFlags |= TV_AVIDEO;
-    else if(CR32 & 0x40)
+    else if((CR32 & 0x40) && (!(pSiS->VBFlags & (VB_301C | VB_301LV | VB_302LV | VB_302ELV))))
        pSiS->VBFlags |= (TV_SVIDEO | TV_HIVISION);
     else if((CR38 & 0x04) && (pSiS->VBFlags & (VB_301C | VB_301LV | VB_302LV | VB_302ELV)))
-       pSiS->VBFlags |= TV_HIVISION_LV;
-    else if((CR38 & 0x04) && (pSiS->VBFlags & VB_CHRONTEL)) 
+       pSiS->VBFlags |= TV_YPBPR;
+    else if((CR38 & 0x04) && (pSiS->VBFlags & VB_CHRONTEL))
        pSiS->VBFlags |= (TV_CHSCART | TV_PAL);
     else if((CR38 & 0x08) && (pSiS->VBFlags & VB_CHRONTEL))
        pSiS->VBFlags |= (TV_CHHDTV | TV_NTSC);
 	        
-    if(pSiS->VBFlags & (TV_SCART | TV_SVIDEO | TV_AVIDEO | TV_HIVISION | TV_HIVISION_LV)) {
+    if(pSiS->VBFlags & (TV_SCART | TV_SVIDEO | TV_AVIDEO | TV_HIVISION | TV_YPBPR)) {
        if(pSiS->VGAEngine == SIS_300_VGA) {
 	  /* TW: Should be SR38, but this does not work. */
 	  if(SR16 & 0x20)
@@ -443,7 +444,7 @@ void SISTVPreInit(ScrnInfoPtr pScrn)
        }
     }
     
-    if(pSiS->VBFlags & (TV_SCART | TV_SVIDEO | TV_AVIDEO | TV_HIVISION | TV_HIVISION_LV | TV_CHSCART | TV_CHHDTV)) {
+    if(pSiS->VBFlags & (TV_SCART | TV_SVIDEO | TV_AVIDEO | TV_HIVISION | TV_YPBPR | TV_CHSCART | TV_CHHDTV)) {
        xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
 			"%sTV standard %s\n",
 			(pSiS->VBFlags & (TV_CHSCART | TV_CHHDTV)) ? "Using " : "Detected default ",

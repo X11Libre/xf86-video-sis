@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/vstruct.h,v 1.22 2003/11/03 17:02:54 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vstruct.h,v 1.25 2003/12/02 12:15:33 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/vstruct.h,v 1.25 2003/12/02 12:15:33 twini Exp $ */
 /*
  * General structure definitions for universal mode switching modules
  *
@@ -212,20 +213,24 @@ typedef UCHAR DRAM4Type[4];
 
 /* Defines for SiS_CustomT */
 /* Never change these for sisfb compatibility */
-#define CUT_NONE         0
-#define CUT_FORCENONE    1
-#define CUT_BARCO1366    2
-#define CUT_BARCO1024    3
-#define CUT_COMPAQ1280   4
-#define CUT_COMPAQ12802  5
-#define CUT_PANEL848     6
-#define CUT_CLEVO1024    7
-#define CUT_CLEVO10242   8
-#define CUT_CLEVO1400    9
-#define CUT_CLEVO14002   10
-#define CUT_UNIWILL1024  11
-#define CUT_ASUSL3000D   12
-#define CUT_UNIWILL10242 13
+#define CUT_NONE          0
+#define CUT_FORCENONE     1
+#define CUT_BARCO1366     2
+#define CUT_BARCO1024     3
+#define CUT_COMPAQ1280    4
+#define CUT_COMPAQ12802   5
+#define CUT_PANEL848      6
+#define CUT_CLEVO1024     7
+#define CUT_CLEVO10242    8
+#define CUT_CLEVO1400     9
+#define CUT_CLEVO14002    10
+#define CUT_UNIWILL1024   11
+#define CUT_ASUSL3000D    12
+#define CUT_UNIWILL10242  13
+#define CUT_ACER1280      14
+#define CUT_COMPAL1400_1  15
+#define CUT_COMPAL1400_2  16
+#define CUT_ASUSA2H       17
 
 typedef struct _SiS_Private
 {
@@ -258,7 +263,6 @@ typedef struct _SiS_Private
 	USHORT SiS_IF_DEF_TRUMPION;
 	USHORT SiS_IF_DEF_DSTN;
 	USHORT SiS_IF_DEF_FSTN;
-	USHORT SiS_IF_DEF_HiVision;
 	USHORT SiS_SysFlags;
 	UCHAR  SiS_VGAINFO;
 #ifndef LINUX_KERNEL
@@ -272,6 +276,11 @@ typedef struct _SiS_Private
 	int    SiS_UseOEM;
 	ULONG  SiS_CustomT;
 	USHORT SiS_Backup70xx;
+	BOOLEAN HaveEMI;
+	BOOLEAN HaveEMILCD;
+	BOOLEAN OverruleEMI;
+	UCHAR  EMI_30,EMI_31,EMI_32,EMI_33;
+	UCHAR  PDC;
 	USHORT SiS_CRT1Mode;
 	USHORT SiS_flag_clearbuffer;
 	int    SiS_RAMType;
@@ -286,7 +295,7 @@ typedef struct _SiS_Private
 	USHORT SiS_LCDInfo661;
 	USHORT SiS_VBType;
 	USHORT SiS_VBExtInfo;
-	USHORT SiS_HiVision;
+	USHORT SiS_YPbPr;
 	USHORT SiS_SelectCRT2Rate;
 	USHORT SiS_SetFlag;
 	USHORT SiS_RVBHCFACT;
@@ -664,6 +673,7 @@ typedef struct _SiS_Private
 	BOOLEAN CP_HaveCustomData;
 	int     CP_PreferredX, CP_PreferredY;
 	int	CP_MaxX, CP_MaxY, CP_MaxClock;
+	BOOLEAN CP_Supports64048075;
 	int     CP_HDisplay[7], CP_VDisplay[7];	/* For Custom LCD panel dimensions */
     	int     CP_HTotal[7], CP_VTotal[7];
     	int     CP_HSyncStart[7], CP_VSyncStart[7];

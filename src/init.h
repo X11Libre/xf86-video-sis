@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/init.h,v 1.35 2003/11/20 19:53:21 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/init.h,v 1.37 2003/12/02 12:15:30 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/init.h,v 1.37 2003/12/02 12:15:30 twini Exp $ */
 /*
  * Data and prototypes for init.c
  *
@@ -879,6 +880,11 @@ static const SiS_LCDDataStruct  SiS_LCD1280x960Data[] =
 	{    1,   1,1800,1000,1800,1000}
 };
 
+/* 1280x768 panel data from Fujitsu 7911 (VL-17WDX8).
+ * Other 1280x768 panels (with clock != 81000, HTxVT != 1688x802)
+ * will be treated as custom panels.
+ */
+
 static const SiS_LCDDataStruct  SiS_StLCD1280x768Data[] =
 {
 	{ 211,  100, 2100,  408, 1688,  802 }, /* These values are *wrong* */
@@ -889,7 +895,7 @@ static const SiS_LCDDataStruct  SiS_StLCD1280x768Data[] =
 	{ 211,   72, 1008,  609, 1688,  802 },
 	{ 211,  128, 1400,  776, 1688,  802 },
 	{ 211,  205, 1680, 1041, 1688,  802 },
-	{ 1,      1, 1688,  802, 1688,  802 }  /* That's the only one that *might* be correct */
+	{ 1,      1, 1688,  802, 1688,  802 }  /* That's the only one that is correct */
 };
 
 static const SiS_LCDDataStruct  SiS_ExtLCD1280x768Data[] =
@@ -902,11 +908,11 @@ static const SiS_LCDDataStruct  SiS_ExtLCD1280x768Data[] =
 	{ 211,   72, 1008,  609, 1688,  802 },
 	{ 211,  128, 1400,  776, 1688,  802 },
 	{ 211,  205, 1680, 1041, 1688,  802 },
-	{ 1,      1, 1688,  802, 1688,  802 }  /* That's the only one that *might* be correct */
+	{ 1,      1, 1688,  802, 1688,  802 }  /* That's the only one that is correct */
 };
 
 static const SiS_LCDDataStruct  SiS_NoScaleData1280x768[] =
-{  /* All values guessed */
+{
         { 1, 1, 1688,  802, 1688,  802},
 	{ 1, 1, 1688,  802, 1688,  802},
 	{ 1, 1, 1688,  802, 1688,  802},
@@ -2763,7 +2769,7 @@ extern void      SiS_GetVBInfo(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeId
 			       PSIS_HW_INFO HwInfo, int chkcrt2mode);
 extern void      SiS_GetLCDResInfo(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex,
 			           PSIS_HW_INFO HwInfo);
-extern void      SiS_SetHiVision(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo);
+extern void      SiS_SetYPbPr(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo);
 extern void 	 SiS_SetTVMode(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex, PSIS_HW_INFO HwInfo);
 extern void      SiS_UnLockCRT2(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo);
 extern void      SiS_LockCRT2(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo);

@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.156 2003/11/20 19:53:23 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.160 2003/12/02 12:15:32 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.160 2003/12/02 12:15:32 twini Exp $ */
 /*
  * Copyright 2001, 2002, 2003 by Thomas Winischhofer, Vienna, Austria.
  *
@@ -2675,6 +2676,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     pSiS->sisfblcda = 0xff;
     pSiS->sisfbscalelcd = -1;
     pSiS->sisfbspecialtiming = CUT_NONE;
+    pSiS->sisfb_haveemi = FALSE;
     pSiS->OldMode = 0;
     pSiS->sisfbfound = FALSE;
 
@@ -2764,6 +2766,13 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 			          if(pSiS->VGAEngine == SIS_315_VGA) {
 				     pSiS->donttrustpdc = FALSE;
 				     pSiS->sisfbpdc = mysisfbinfo.sisfb_lcdpdc;
+				     if(sisfbversion >= 0x010618) {
+				        pSiS->sisfb_haveemi = mysisfbinfo.sisfb_haveemi ? TRUE : FALSE;
+					pSiS->sisfb_emi30 = mysisfbinfo.sisfb_emi30;
+					pSiS->sisfb_emi31 = mysisfbinfo.sisfb_emi31;
+					pSiS->sisfb_emi32 = mysisfbinfo.sisfb_emi32;
+					pSiS->sisfb_emi33 = mysisfbinfo.sisfb_emi33;
+				     }
 				  }
 			       }
 		            }
@@ -2871,7 +2880,11 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        pSiS->SiS_Pr->SiS_ChSW = FALSE;
        pSiS->SiS_Pr->SiS_CustomT = CUT_NONE;
        pSiS->SiS_Pr->CRT1UsesCustomMode = FALSE;
+       pSiS->SiS_Pr->PDC = 0;
        pSiS->SiS_Pr->LVDSHL = -1;
+       pSiS->SiS_Pr->HaveEMI = FALSE;
+       pSiS->SiS_Pr->HaveEMILCD = FALSE;
+       pSiS->SiS_Pr->OverruleEMI = FALSE;
     }
 
     /* Get our relocated IO registers */
@@ -3219,7 +3232,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	     pSiSEnt->ForceCRT2Type = pSiS->ForceCRT2Type;
 	     pSiSEnt->ForceTVType = pSiS->ForceTVType;
 	     pSiSEnt->UsePanelScaler = pSiS->UsePanelScaler;
-	     pSiSEnt->PDC = pSiS->PDC;
 	     pSiSEnt->DSTN = pSiS->DSTN;
 	     pSiSEnt->OptTVStand = pSiS->OptTVStand;
 	     pSiSEnt->NonDefaultPAL = pSiS->NonDefaultPAL;
@@ -3291,7 +3303,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	     pSiS->ForceCRT1Type = pSiSEnt->ForceCRT1Type;
 	     pSiS->ForceCRT2Type = pSiSEnt->ForceCRT2Type;
 	     pSiS->UsePanelScaler = pSiSEnt->UsePanelScaler;
-	     pSiS->PDC = pSiSEnt->PDC;
 	     pSiS->DSTN = pSiSEnt->DSTN;
 	     pSiS->OptTVStand = pSiSEnt->OptTVStand;
 	     pSiS->NonDefaultPAL = pSiSEnt->NonDefaultPAL;
@@ -4305,139 +4316,170 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     pSiS->VBFlags_backup = pSiS->VBFlags;
 
     /* Find out about paneldelaycompensation and evaluate option */
-    pSiS->sishw_ext.pdc = 0;
+#ifdef SISDUALHEAD
+    if((!pSiS->DualHeadMode) || (!pSiS->SecondHead)) {
+#endif
+       if(pSiS->VGAEngine == SIS_300_VGA) {
 
-    if(pSiS->VGAEngine == SIS_300_VGA) {
-        if(pSiS->VBFlags & (VB_LVDS | VB_30xBDH)) {
-	   /* Save the current PDC if the panel is used at the moment.
-	    * This seems by far the safest way to find out about it.
-	    * If the system is using an old version of sisfb, we can't
-	    * trust the pdc register value. If sisfb saved the pdc for
-	    * us, use it.
-	    */
-	   if(pSiS->sisfbpdc) {
-	      pSiS->sishw_ext.pdc = pSiS->sisfbpdc;
-	   } else {
-	      if(!(pSiS->donttrustpdc)) {
-	         unsigned char tmp;
-	         inSISIDXREG(SISCR, 0x30, tmp);
-	         if(tmp & 0x20) {
-	            inSISIDXREG(SISPART1, 0x13, pSiS->sishw_ext.pdc);
-                 } else {
+          if(pSiS->VBFlags & (VB_LVDS | VB_30xBDH)) {
+	  
+	     /* Save the current PDC if the panel is used at the moment.
+	      * This seems by far the safest way to find out about it.
+	      * If the system is using an old version of sisfb, we can't
+	      * trust the pdc register value. If sisfb saved the pdc for
+	      * us, use it.
+	      */
+	     if(pSiS->sisfbpdc) {
+	        pSiS->SiS_Pr->PDC = pSiS->sisfbpdc;
+	     } else {
+	        if(!(pSiS->donttrustpdc)) {
+	           unsigned char tmp;
+	           inSISIDXREG(SISCR, 0x30, tmp);
+	           if(tmp & 0x20) {
+	              inSISIDXREG(SISPART1, 0x13, pSiS->SiS_Pr->PDC);
+                   } else {
+	             xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+	      	          "Unable to detect LCD PanelDelayCompensation, LCD is not active\n");
+	           }
+	        } else {
 	           xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-	       	       "Unable to detect LCD PanelDelayCompensation, LCD is not active\n");
-	         }
-	      } else {
-	         xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-	       	     "Unable to detect LCD PanelDelayCompensation, please update sisfb\n");
-	      }
-	   }
-	   pSiS->sishw_ext.pdc &= 0x3c;
-	   if(pSiS->sishw_ext.pdc) {
-	      xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-	       	  "Detected LCD PanelDelayCompensation %d\n",
-		  pSiS->sishw_ext.pdc);
-	   }
+	      	        "Unable to detect LCD PanelDelayCompensation, please update sisfb\n");
+	        }
+	     }
+	     pSiS->SiS_Pr->PDC &= 0x3c;
+	     if(pSiS->SiS_Pr->PDC) {
+	        xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
+	       	     "Detected LCD PanelDelayCompensation 0x%02x\n",
+		     pSiS->SiS_Pr->PDC);
+	     }
 
-	   /* If we haven't been able to find out, use our other methods */
-	   if(pSiS->sishw_ext.pdc == 0) {
-
-                 int i=0;
-                 do {
-	            if(mypdctable[i].subsysVendor == pSiS->PciInfo->subsysVendor &&
-	               mypdctable[i].subsysCard == pSiS->PciInfo->subsysCard) {
-	                  xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+	     /* If we haven't been able to find out, use our other methods */
+	     if(pSiS->SiS_Pr->PDC == 0) {
+                int i=0;
+                do {
+	           if(mypdctable[i].subsysVendor == pSiS->PciInfo->subsysVendor &&
+	              mypdctable[i].subsysCard == pSiS->PciInfo->subsysCard) {
+	                 xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 	   	            "PCI card/vendor identified for non-default PanelDelayCompensation\n");
-		          xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		             "Vendor: %s, card: %s (ID %04x), PanelDelayCompensation: %d\n",
+		         xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
+		             "Vendor: %s, card: %s (ID %04x), PanelDelayCompensation: 0x%02x\n",
 		             mypdctable[i].vendorName, mypdctable[i].cardName,
 		             pSiS->PciInfo->subsysCard, mypdctable[i].pdc);
-                          if(pSiS->PDC == -1) {
-		             pSiS->PDC = mypdctable[i].pdc;
-		          } else {
-		             xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
+                         if(pSiS->PDC == -1) {
+		            pSiS->PDC = mypdctable[i].pdc;
+		         } else {
+		            xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
 		       	        "PanelDelayCompensation overruled by option\n");
-		          }
-	                  break;
-                    }
-	            i++;
-                 } while(mypdctable[i].subsysVendor != 0);
+		         }
+	                 break;
+                   }
+	           i++;
+                } while(mypdctable[i].subsysVendor != 0);
+             }
 
-            }
-
-	    if(pSiS->PDC != -1) {
-	       if(pSiS->BIOS) {
-	          if(pSiS->VBFlags & VB_LVDS) {
-	             if(pSiS->BIOS[0x220] & 0x80) {
-                        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-		             "BIOS contains custom LCD Panel Delay Compensation %d\n",
+	     if(pSiS->PDC != -1) {
+	        if(pSiS->BIOS) {
+	           if(pSiS->VBFlags & VB_LVDS) {
+	              if(pSiS->BIOS[0x220] & 0x80) {
+                         xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+		             "BIOS contains custom LCD Panel Delay Compensation 0x%02x\n",
 		             pSiS->BIOS[0x220] & 0x3c);
-	                pSiS->BIOS[0x220] &= 0x7f;
-		     }
-	          }
-	          if(pSiS->VBFlags & (VB_301B|VB_302B)) {
-	             if(pSiS->BIOS[0x220] & 0x80) {
-                        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-		             "BIOS contains custom LCD Panel Delay Compensation %d\n",
+	                 pSiS->BIOS[0x220] &= 0x7f;
+		      }
+	           }
+	           if(pSiS->VBFlags & (VB_301B|VB_302B)) {
+	              if(pSiS->BIOS[0x220] & 0x80) {
+                         xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+		             "BIOS contains custom LCD Panel Delay Compensation 0x%02x\n",
 		               (  (pSiS->VBLCDFlags & VB_LCD_1280x1024) ?
 			                 pSiS->BIOS[0x223] : pSiS->BIOS[0x224]  ) & 0x3c);
-	                pSiS->BIOS[0x220] &= 0x7f;
-		     }
-		  }
-	       }
-	       pSiS->sishw_ext.pdc = (pSiS->PDC & 0x3c);
-	       xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
-	            "Using LCD Panel Delay Compensation %d\n", pSiS->PDC);
-	    }
-	}
-    }
-
-    if(pSiS->VGAEngine == SIS_315_VGA) {
-       if(pSiS->VBFlags & (VB_301LV | VB_302LV | VB_302ELV)) {
-	  /* Save the current PDC if the panel is used at the moment.
-	   * This seems by far the safest way to find out about it.
-	   */
-	  if(pSiS->sisfbpdc) {
-	     pSiS->sishw_ext.pdc = pSiS->sisfbpdc;
-	  } else {
-	     if(!(pSiS->donttrustpdc)) {
-	        unsigned char tmp;
-	        inSISIDXREG(SISCR, 0x30, tmp);
-	        if(tmp & 0x20) {
-	           inSISIDXREG(SISPART1, 0x2D, pSiS->sishw_ext.pdc);
-                } else {
-	           xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-	      	       "Unable to detect LCD PanelDelayCompensation, LCD is not active\n");
+	                 pSiS->BIOS[0x220] &= 0x7f;
+		      }
+		   }
 	        }
-	     } else {
-	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-	      	    "Unable to detect LCD PanelDelayCompensation, please update sisfb\n");
+	        pSiS->SiS_Pr->PDC = (pSiS->PDC & 0x3c);
+	        xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
+	              "Using LCD Panel Delay Compensation 0x%02x\n", pSiS->SiS_Pr->PDC);
 	     }
 	  }
-	  if(pSiS->sishw_ext.pdc) {
-	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-	      	  "Detected LCD PanelDelayCompensation %d\n",
-		  pSiS->sishw_ext.pdc);
+
+       }  /* SIS_300_VGA */
+
+       if(pSiS->VGAEngine == SIS_315_VGA) {
+
+          unsigned char tmp;
+	  inSISIDXREG(SISCR, 0x30, tmp);
+
+          if(pSiS->VBFlags & (VB_301LV | VB_302LV | VB_302ELV)) {
+	     /* Save the current PDC if the panel is used at the moment.
+	      * This seems by far the safest way to find out about it.
+	      */
+	     if(pSiS->sisfbpdc) {
+	        pSiS->SiS_Pr->PDC = pSiS->sisfbpdc;
+	     } else {
+	        if(!(pSiS->donttrustpdc)) {
+	           if(tmp & 0x20) {
+	              inSISIDXREG(SISPART1, 0x2D, pSiS->SiS_Pr->PDC);
+                   } else {
+	              xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+	      	          "Unable to detect LCD PanelDelayCompensation, LCD is not active\n");
+	           }
+	        } else {
+	           xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+	      	       "Unable to detect LCD PanelDelayCompensation, please update sisfb\n");
+	        }
+	     }
+	     if(pSiS->SiS_Pr->PDC) {
+	        xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
+	      	     "Detected LCD PanelDelayCompensation 0x%02x\n",
+		     pSiS->SiS_Pr->PDC);
+	     }
+	     if(pSiS->PDC != -1) {
+	        pSiS->SiS_Pr->PDC = pSiS->PDC & 0xff;
+	        xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
+	      	     "Using LCD PanelDelayCompensation 0x%02x\n",
+		     pSiS->SiS_Pr->PDC);
+	     }
+          }
+
+ 	  /* Read the current EMI (if not overruled) */
+	  if(pSiS->VBFlags & (VB_302LV | VB_302ELV)) {
+	     MessageType from = X_PROBED;
+	     if(pSiS->EMI != -1) {
+	        pSiS->SiS_Pr->EMI_30 = (pSiS->EMI >> 24) & 0x60;
+	        pSiS->SiS_Pr->EMI_31 = (pSiS->EMI >> 16) & 0xff;
+	        pSiS->SiS_Pr->EMI_32 = (pSiS->EMI >> 8)  & 0xff;
+	        pSiS->SiS_Pr->EMI_33 = pSiS->EMI & 0xff;
+		pSiS->SiS_Pr->HaveEMI = pSiS->SiS_Pr->HaveEMILCD = TRUE;
+		pSiS->SiS_Pr->OverruleEMI = TRUE;
+		from = X_CONFIG;
+	     } else if((pSiS->sisfbfound) && (pSiS->sisfb_haveemi)) {
+	        pSiS->SiS_Pr->EMI_30 = pSiS->sisfb_emi30;
+	        pSiS->SiS_Pr->EMI_31 = pSiS->sisfb_emi31;
+	        pSiS->SiS_Pr->EMI_32 = pSiS->sisfb_emi32;
+	        pSiS->SiS_Pr->EMI_33 = pSiS->sisfb_emi33;
+		pSiS->SiS_Pr->HaveEMI = pSiS->SiS_Pr->HaveEMILCD = TRUE;
+		pSiS->SiS_Pr->OverruleEMI = FALSE;
+	     } else {
+	        inSISIDXREG(SISPART4, 0x30, pSiS->SiS_Pr->EMI_30);
+		inSISIDXREG(SISPART4, 0x31, pSiS->SiS_Pr->EMI_31);
+		inSISIDXREG(SISPART4, 0x32, pSiS->SiS_Pr->EMI_32);
+		inSISIDXREG(SISPART4, 0x33, pSiS->SiS_Pr->EMI_33);
+		pSiS->SiS_Pr->HaveEMI = TRUE;
+		if(tmp & 0x20) pSiS->SiS_Pr->HaveEMILCD = TRUE;
+		pSiS->SiS_Pr->OverruleEMI = FALSE;
+	     }
+	     xf86DrvMsg(pScrn->scrnIndex, from,
+	     	   "302LV/302ELV: Using EMI 0x%02x%02x%02x%02x%s\n",
+		   pSiS->SiS_Pr->EMI_30,pSiS->SiS_Pr->EMI_31,
+		   pSiS->SiS_Pr->EMI_32,pSiS->SiS_Pr->EMI_33,
+		   pSiS->SiS_Pr->HaveEMILCD ? " (LCD)" : "");
 	  }
-	  if(pSiS->PDC != -1) {
-	     pSiS->sishw_ext.pdc = pSiS->PDC & 0xff;
-	     xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
-	      	  "Using LCD PanelDelayCompensation %d\n",
-		  pSiS->sishw_ext.pdc);
-	  }
-       } else if(pSiS->Chipset == PCI_CHIP_SIS660) {
-          /* Since I have no idea about the required PDC on
-	   * the new chips, let the user specify one. But
-	   * we only use the lower nibble.
-	   */
-          if(pSiS->PDC != -1) {
-	     pSiS->sishw_ext.pdc = pSiS->PDC & 0x0f;
-	     xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
-	      	  "Using LCD PanelDelayCompensation %d\n",
-		  pSiS->sishw_ext.pdc);
-	  }
-       }
+
+       } /* SIS_315_VGA */
+#ifdef SISDUALHEAD
     }
+#endif
 
 #ifdef SISDUALHEAD
     /* In dual head mode, both heads (currently) share the maxxfbmem equally.
@@ -6048,6 +6090,7 @@ SISSpecialRestore(ScrnInfoPtr pScrn)
 
     if(!(pSiS->ChipFlags & SiSCF_Is65x)) return;
     inSISIDXREG(SISCR, 0x34, temp);
+    temp &= 0x7f;
     if(temp > 0x13) return;
 
 #ifdef UNLOCK_ALWAYS
@@ -6543,6 +6586,7 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 	   * bridge...
 	   */
           inSISIDXREG(SISCR, 0x34, pSiS->OldMode);
+	  pSiS->OldMode &= 0x7f;
 	  inSISIDXREG(SISCR, 0x30, cr30);
 	  inSISIDXREG(SISCR, 0x31, cr31);
 
@@ -7675,6 +7719,10 @@ SISEnterVT(int scrnIndex, int flags)
     SISPtr pSiS = SISPTR(pScrn);
 
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
+
+    if(pSiS->VGAEngine == SIS_300_VGA || pSiS->VGAEngine == SIS_315_VGA) {
+       andSISIDXREG(SISCR,0x34,0x7f);
+    }
 
     if(!SISModeInit(pScrn, pScrn->currentMode)) {
        SISErrorLog(pScrn, "SiSEnterVT: SISModeInit() failed\n");
@@ -10222,7 +10270,7 @@ void SiS_SetTVyscale(ScrnInfoPtr pScrn, int val)
    if(pSiSEnt) pSiSEnt->tvyscale = val;
 #endif
 
-   if(pSiS->VBFlags & (TV_HIVISION | TV_HIVISION_LV)) return;
+   if(pSiS->VBFlags & (TV_HIVISION | TV_YPBPR)) return;
 
    if(pSiS->VGAEngine == SIS_315_VGA || pSiS->VGAEngine == SIS_315_VGA) {
 

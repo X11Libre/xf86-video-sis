@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.h,v 1.88 2003/11/20 19:53:23 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.h,v 1.93 2003/12/02 12:15:32 twini Exp $ */
 /*
  * Main global data and definitions
  *
@@ -35,8 +36,8 @@
 #define UNLOCK_ALWAYS
 
 #define SISDRIVERVERSIONYEAR    3
-#define SISDRIVERVERSIONMONTH   11
-#define SISDRIVERVERSIONDAY     19
+#define SISDRIVERVERSIONMONTH   12
+#define SISDRIVERVERSIONDAY     2
 #define SISDRIVERREVISION       1
 
 #define SISDRIVERIVERSION (SISDRIVERVERSIONYEAR << 16) | (SISDRIVERVERSIONMONTH << 8) \
@@ -181,9 +182,9 @@
 #define DISPTYPE_DISP2		CRT2_ENABLE
 #define TV_NTSC                 0x00000010
 #define TV_PAL                  0x00000020
-#define TV_HIVISION             0x00000040
-#define TV_HIVISION_LV          0x00000080
-#define TV_TYPE                 (TV_NTSC | TV_PAL | TV_HIVISION | TV_HIVISION_LV)
+#define TV_HIVISION             0x00000040 /* Not supported */
+#define TV_YPBPR                0x00000080 /* Not supported */
+#define TV_TYPE                 (TV_NTSC | TV_PAL | TV_HIVISION | TV_YPBPR)
 #define TV_AVIDEO               0x00000100
 #define TV_SVIDEO               0x00000200
 #define TV_SCART                0x00000400
@@ -379,7 +380,7 @@ typedef struct {
     unsigned char sisCapt[0x60];
     unsigned char sisVid[0x50];
     unsigned char VBPart1[0x50];
-    unsigned char VBPart2[0x50];
+    unsigned char VBPart2[0x100];
     unsigned char VBPart3[0x50];
     unsigned char VBPart4[0x50];
     unsigned short ch70xx[64];
@@ -455,7 +456,6 @@ typedef struct {
     int			OptTVSOver;
     int                 OptROMUsage;
     int			OptUseOEM;
-    int                 PDC;
     Bool                NoAccel;
     int			forceCRT1;
     int			DSTN, FSTN;
@@ -796,6 +796,9 @@ typedef struct {
     unsigned char       sisfblcda;
     int			sisfbscalelcd;
     unsigned long	sisfbspecialtiming;
+    BOOL		sisfb_haveemi;
+    unsigned char	sisfb_emi30,sisfb_emi31,sisfb_emi32,sisfb_emi33;
+    int			EMI;
     int			NoYV12;			/* Disable Xv YV12 support (old series) */
     unsigned char       postVBCR32;
     int			newFastVram;		/* Replaces FastVram */

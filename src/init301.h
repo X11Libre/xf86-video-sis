@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/init301.h,v 1.33 2003/11/20 19:53:23 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/init301.h,v 1.35 2003/12/02 12:15:32 twini Exp $ */
 /*
  * Data and prototypes for init301.c
  *
@@ -65,7 +66,7 @@
 #endif
 #endif
 
-const UCHAR SiS_HiVisionTable[3][64] = {
+const UCHAR SiS_YPbPrTable[3][64] = {
   {
     0x17, 0x1d, 0x03, 0x09, 0x05, 0x06, 0x0c, 0x0c,
     0x94, 0x49, 0x01, 0x0a, 0x06, 0x0d, 0x04, 0x0a,
@@ -206,7 +207,7 @@ void	SiS_SetChrontelGPIO(SiS_Private *SiS_Pr, USHORT myvbinfo);
 void	SiS_GetVBInfo(SiS_Private *SiS_Pr, USHORT ModeNo,
               USHORT ModeIdIndex,PSIS_HW_INFO HwInfo,
 	      int checkcrt2mode);
-void	SiS_SetHiVision(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo);
+void	SiS_SetYPbPr(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo);
 void    SiS_SetTVMode(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex, PSIS_HW_INFO HwInfo);
 void	SiS_GetLCDResInfo(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex, PSIS_HW_INFO HwInfo);
 USHORT	SiS_GetVCLK2Ptr(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex,
