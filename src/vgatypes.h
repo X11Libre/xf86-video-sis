@@ -1,36 +1,54 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.15 2003/11/19 00:49:06 twini Exp $ */
+/* $XFree86$ */
 /*
  * General type definitions for universal mode switching modules
  *
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * If distributed as part of the linux kernel, the contents of this file
- * is entirely covered by the GPL.
+ * If distributed as part of the Linux kernel, the following license terms
+ * apply:
  *
- * Otherwise, the following terms apply:
+ * * This program is free software; you can redistribute it and/or modify
+ * * it under the terms of the GNU General Public License as published by
+ * * the Free Software Foundation; either version 2 of the named License,
+ * * or any later version.
+ * *
+ * * This program is distributed in the hope that it will be useful,
+ * * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * * GNU General Public License for more details.
+ * *
+ * * You should have received a copy of the GNU General Public License
+ * * along with this program; if not, write to the Free Software
+ * * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * Otherwise, the following license terms apply:
  *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * * Redistribution and use in source and binary forms, with or without
+ * * modification, are permitted provided that the following conditions
+ * * are met:
+ * * 1) Redistributions of source code must retain the above copyright
+ * *    notice, this list of conditions and the following disclaimer.
+ * * 2) Redistributions in binary form must reproduce the above copyright
+ * *    notice, this list of conditions and the following disclaimer in the
+ * *    documentation and/or other materials provided with the distribution.
+ * * 3) The name of the author may not be used to endorse or promote products
+ * *    derived from this software without specific prior written permission.
+ * *
+ * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Authors: 	Thomas Winischhofer <thomas@winischhofer.net>
- *		Silicon Integrated Systems
+ * Author: 	Thomas Winischhofer <thomas@winischhofer.net>
  *
  */
+
 #ifndef _VGATYPES_
 #define _VGATYPES_
 
@@ -164,6 +182,9 @@ typedef enum _SIS_LCD_TYPE {
     LCD_640x480_2,     /* FSTN, DSTN */
     LCD_640x480_3,     /* FSTN, DSTN */
     LCD_848x480,
+    LCD_1280x800,
+    LCD_1680x1050,
+    LCD_1280x720,
     LCD_CUSTOM,
     LCD_UNKNOWN
 } SIS_LCD_TYPE;
@@ -197,25 +218,27 @@ struct _SIS_HW_INFO
                                  /* of Linear VGA memory */
 
     ULONG  ulVideoMemorySize;    /* size, in bytes, of the memory on the board */
+
     SISIOADDRESS ulIOAddress;    /* base I/O address of VGA ports (0x3B0) */
+
     UCHAR  jChipType;            /* Used to Identify SiS Graphics Chip */
                                  /* defined in the data structure type  */
                                  /* "SIS_CHIP_TYPE" */
 
     UCHAR  jChipRevision;        /* Used to Identify SiS Graphics Chip Revision */
+
     UCHAR  ujVBChipID;           /* the ID of video bridge */
                                  /* defined in the data structure type */
                                  /* "SIS_VB_CHIP_TYPE" */
 #ifdef LINUX_KERNEL
     BOOLEAN Is301BDH;
+    ULONG  ulCRT2LCDType;        /* defined in the data structure type */
+                                 /* "SIS_LCD_TYPE" */
 #endif
 
     USHORT usExternalChip;       /* NO VB or other video bridge (other than  */
                                  /* SiS video bridge) */
 
-    ULONG  ulCRT2LCDType;        /* defined in the data structure type */
-                                 /* "SIS_LCD_TYPE" */
-                                     
     BOOLEAN bIntegratedMMEnabled;/* supporting integration MM enable */
                                       
     BOOLEAN bSkipDramSizing;     /* True: Skip video memory sizing. */
@@ -231,14 +254,6 @@ struct _SIS_HW_INFO
                                  /* Note : restore cR registers if  */
                                  /* bSkipDramSizing = TRUE */
 #endif
-
-    PSIS_QUERYSPACE  pQueryVGAConfigSpace; /* Get/Set VGA Configuration  */
-                                           /* space */
- 
-    PSIS_QUERYSPACE  pQueryNorthBridgeSpace;/* Get/Set North Bridge  */
-                                            /* space  */
-
-    UCHAR  pdc;			/* PanelDelayCompensation */
 };
 #endif
 
@@ -254,38 +269,44 @@ struct _SIS_HW_INFO
 typedef struct _SISFB_INFO sisfb_info, *psisfb_info;
 
 struct _SISFB_INFO {
-	unsigned long sisfb_id;         /* for identifying sisfb */
+	CARD32 	sisfb_id;         	/* for identifying sisfb */
 #ifndef SISFB_ID
 #define SISFB_ID	  0x53495346    /* Identify myself with 'SISF' */
 #endif
- 	int    chip_id;			/* PCI ID of detected chip */
-	int    memory;			/* video memory in KB which sisfb manages */
-	int    heapstart;               /* heap start (= sisfb "mem" argument) in KB */
-	unsigned char fbvidmode;	/* current sisfb mode */
+ 	CARD32 	chip_id;		/* PCI ID of detected chip */
+	CARD32	memory;			/* video memory in KB which sisfb manages */
+	CARD32	heapstart;             	/* heap start (= sisfb "mem" argument) in KB */
+	CARD8 	fbvidmode;		/* current sisfb mode */
 
-	unsigned char sisfb_version;
-	unsigned char sisfb_revision;
-	unsigned char sisfb_patchlevel;
+	CARD8 	sisfb_version;
+	CARD8	sisfb_revision;
+	CARD8 	sisfb_patchlevel;
 
-	unsigned char sisfb_caps;	/* sisfb's capabilities */
+	CARD8 	sisfb_caps;		/* sisfb's capabilities */
 
-	int    sisfb_tqlen;		/* turbo queue length (in KB) */
+	CARD32 	sisfb_tqlen;		/* turbo queue length (in KB) */
 
-	unsigned int sisfb_pcibus;      /* The card's PCI ID */
-	unsigned int sisfb_pcislot;
-	unsigned int sisfb_pcifunc;
+	CARD32 	sisfb_pcibus;      	/* The card's PCI ID */
+	CARD32 	sisfb_pcislot;
+	CARD32 	sisfb_pcifunc;
 
-	unsigned char sisfb_lcdpdc;
-	
-	unsigned char sisfb_lcda;
+	CARD8 	sisfb_lcdpdc;
 
-	unsigned long sisfb_vbflags;
-	unsigned long sisfb_currentvbflags;
+	CARD8	sisfb_lcda;
 
-	int sisfb_scalelcd;
-	unsigned long sisfb_specialtiming;
+	CARD32	sisfb_vbflags;
+	CARD32	sisfb_currentvbflags;
 
-	char reserved[219]; 		/* for future use */
+	CARD32 	sisfb_scalelcd;
+	CARD32 	sisfb_specialtiming;
+
+	CARD8 	sisfb_haveemi;
+	CARD8 	sisfb_emi30,sisfb_emi31,sisfb_emi32,sisfb_emi33;
+	CARD8 	sisfb_haveemilcd;
+
+	CARD8 	sisfb_lcdpdca;
+
+	CARD8 reserved[212]; 		/* for future use */
 };
 #endif
 

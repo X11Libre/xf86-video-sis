@@ -1,31 +1,37 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_opt.c,v 1.45 2003/11/11 18:04:31 twini Exp $ */
+/* $XFree86$ */
 /*
  * SiS driver option evaluation
  *
- * Copyright 2001, 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * Based on code by ? (included in XFree86 4.1)
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1) Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2) Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3) The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the supplier not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The supplier makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * THE SUPPLIER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * "NoAccel", "NoXVideo", "SWCursor", "HWCursor" and "Rotate" option portions
+ * Copyright (C) 1999-2004 The XFree86 Project, Inc. Licensed under the terms
+ * of the XFree86 license (http://www.xfree86.org/current/LICENSE1.html).
  *
  * Authors:  	Thomas Winischhofer <thomas@winischhofer.net>
- *		?
+ *              ?
  */
 
 #include "xf86.h"
@@ -47,6 +53,7 @@ typedef enum {
     OPTION_RENDER,
     OPTION_FORCE_CRT1TYPE,
     OPTION_FORCE_CRT2TYPE,
+    OPTION_YPBPRAR,
     OPTION_SHADOW_FB,
     OPTION_DRI,
     OPTION_AGP_SIZE,
@@ -58,6 +65,10 @@ typedef enum {
     OPTION_FORCECRT1,
     OPTION_XVONCRT2,
     OPTION_PDC,
+    OPTION_PDCA,
+    OPTION_PDCS,
+    OPTION_PDCAS,
+    OPTION_EMI,
     OPTION_TVSTANDARD,
     OPTION_USEROMDATA,
     OPTION_NOINTERNALMODES,
@@ -96,6 +107,7 @@ typedef enum {
     OPTION_RESTOREBYSET,
     OPTION_NODDCFORCRT2,
     OPTION_FORCECRT2REDETECTION,
+    OPTION_SENSEYPBPR,
     OPTION_CRT1GAMMA,
     OPTION_CRT2GAMMA,
     OPTION_XVGAMMA,
@@ -113,6 +125,7 @@ typedef enum {
     OPTION_XVINSIDECHROMAKEY,
     OPTION_XVYUVCHROMAKEY,
     OPTION_SCALELCD,
+    OPTION_CENTERLCD,
     OPTION_SPECIALTIMING,
     OPTION_LVDSHL,
     OPTION_ENABLEHOTKEY,
@@ -149,6 +162,7 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_RENDER,        		"RenderAcceleration",     OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_FORCE_CRT1TYPE,    	"ForceCRT1Type",          OPTV_STRING,    {0}, FALSE },
     { OPTION_FORCE_CRT2TYPE,    	"ForceCRT2Type",          OPTV_STRING,    {0}, FALSE },
+    { OPTION_YPBPRAR,  		  	"YPbPrAspectRatio",       OPTV_STRING,    {0}, FALSE },
     { OPTION_SHADOW_FB,         	"ShadowFB",               OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_DRI,         		"DRI",               	  OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_AGP_SIZE,			"AGPSize",      	  OPTV_INTEGER,   {0}, FALSE },
@@ -160,6 +174,12 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_FORCECRT1,         	"ForceCRT1",              OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_XVONCRT2,          	"XvOnCRT2",               OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_PDC,               	"PanelDelayCompensation", OPTV_INTEGER,   {0}, -1    },
+    { OPTION_PDCA,               	"PanelDelayCompensation1",OPTV_INTEGER,   {0}, -1    },
+    { OPTION_PDCS,               	"PDC", 			  OPTV_INTEGER,   {0}, -1    },
+    { OPTION_PDCAS,               	"PDC1",			  OPTV_INTEGER,   {0}, -1    },
+    { OPTION_EMI,               	"EMI", 			  OPTV_INTEGER,   {0}, -1    },
+    { OPTION_LVDSHL,			"LVDSHL", 	  	  OPTV_INTEGER,   {0}, -1    },
+    { OPTION_SPECIALTIMING,        	"SpecialTiming",          OPTV_STRING,    {0}, -1    },
     { OPTION_TVSTANDARD,        	"TVStandard",             OPTV_STRING,    {0}, -1    },
     { OPTION_USEROMDATA,		"UseROMData",	          OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_NOINTERNALMODES,   	"NoInternalModes",        OPTV_BOOLEAN,   {0}, FALSE },
@@ -198,6 +218,7 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_RESTOREBYSET,		"RestoreBySetMode", 	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_NODDCFORCRT2,		"NoCRT2Detection", 	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_FORCECRT2REDETECTION,	"ForceCRT2ReDetection",   OPTV_BOOLEAN,   {0}, -1    },
+    { OPTION_SENSEYPBPR,		"SenseYPbPr",   	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_CRT1GAMMA,			"CRT1Gamma", 	  	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_CRT2GAMMA,			"CRT2Gamma", 	  	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_STOREDBRI,			"StoredGammaBrightness",  OPTV_STRING,    {0}, -1    },
@@ -217,9 +238,8 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_XVDISABLECOLORKEY,		"XvDisableColorKey",      OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_XVMEMCPY,			"XvUseMemcpy",  	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_SCALELCD,			"ScaleLCD",	   	  OPTV_BOOLEAN,   {0}, -1    },
+    { OPTION_CENTERLCD,			"CenterLCD",	   	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_ENABLEHOTKEY,		"EnableHotkey",	   	  OPTV_BOOLEAN,   {0}, -1    },
-    { OPTION_SPECIALTIMING,        	"SpecialTiming",          OPTV_STRING,    {0}, -1    },
-    { OPTION_LVDSHL,			"LVDSHL", 	  	  OPTV_INTEGER,   {0}, -1    },
     { OPTION_ENABLESISCTRL,		"EnableSiSCtrl",   	  OPTV_BOOLEAN,   {0}, -1    },
 #ifdef SISMERGED
     { OPTION_MERGEDFB,			"MergedFB",		  OPTV_BOOLEAN,	  {0}, FALSE },
@@ -235,7 +255,7 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_MERGEDDPI,			"MergedDPI", 		  OPTV_STRING,	  {0}, FALSE },
 #ifdef SISXINERAMA
     { OPTION_NOSISXINERAMA,		"NoMergedXinerama",	  OPTV_BOOLEAN,	  {0}, FALSE },
-    { OPTION_NOSISXINERAMA2,		"NoTwinviewXineramaInfo",  OPTV_BOOLEAN,  {0}, FALSE },   /* alias */
+    { OPTION_NOSISXINERAMA2,		"NoTwinviewXineramaInfo", OPTV_BOOLEAN,   {0}, FALSE },   /* alias */
     { OPTION_CRT2ISSCRN0,		"MergedXineramaCRT2IsScreen0",OPTV_BOOLEAN,{0},FALSE },
 #endif
 #endif
@@ -250,7 +270,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 {
     SISPtr      pSiS = SISPTR(pScrn);
     MessageType from;
-/*  double      temp;  */
     char        *strptr;
     static const char *mybadparm = "\"%s\" is is not a valid parameter for option \"%s\"\n";
     static const char *disabledstr = "disabled";
@@ -271,7 +290,6 @@ SiSOptions(ScrnInfoPtr pScrn)
     
     pSiS->newFastVram = -1;
     pSiS->NoHostBus = FALSE;
-/*  pSiS->UsePCIRetry = TRUE; */
     pSiS->TurboQueue = TRUE;
 #ifdef SISVRAMQ
     /* TODO: Option (315 series VRAM command queue) */
@@ -282,7 +300,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->HWCursor = TRUE;
     pSiS->Rotate = FALSE;
     pSiS->ShadowFB = FALSE;
-    pSiS->loadDRI = TRUE;
+    pSiS->loadDRI = FALSE;
     pSiS->agpWantedPages = AGP_PAGES;
     pSiS->VESA = -1;
     pSiS->NoXvideo = FALSE;
@@ -293,6 +311,8 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->XvOnCRT2 = FALSE;
     pSiS->NoYV12 = -1;
     pSiS->PDC = -1;
+    pSiS->PDCA = -1;
+    pSiS->EMI = -1;
     pSiS->OptTVStand = -1;
     pSiS->OptROMUsage = -1;
     pSiS->noInternalModes = FALSE;
@@ -327,8 +347,10 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->restorebyset = TRUE;
     pSiS->nocrt2ddcdetection = FALSE;
     pSiS->forcecrt2redetection = TRUE;   /* default changed since 13/09/2003 */
+    pSiS->SenseYPbPr = TRUE;
     pSiS->ForceCRT1Type = CRT1_VGA;
     pSiS->ForceCRT2Type = CRT2_DEFAULT;
+    pSiS->ForceYPbPrAR = TV_YPBPR169;
     pSiS->ForceTVType = -1;
     pSiS->CRT1gamma = TRUE;
     pSiS->CRT1gammaGiven = FALSE;
@@ -338,7 +360,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->enablesisctrl = FALSE;
     if((pSiS->VGAEngine == SIS_300_VGA) || (pSiS->VGAEngine == SIS_315_VGA)) {
        pSiS->XvDefBri = 10;
-       pSiS->XvDefCon = 5;
+       pSiS->XvDefCon = 2;
     } else {
        pSiS->XvDefBri = 0;
        pSiS->XvDefCon = 4;
@@ -348,6 +370,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->XvDefDisableGfx = FALSE;
     pSiS->XvDefDisableGfxLR = FALSE;
     pSiS->UsePanelScaler = -1;
+    pSiS->CenterLCD = -1;
     pSiS->XvUseMemcpy = TRUE;
     pSiS->XvUseChromaKey = FALSE;
     pSiS->XvDisableColorKey = FALSE;
@@ -394,6 +417,14 @@ SiSOptions(ScrnInfoPtr pScrn)
          pSiS->HWCursor = FALSE;
     }
 
+    /* DRI only supported on 300 series,
+     * so don't load DRI by default on
+     * others.
+     */
+    if(pSiS->VGAEngine == SIS_300_VGA) {
+       pSiS->loadDRI = TRUE;
+    }
+
 #if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
     pSiS->OptUseColorCursor = 0;
 #else
@@ -405,6 +436,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     	pSiS->OptUseColorCursor = 1;
     }
 #endif
+
     if(pSiS->VGAEngine == SIS_300_VGA) {
        pSiS->AllowHotkey = 0;
     } else if(pSiS->VGAEngine == SIS_315_VGA) {
@@ -720,17 +752,34 @@ SiSOptions(ScrnInfoPtr pScrn)
        if(xf86GetOptValBool(pSiS->Options, OPTION_FORCECRT2REDETECTION, &val)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ForceCRT2ReDetection");
        }
+       if(xf86GetOptValBool(pSiS->Options, OPTION_SENSEYPBPR, &val)) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "SenseYPbPr");
+       }
        if(xf86GetOptValString(pSiS->Options, OPTION_FORCE_CRT1TYPE)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ForceCRT1Type");
        }
        if(xf86GetOptValString(pSiS->Options, OPTION_FORCE_CRT2TYPE)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ForceCRT2Type");
        }
+       if(xf86GetOptValString(pSiS->Options, OPTION_YPBPRAR)) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "YPbPrAspectRatio");
+       }
        if(xf86GetOptValBool(pSiS->Options, OPTION_SCALELCD, &val)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ScaleLCD");
        }
-       if(xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &vali)) {
-          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "PanelDelayCompensation");
+        if(xf86GetOptValBool(pSiS->Options, OPTION_CENTERLCD, &val)) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "CenterLCD");
+       }
+       if((xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &vali)) ||
+          (xf86GetOptValInteger(pSiS->Options, OPTION_PDCS, &vali))) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "PanelDelayCompensation (PDC)");
+       }
+       if((xf86GetOptValInteger(pSiS->Options, OPTION_PDCA, &vali)) ||
+          (xf86GetOptValInteger(pSiS->Options, OPTION_PDCAS, &vali))) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "PanelDelayCompensation1 (PDC1)");
+       }
+       if(xf86GetOptValInteger(pSiS->Options, OPTION_EMI, &vali)) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "EMI");
        }
        if(xf86GetOptValString(pSiS->Options, OPTION_SPECIALTIMING)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "SpecialTiming");
@@ -907,11 +956,23 @@ SiSOptions(ScrnInfoPtr pScrn)
 	     } else  pSiS->forcecrt2redetection = FALSE;
           }
 
+	  /* SenseYPbPr (315/330 series only)
+           * If set to true, the driver will sense for YPbPr TV. This is
+	   * inconvenient for folks connecting SVideo and CVBS at the same
+	   * time, because this condition will be detected as YPbPr (since
+	   * the TV output pins are shared). "False" will not sense for
+	   * YPbPr and detect SVideo or CVBS only.
+           */
+          if(xf86GetOptValBool(pSiS->Options, OPTION_SENSEYPBPR, &val)) {
+             if(val) pSiS->SenseYPbPr = TRUE;
+	     else    pSiS->SenseYPbPr = FALSE;
+          }
+
 
 	  /* ForceCRT1Type (315/330 series only)
 	   * Used for forcing the driver to initialize CRT1 as
 	   * VGA (analog) or LCDA (for simultanious LCD and TV
-           * display) - on M650/651 with 30xLV only!
+           * display) - on M650/651 and 661 or later with 301C/30xLV only!
            */
 	  if(pSiS->VGAEngine == SIS_315_VGA) {
              strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_FORCE_CRT1TYPE);
@@ -953,10 +1014,12 @@ SiSOptions(ScrnInfoPtr pScrn)
           if(strptr != NULL) {
              if(!xf86NameCmp(strptr,"TV"))
                 pSiS->ForceCRT2Type = CRT2_TV;
- 	     else if(!xf86NameCmp(strptr,"SVIDEO")) {
+ 	     else if( (!xf86NameCmp(strptr,"SVIDEO")) ||
+	     	      (!xf86NameCmp(strptr,"SVHS")) ) {
                 pSiS->ForceCRT2Type = CRT2_TV;
 	        pSiS->ForceTVType = TV_SVIDEO;
-             } else if(!xf86NameCmp(strptr,"COMPOSITE")) {
+             } else if( (!xf86NameCmp(strptr,"COMPOSITE")) ||
+	     		(!xf86NameCmp(strptr,"CVBS")) ) {
                 pSiS->ForceCRT2Type = CRT2_TV;
 	        pSiS->ForceTVType = TV_AVIDEO;
 	     } else if( (!xf86NameCmp(strptr,"COMPOSITE SVIDEO")) || /* Ugly, but shorter than a parsing function */
@@ -980,30 +1043,75 @@ SiSOptions(ScrnInfoPtr pScrn)
                 pSiS->ForceCRT2Type = CRT2_VGA;
              else if(!xf86NameCmp(strptr,"NONE"))
                 pSiS->ForceCRT2Type = 0;
-	     else if(pSiS->Chipset == PCI_CHIP_SIS550) {
-	        if(!xf86NameCmp(strptr,"DSTN")) {
-		   if(pSiS->ForceCRT1Type == CRT1_VGA) {
-		      pSiS->ForceCRT2Type = CRT2_LCD;
-		      pSiS->DSTN = TRUE;
-		   }
-		} else if(!xf86NameCmp(strptr,"FSTN")) {
-		   if(pSiS->ForceCRT1Type == CRT1_VGA) {
-		      pSiS->ForceCRT2Type = CRT2_LCD;
-		      pSiS->FSTN = TRUE;
-		   }
+	     else if((!xf86NameCmp(strptr,"DSTN")) && (pSiS->Chipset == PCI_CHIP_SIS550)) {
+		if(pSiS->ForceCRT1Type == CRT1_VGA) {
+		   pSiS->ForceCRT2Type = CRT2_LCD;
+		   pSiS->DSTN = TRUE;
 		}
+	     } else if((!xf86NameCmp(strptr,"FSTN")) && (pSiS->Chipset == PCI_CHIP_SIS550)) {
+		if(pSiS->ForceCRT1Type == CRT1_VGA) {
+		   pSiS->ForceCRT2Type = CRT2_LCD;
+		   pSiS->FSTN = TRUE;
+		}
+#ifdef ENABLE_YPBPR
+	     } else if(!xf86NameCmp(strptr,"HIVISION")) {
+		pSiS->ForceCRT2Type = CRT2_TV;
+	        pSiS->ForceTVType = TV_HIVISION;
+	     } else if((!xf86NameCmp(strptr,"YPBPR1080I")) && (pSiS->VGAEngine == SIS_315_VGA)) {
+	        pSiS->ForceCRT2Type = CRT2_TV;
+		pSiS->ForceTVType = TV_YPBPR;
+		pSiS->ForceYPbPrType = TV_YPBPR1080I;
+	     } else if(((!xf86NameCmp(strptr,"YPBPR525I")) || (!xf86NameCmp(strptr,"YPBPR480I"))) &&
+	               (pSiS->VGAEngine == SIS_315_VGA)) {
+		pSiS->ForceCRT2Type = CRT2_TV;
+		pSiS->ForceTVType = TV_YPBPR;
+		pSiS->ForceYPbPrType = TV_YPBPR525I;
+	     } else if(((!xf86NameCmp(strptr,"YPBPR525P")) || (!xf86NameCmp(strptr,"YPBPR480P"))) &&
+	               (pSiS->VGAEngine == SIS_315_VGA)) {
+		pSiS->ForceCRT2Type = CRT2_TV;
+		pSiS->ForceTVType = TV_YPBPR;
+		pSiS->ForceYPbPrType = TV_YPBPR525P;
+	     } else if(((!xf86NameCmp(strptr,"YPBPR750P")) || (!xf86NameCmp(strptr,"YPBPR720P"))) &&
+	               (pSiS->VGAEngine == SIS_315_VGA)) {
+		pSiS->ForceCRT2Type = CRT2_TV;
+		pSiS->ForceTVType = TV_YPBPR;
+		pSiS->ForceYPbPrType = TV_YPBPR750P;
+#endif
 	     } else {
 	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mybadparm, strptr, "ForceCRT2Type");
 	        xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 	            "Valid parameters are \"LCD\" (=\"DVI-D\"), \"TV\", \"SVIDEO\", \"COMPOSITE\",\n"
-		    "\t\"SVIDEO+COMPOSITE\", \"SCART\", \"VGA\" (=\"DVI-A\") or \"NONE\", on the SiS550\n"
-		    "\talso \"DSTN\" and \"FSTN\"\n");
+		    "\t\"SVIDEO+COMPOSITE\", \"SCART\", \"VGA\" (=\"DVI-A\") or \"NONE\"; on the SiS550\n"
+		    "\talso \"DSTN\" and \"FSTN\""
+#ifdef ENABLE_YPBPR
+		    				"; on SiS 301/301B bridges also \"HIVISION\", and on\n"
+		    "\tSiS315/330 series with 301C/30xLV bridge also \"YPBPR480I\", \"YPBPR480P\",\n"
+		    "\t\"YPBPR720P\" and \"YPBPR1080I\""
+#endif
+		    "\n");
 	     }
 
              if(pSiS->ForceCRT2Type != CRT2_DEFAULT)
                 xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
                     "CRT2 type shall be %s\n", strptr);
           }
+
+	  if(pSiS->ForceTVType == TV_YPBPR) {
+	     strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_YPBPRAR);
+             if(strptr != NULL) {
+	        if(!xf86NameCmp(strptr,"4:3LB"))
+                   pSiS->ForceYPbPrAR = TV_YPBPR43LB;
+		else if(!xf86NameCmp(strptr,"4:3"))
+                   pSiS->ForceYPbPrAR = TV_YPBPR43;
+		else if(!xf86NameCmp(strptr,"16:9"))
+                   pSiS->ForceYPbPrAR = TV_YPBPR169;
+		else {
+		   xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mybadparm, strptr, "YPbPrAspectRatio");
+		   xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+	            	"Valid parameters are \"4:3LB\", \"4:3\" and \"16:9\"\n");
+		}
+	     }
+	  }
 
 	  strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_SPECIALTIMING);
           if(strptr != NULL) {
@@ -1065,8 +1173,24 @@ SiSOptions(ScrnInfoPtr pScrn)
 	         pSiS->UsePanelScaler ? disabledstr : enabledstr);
 	  }
 
+	 /* CenterLCD (300/315/330 + SiS video bridge only)
+          * If LCD shall not be scaled, this selects whether 1:1 data
+	  * will be sent to the output, or the image shall be centered
+	  * on the LCD. For LVDS panels, screen will always be centered,
+	  * since these have no built-in scaler. For TMDS, this is
+	  * selectable. Non-centered means that the driver will pass
+	  * 1:1 data to the output and that the panel will have to
+	  * scale by itself (if supported by the panel).
+          */
+	  if(xf86GetOptValBool(pSiS->Options, OPTION_CENTERLCD, &val)) {
+	     pSiS->CenterLCD = val ? 1 : 0;
+	     xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "Non-scaled LCD output will %sbe centered\n",
+	         pSiS->CenterLCD ? "not " : "");
+	  }
+
          /* PanelDelayCompensation (300/315/330 series only)
-          * This might be required if the LCD panel shows "small waves".
+          * This might be required if the LCD panel shows "small waves"
+	  * or wrong colors.
           * The parameter is an integer, (on 300 series usually either
 	  * 4, 32 or 24; on 315 series + LV bridge usually 3 or 51)
           * Why this option? Simply because SiS did poor BIOS design.
@@ -1074,19 +1198,48 @@ SiSOptions(ScrnInfoPtr pScrn)
           * particular machine. For most panels, the driver is able
           * to detect the correct value. However, some panels require
           * a different setting. For 300 series, the value given must
-	  * be within the mask 0x3c.
+	  * be within the mask 0x3c. For 661 and later, if must be
+	  * within the range of 0 to 31.
           */
-          if(xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &pSiS->PDC)) {
+	  {
+	  int val = -1;
+          xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &val);
+	  xf86GetOptValInteger(pSiS->Options, OPTION_PDCS, &val);
+	  if(val != -1) {
+	     pSiS->PDC = val;
 	     if((pSiS->VGAEngine == SIS_300_VGA) && (pSiS->PDC & ~0x3c)) {
 	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 	            "Illegal PanelDelayCompensation parameter\n");
 	        pSiS->PDC = -1;
 	     } else {
+	        if(pSiS->VGAEngine == SIS_315_VGA) pSiS->PDC &= 0x1f;
                 xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
-                    "Panel delay compensation shall be %d\n",
+                    "Panel delay compensation shall be %d (for LCD=CRT2)\n",
 	             pSiS->PDC);
 	     }
           }
+
+	 /* PanelDelayCompensation1 (315 series only)
+          * Same as above, but for LCD-via-CRT1 ("LCDA")
+          */
+	  if(pSiS->VGAEngine == SIS_315_VGA) {
+	     val = -1;
+             xf86GetOptValInteger(pSiS->Options, OPTION_PDCA, &val);
+	     xf86GetOptValInteger(pSiS->Options, OPTION_PDCAS, &val);
+	     if(val != -1) {
+	        pSiS->PDCA = val;
+	        if(pSiS->PDCA > 0x1f) {
+	           xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+	                "Illegal PanelDelayCompensation1 (PDC1) parameter (0 <= PDC1 <= 31\n");
+	           pSiS->PDCA = -1;
+	        } else {
+                   xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
+                       	"Panel delay compensation shall be %d (for LCD=CRT1)\n",
+	                pSiS->PDCA);
+	        }
+	     }
+	  }
+	  }
 
 	 /* LVDSHL (300/315/330 series + 30xLV bridge only)
           * This might be required if the LCD panel is too dark.
@@ -1101,6 +1254,28 @@ SiSOptions(ScrnInfoPtr pScrn)
                 xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
                     "LVDSHL will be %d\n",
 	             pSiS->SiS_Pr->LVDSHL);
+	     }
+          }
+
+	 /* EMI (315/330 series + 302LV/302ELV bridge only)
+          * This might be required if the LCD panel loses sync on
+	  * mode switches. So far, this problem should not show up
+	  * due to the auto-detection (from reading the values set
+	  * by the BIOS; however, the BIOS values are wrong sometimes
+	  * such as in the case of some Compal machines with a
+	  * 1400x1050, or some Inventec(Compaq) machines with a
+	  * 1280x1024 panel.
+          * The parameter is an integer from 0 to 0x60ffffff.
+          */
+          if(xf86GetOptValInteger(pSiS->Options, OPTION_EMI, &pSiS->EMI)) {
+	     if((pSiS->EMI < 0) || (pSiS->EMI > 0x60ffffff)) {
+	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+	            "Illegal EMI parameter, valid is 0 through 0x60ffffff\n");
+	        pSiS->EMI = -1;
+	     } else {
+	        pSiS->EMI &= 0x60ffffff;
+                xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
+                    "EMI will be 0x%04x\n", pSiS->EMI);
 	     }
           }
 
@@ -1156,21 +1331,21 @@ SiSOptions(ScrnInfoPtr pScrn)
           }
        }
 
-      /* CHTVType  (315/330 series only)
+      /* CHTVType  (315/330 series + Chrontel only)
        * Used for telling the driver if the TV output shall
-       * be i480 HDTV or SCART.
+       * be 525i YPbPr or SCART.
        */
        if(pSiS->VGAEngine == SIS_315_VGA) {
           strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_CHTVTYPE);
           if(strptr != NULL) {
              if(!xf86NameCmp(strptr,"SCART"))
                 pSiS->chtvtype = 1;
- 	     else if(!xf86NameCmp(strptr,"HDTV"))
+ 	     else if(!xf86NameCmp(strptr,"YPBPR525I"))
 	        pSiS->chtvtype = 0;
 	     else {
 	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mybadparm, strptr, "CHTVType");
 	        xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-	          "Valid parameters are \"SCART\" or \"HDTV\"\n");
+	          "Valid parameters are \"SCART\" or \"YPBPR525I\"\n");
 	     }
              if(pSiS->chtvtype != -1)
                 xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,

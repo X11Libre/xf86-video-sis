@@ -1,39 +1,39 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_video.c,v 1.41 2003/11/19 00:49:06 twini Exp $ */
+/* $XFree86$ */
 /*
  * Xv driver for SiS 300, 315 and 330 series.
  *
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria.
- * All Rights Reserved.
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1) Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2) Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3) The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Author:    Thomas Winischhofer <thomas@winischhofer.net>
+ *
+ * Formerly based on a mostly non-working code fragment for the 630 by
+ * Silicon Integrated Systems Corp, Inc., HsinChu, Taiwan which is
+ * Copyright (C) 2000 Silicon Integrated Systems Corp, Inc.
  *
  * Basic structure based on the mga Xv driver by Mark Vojkovich
  * and i810 Xv driver by Jonathan Bian <jonathan.bian@intel.com>.
- *
- * Formerly based on a mostly non-working fragment for the 630 by
- * Silicon Integrated Systems Corp, Inc., HsinChu, Taiwan.
- *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
- *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
- *
- * Authors:
- *	Thomas Winischhofer <thomas@winischhofer.net>:
- *      (Original code fragment for 630 by
- *            Sung-Ching Lin <sclin@sis.com.tw>)
- *
  *
  * All comments in this file are by Thomas Winischhofer.
  *
@@ -245,16 +245,17 @@ static char sisxvsdstorepbrir2[] 			= "XV_SD_STOREDGAMMAPBRIR2";
 static char sisxvsdstorepbrig2[] 			= "XV_SD_STOREDGAMMAPBRIG2";
 static char sisxvsdstorepbrib2[] 			= "XV_SD_STOREDGAMMAPBRIB2";
 static char sisxvsdhidehwcursor[] 			= "XV_SD_HIDEHWCURSOR";
+static char sisxvsdpanelmode[] 				= "XV_SD_PANELMODE";
 #ifdef TWDEBUG
 static char sisxvsetreg[]				= "XV_SD_SETREG";
 #endif
 
 #ifndef SIS_CP
-#define NUM_ATTRIBUTES_300 56
+#define NUM_ATTRIBUTES_300 57
 #ifdef TWDEBUG
-#define NUM_ATTRIBUTES_315 63
+#define NUM_ATTRIBUTES_315 64
 #else
-#define NUM_ATTRIBUTES_315 62
+#define NUM_ATTRIBUTES_315 63
 #endif
 #endif
 
@@ -316,6 +317,7 @@ static XF86AttributeRec SISAttributes_300[NUM_ATTRIBUTES_300] =
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrir2},
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrig2},
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrib2},
+   {XvSettable | XvGettable, 0, 15,            sisxvsdpanelmode},
 #ifdef SIS_CP
    SIS_CP_VIDEO_ATTRIBUTES
 #endif
@@ -384,6 +386,7 @@ static XF86AttributeRec SISAttributes_315[NUM_ATTRIBUTES_315] =
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrig2},
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrib2},
    {XvSettable | XvGettable, 0, 1,             sisxvsdhidehwcursor},
+   {XvSettable | XvGettable, 0, 15,            sisxvsdpanelmode},
 #ifdef TWDEBUG
    {XvSettable             , 0, 0xffffffff,    sisxvsetreg},
 #endif
@@ -1389,6 +1392,7 @@ SISSetupImageVideo(ScreenPtr pScreen)
     pSiS->xv_PBG2	      = MAKE_ATOM(sisxvsdstorepbrig2);
     pSiS->xv_PBB2	      = MAKE_ATOM(sisxvsdstorepbrib2);
     pSiS->xv_SHC	      = MAKE_ATOM(sisxvsdhidehwcursor);
+    pSiS->xv_PMD	      = MAKE_ATOM(sisxvsdpanelmode);
 #ifdef TWDEBUG
     pSiS->xv_STR	      = MAKE_ATOM(sisxvsetreg);
 #endif
@@ -1602,6 +1606,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 #endif
         if(pSiS->xv_sisdirectunlocked) {
 	   SISSwitchCRT2Type(pScrn, (unsigned long)value);
+	   set_dispmode(pScrn, pPriv);
 	   set_allowswitchcrt(pSiS, pPriv);
 	   set_maxencoding(pSiS, pPriv);
         }
@@ -1611,6 +1616,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 #endif
         if(pSiS->xv_sisdirectunlocked) {
 	   SISSwitchCRT1Status(pScrn, (unsigned long)value);
+	   set_dispmode(pScrn, pPriv);
 	   set_allowswitchcrt(pSiS, pPriv);
 	   set_maxencoding(pSiS, pPriv);
         }
@@ -1676,12 +1682,12 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
      }
   } else if(attribute == pSiS->xv_CMD) {
      if(pSiS->xv_sisdirectunlocked) {
+        int result = 0;
         pSiS->xv_sd_result = (value & 0xffffff00);
-        if(SISCheckModeIndexForCRT2Type(pScrn, (unsigned short)(value & 0xff),
-	                                       (unsigned short)((value >> 8) & 0xff),
-					       FALSE)) {
-	   pSiS->xv_sd_result |= 0x01;
-	}
+        result = SISCheckModeIndexForCRT2Type(pScrn, (unsigned short)(value & 0xff),
+	                                      (unsigned short)((value >> 8) & 0xff),
+					      FALSE);
+	pSiS->xv_sd_result |= (result & 0xff);
      }
   } else if(attribute == pSiS->xv_SGA) {
      if(pSiS->xv_sisdirectunlocked) {
@@ -1811,6 +1817,19 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 	   }
 	   pSiS->HWCursorIsVisible = VisibleBackup;
 	}
+     }
+  } else if(attribute == pSiS->xv_PMD) {
+     if(pSiS->xv_sisdirectunlocked) {
+        if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTSCALE) {
+	   if(value & 0x01)      pSiS->SiS_Pr->UsePanelScaler = -1;
+	   else if(value & 0x02) pSiS->SiS_Pr->UsePanelScaler = 1;
+	   else			 pSiS->SiS_Pr->UsePanelScaler = 0;
+	   if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTCENTER) {
+	      if(value & 0x04)      pSiS->SiS_Pr->CenterScreen = -1;
+	      else if(value & 0x08) pSiS->SiS_Pr->CenterScreen = 1;
+	      else		    pSiS->SiS_Pr->CenterScreen = 0;
+	   }
+        }
      }
 #ifdef TWDEBUG
   } else if(attribute == pSiS->xv_STR) {
@@ -1955,6 +1974,7 @@ SISGetPortAttribute(
   } else if(attribute == pSiS->xv_CMDR) {
      *value = pSiS->xv_sd_result;
   } else if(attribute == pSiS->xv_OVR) {
+     /* Changing of CRT2 settings not supported in DHM! */
      *value = 0;
      if(pSiS->OptTVSOver == 1)         *value = 3;
      else if(pSiS->UseCHOverScan == 1) *value = 2;
@@ -2029,6 +2049,20 @@ SISGetPortAttribute(
           *value = pSiS->GammaPBriB;
   } else if(attribute == pSiS->xv_SHC) {
      *value = pSiS->HideHWCursor ? 1 : 0;
+  } else if(attribute == pSiS->xv_PMD) {
+     *value = 0;
+     if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTSCALE) {
+        switch(pSiS->SiS_Pr->UsePanelScaler) {
+           case -1: *value |= 0x01; break;
+           case 1:  *value |= 0x02; break;
+        }
+	if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTCENTER) {
+           switch(pSiS->SiS_Pr->CenterScreen) {
+              case -1: *value |= 0x04; break;
+              case 1:  *value |= 0x08; break;
+           }
+	}
+     }
 #ifdef SIS_CP
   SIS_CP_VIDEO_GETATTRIBUTE
 #endif
@@ -2081,12 +2115,10 @@ SiSHandleSiSDirectCommand(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv, sisdirectcomm
       break;
    case SDC_CMD_CHECKMODEFORCRT2:
       j = sdcbuf->sdc_parm[0];
-      sdcbuf->sdc_parm[0] = 0;
-      if(SISCheckModeIndexForCRT2Type(pScrn, (unsigned short)(j & 0xff),
-	                                     (unsigned short)((j >> 8) & 0xff),
-					     FALSE)) {
-	 sdcbuf->sdc_parm[0] = 1;
-      }
+      sdcbuf->sdc_parm[0] = SISCheckModeIndexForCRT2Type(pScrn,
+      			(unsigned short)(j & 0xff),
+	                (unsigned short)((j >> 8) & 0xff),
+			FALSE) & 0xff;
       break;
    default:
       sdcbuf->sdc_header = SDC_RESULT_UNDEFCMD;
@@ -2700,7 +2732,7 @@ set_brightness(SISPtr pSiS, CARD8 brightness)
 static __inline void
 set_contrast(SISPtr pSiS, CARD8 contrast)
 {
-    setvideoregmask(pSiS, Index_VI_Contrast_Enh_Ctrl, contrast ^ 0x07, 0x07);
+    setvideoregmask(pSiS, Index_VI_Contrast_Enh_Ctrl, contrast, 0x07);
 }
 
 /* 315 series and later only */
@@ -3398,6 +3430,7 @@ SISDisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 	 pPriv->mustwait = 1;
 	 pPriv->oldx1 = overlay.dstBox.x1; pPriv->oldx2 = overlay.dstBox.x2;
 	 pPriv->oldy1 = overlay.dstBox.y1; pPriv->oldy2 = overlay.dstBox.y2;
+
       }
 #ifdef SISMERGED
    }
