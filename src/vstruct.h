@@ -1,35 +1,54 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vstruct.h,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/vstruct.h,v 1.26 2003/12/16 17:35:07 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/vstruct.h,v 1.32 2004/01/23 22:29:06 twini Exp $ */
 /*
  * General structure definitions for universal mode switching modules
  *
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * If distributed as part of the linux kernel, the contents of this file
- * is entirely covered by the GPL.
+ * If distributed as part of the Linux kernel, the following license terms
+ * apply:
  *
- * Otherwise, the following terms apply:
+ * * This program is free software; you can redistribute it and/or modify
+ * * it under the terms of the GNU General Public License as published by
+ * * the Free Software Foundation; either version 2 of the named License,
+ * * or any later version.
+ * *
+ * * This program is distributed in the hope that it will be useful,
+ * * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * * GNU General Public License for more details.
+ * *
+ * * You should have received a copy of the GNU General Public License
+ * * along with this program; if not, write to the Free Software
+ * * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * Otherwise, the following license terms apply:
  *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * * Redistribution and use in source and binary forms, with or without
+ * * modification, are permitted provided that the following conditions
+ * * are met:
+ * * 1) Redistributions of source code must retain the above copyright
+ * *    notice, this list of conditions and the following disclaimer.
+ * * 2) Redistributions in binary form must reproduce the above copyright
+ * *    notice, this list of conditions and the following disclaimer in the
+ * *    documentation and/or other materials provided with the distribution.
+ * * 3) All advertising materials mentioning features or use of this software
+ * *    must display the following acknowledgement: "This product includes
+ * *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * * 4) The name of the author may not be used to endorse or promote products
+ * *    derived from this software without specific prior written permission.
+ * *
+ * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Authors: 	Thomas Winischhofer <thomas@winischhofer.net>
- *              Silicon Integrated Systems
+ * Author: 	Thomas Winischhofer <thomas@winischhofer.net>
  *
  */
  
@@ -281,7 +300,8 @@ typedef struct _SiS_Private
 	BOOLEAN HaveEMILCD;
 	BOOLEAN OverruleEMI;
 	UCHAR  EMI_30,EMI_31,EMI_32,EMI_33;
-	UCHAR  PDC;
+	SHORT  PDC;
+	UCHAR  SiS_MyCR63;
 	USHORT SiS_CRT1Mode;
 	USHORT SiS_flag_clearbuffer;
 	int    SiS_RAMType;
@@ -320,11 +340,13 @@ typedef struct _SiS_Private
 	USHORT SiS_DDC_Port;
 	USHORT SiS_DDC_Index;
 	USHORT SiS_DDC_Data;
+	USHORT SiS_DDC_NData;
 	USHORT SiS_DDC_Clk;
-	USHORT SiS_DDC_DataShift;
+	USHORT SiS_DDC_NClk;
 	USHORT SiS_DDC_DeviceAddr;
 	USHORT SiS_DDC_ReadAddr;
 	USHORT SiS_DDC_SecAddr;
+	BOOLEAN SiS_SensibleSR11;
 	USHORT SiS_Panel800x600;
 	USHORT SiS_Panel1024x768;
 	USHORT SiS_Panel1280x1024;
@@ -422,17 +444,26 @@ typedef struct _SiS_Private
 	const SiS_TVDataStruct   *SiS_ExtPALData;
 	const SiS_TVDataStruct   *SiS_StNTSCData;
 	const SiS_TVDataStruct   *SiS_ExtNTSCData;
+	const SiS_TVDataStruct   *SiS_St1HiTVData;
 	const SiS_TVDataStruct   *SiS_St2HiTVData;
 	const SiS_TVDataStruct   *SiS_ExtHiTVData;
+	const SiS_TVDataStruct   *SiS_St525iData;
+	const SiS_TVDataStruct   *SiS_St525pData;
+	const SiS_TVDataStruct   *SiS_St750pData;
+	const SiS_TVDataStruct   *SiS_Ext525iData;
+	const SiS_TVDataStruct   *SiS_Ext525pData;
+	const SiS_TVDataStruct   *SiS_Ext750pData;
 	const UCHAR *SiS_NTSCTiming;
 	const UCHAR *SiS_PALTiming;
 	const UCHAR *SiS_HiTVExtTiming;
 	const UCHAR *SiS_HiTVSt1Timing;
 	const UCHAR *SiS_HiTVSt2Timing;
-	const UCHAR *SiS_HiTVTextTiming;
 	const UCHAR *SiS_HiTVGroup3Data;
 	const UCHAR *SiS_HiTVGroup3Simu;
+#if 0
+	const UCHAR *SiS_HiTVTextTiming;
 	const UCHAR *SiS_HiTVGroup3Text;
+#endif
 	const SiS_PanelDelayTblStruct *SiS_PanelDelayTbl;
 	const SiS_PanelDelayTblStruct *SiS_PanelDelayTblLVDS;
 	const SiS_LVDSDataStruct  *SiS_LVDS800x600Data_1;

@@ -1,43 +1,48 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.h,v 1.1.4.3 2003/12/18 19:29:14 kaleb Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.h,v 1.99 2003/12/16 17:45:19 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis.h,v 1.108 2004/01/27 11:58:27 twini Exp $ */
 /*
  * Main global data and definitions
  *
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1) Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2) Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3) All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement: "This product includes
+ *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * 4) The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Authors:
- *
- *      Thomas Winischhofer <thomas@winischhofer.net>
- *      ?
+ * Authors:   Thomas Winischhofer <thomas@winischhofer.net>
+ *            others (old code base)
  *
  */
+
 #ifndef _SIS_H
 #define _SIS_H_
 
 /* Always unlock the registers (should be set!) */
 #define UNLOCK_ALWAYS
 
-#define SISDRIVERVERSIONYEAR    3
-#define SISDRIVERVERSIONMONTH   12
-#define SISDRIVERVERSIONDAY     15
+#define SISDRIVERVERSIONYEAR    4
+#define SISDRIVERVERSIONMONTH   1
+#define SISDRIVERVERSIONDAY     27
 #define SISDRIVERREVISION       1
 
 #define SISDRIVERIVERSION (SISDRIVERVERSIONYEAR << 16) | (SISDRIVERVERSIONMONTH << 8) \
@@ -106,6 +111,10 @@
 
 #if 1				/* Include code for color hardware cursors */
 #define SIS_ARGB_CURSOR
+#endif
+
+#if 1				/* Include YPbPr support on SiS bridges (315 series and 661/741/760) */
+#define ENABLE_YPBPR
 #endif
 
 #ifdef SISMERGED
@@ -178,29 +187,24 @@
 #define CRT2_LCD                0x00000002  /* TW: Never change the order of the CRT2_XXX entries */
 #define CRT2_TV                 0x00000004  /*     (see SISCycleCRT2Type())                       */
 #define CRT2_VGA                0x00000008
-#define CRT2_ENABLE		(CRT2_LCD | CRT2_TV | CRT2_VGA)
-#define DISPTYPE_DISP2		CRT2_ENABLE
 #define TV_NTSC                 0x00000010
 #define TV_PAL                  0x00000020
-#define TV_HIVISION             0x00000040 /* Not supported */
-#define TV_YPBPR                0x00000080 /* Not supported */
-#define TV_TYPE                 (TV_NTSC | TV_PAL | TV_HIVISION | TV_YPBPR)
+#define TV_HIVISION             0x00000040
+#define TV_YPBPR                0x00000080
 #define TV_AVIDEO               0x00000100
 #define TV_SVIDEO               0x00000200
 #define TV_SCART                0x00000400
-#define TV_INTERFACE            (TV_AVIDEO | TV_SVIDEO | TV_SCART | TV_CHSCART | TV_CHHDTV)
 #define VB_CONEXANT		0x00000800
 #define TV_PALM                 0x00001000
 #define TV_PALN                 0x00002000
 #define TV_NTSCJ		0x00001000
 #define VB_302ELV		0x00004000
 #define TV_CHSCART              0x00008000
-#define TV_CHHDTV               0x00010000
+#define TV_CHYPBPR525I          0x00010000
 #define CRT1_VGA		0x00000000
 #define CRT1_LCDA		0x00020000
 #define VGA2_CONNECTED          0x00040000
 #define DISPTYPE_CRT1		0x00080000  	/* CRT1 connected and used */
-#define DISPTYPE_DISP1		DISPTYPE_CRT1
 #define VB_301                  0x00100000	/* Video bridge type */
 #define VB_301B                 0x00200000
 #define VB_302B                 0x00400000
@@ -210,14 +214,35 @@
 #define VB_301LV                0x04000000
 #define VB_302LV                0x08000000
 #define VB_301C			0x10000000
+#define SINGLE_MODE             0x20000000   	/* CRT1 or CRT2; determined by DISPTYPE_CRTx */
+#define MIRROR_MODE		0x40000000   	/* CRT1 + CRT2 identical (mirror mode) */
+#define DUALVIEW_MODE		0x80000000   	/* CRT1 + CRT2 independent (dual head mode) */
+
+/* Aliases: */
+#define CRT2_ENABLE		(CRT2_LCD | CRT2_TV | CRT2_VGA)
+#define TV_STANDARD             (TV_NTSC | TV_PAL | TV_PALM | TV_PALN | TV_NTSCJ)
+#define TV_INTERFACE            (TV_AVIDEO|TV_SVIDEO|TV_SCART|TV_HIVISION|TV_YPBPR)
+
+/* Only if TV_YPBPR is set: */
+#define TV_YPBPR525I		TV_NTSC
+#define TV_YPBPR525P		TV_PAL
+#define TV_YPBPR750P		TV_PALM
+#define TV_YPBPR1080I	        TV_PALN
+#define TV_YPBPRALL 		(TV_YPBPR525I | TV_YPBPR525P | TV_YPBPR750P | TV_YPBPR1080I)
+
+#define TV_YPBPR43LB		TV_CHSCART
+#define TV_YPBPR43		TV_CHYPBPR525I
+#define TV_YPBPR169 		(TV_CHSCART | TV_CHYPBPR525I)
+#define TV_YPBPRAR              (TV_CHSCART | TV_CHYPBPR525I)
+
 #define VB_SISBRIDGE            (VB_301|VB_301B|VB_301C|VB_302B|VB_301LV|VB_302LV|VB_302ELV)
 #define VB_SISTVBRIDGE          (VB_301|VB_301B|VB_301C|VB_302B|VB_301LV|VB_302LV)
-#define VB_VIDEOBRIDGE		(VB_SISBRIDGE|VB_LVDS|VB_CHRONTEL|VB_CONEXANT)
-#define SINGLE_MODE             0x20000000   	/* CRT1 or CRT2; determined by DISPTYPE_CRTx */
+#define VB_VIDEOBRIDGE		(VB_SISBRIDGE | VB_LVDS | VB_CHRONTEL | VB_CONEXANT)
+
+#define DISPTYPE_DISP2		CRT2_ENABLE
+#define DISPTYPE_DISP1		DISPTYPE_CRT1
 #define VB_DISPMODE_SINGLE	SINGLE_MODE  	/* alias */
-#define MIRROR_MODE		0x40000000   	/* CRT1 + CRT2 identical (mirror mode) */
 #define VB_DISPMODE_MIRROR	MIRROR_MODE  	/* alias */
-#define DUALVIEW_MODE		0x80000000   	/* CRT1 + CRT2 independent (dual head mode) */
 #define VB_DISPMODE_DUAL	DUALVIEW_MODE 	/* alias */
 #define DISPLAY_MODE            (SINGLE_MODE | MIRROR_MODE | DUALVIEW_MODE)
 
@@ -238,6 +263,8 @@
 #define VB_LCD_640x480_2	0x00002000  	/* DSTN/FSTN */
 #define VB_LCD_640x480_3	0x00004000  	/* DSTN/FSTN */
 #define VB_LCD_848x480		0x00008000	/* LVDS only, otherwise handled as custom */
+#define VB_LCD_1280x800		0x00010000
+#define VB_LCD_1680x1050	0x00020000
 #define VB_LCD_BARCO1366        0x20000000
 #define VB_LCD_CUSTOM  		0x40000000
 #define VB_LCD_EXPANDING	0x80000000
@@ -251,6 +278,7 @@
 #define MISC_CRT1OVERLAY	0x00000001  /* Current display mode supports overlay */
 #define MISC_PANELLINKSCALER    0x00000002  /* Panel link is currently scaling */
 #define MISC_CRT1OVERLAYGAMMA	0x00000004  /* Current display mode supports overlay gamma corr on CRT1 */
+#define MISC_TVNTSC1024		0x00000008  /* Current display mode is TV NTSC/PALM/YPBPR525I 1024x768  */
 
 /* SiS6326Flags */
 #define SIS6326_HASTV		0x00000001
@@ -330,7 +358,7 @@ typedef unsigned char UChar;
 #define SiS_SD_IS315SERIES     0x00000002
 #define SiS_SD_IS330SERIES     0x00000004
 #define SiS_SD_SUPPORTPALMN    0x00000008   /* tv chip supports pal-m, pal-n */
-#define SiS_SD_SUPPORT2OVL     0x00000010   /* set = 2 overlays, 1 = support SWITCHCRT xv prop */
+#define SiS_SD_SUPPORT2OVL     0x00000010   /* set = 2 overlays, clear = support SWITCHCRT xv prop */
 #define SiS_SD_SUPPORTTVPOS    0x00000020   /* supports changing tv position */
 #define SiS_SD_ISDUALHEAD      0x00000040   /* Driver is in dual head mode */
 #define SiS_SD_ISMERGEDFB      0x00000080   /* Driver is in merged fb mode */
@@ -349,18 +377,29 @@ typedef unsigned char UChar;
 #define SiS_SD_SUPPORTOVERSCAN 0x00100000   /* Overscan flag supported */
 #define SiS_SD_SUPPORTXVGAMMA1 0x00200000   /* Xv Gamma correction for CRT1 supported */
 #define SiS_SD_SUPPORTTV       0x00400000   /* CRT2=TV supported */
+#define SiS_SD_SUPPORTYPBPR    0x00800000   /* CRT2=YPbPr (525i, 525p, 750p, 1080i) is supported */
+#define SiS_SD_SUPPORTHIVISION 0x01000000   /* CRT2=HiVision is supported */
+#define SiS_SD_SUPPORTYPBPRAR  0x02000000   /* YPbPr aspect ratio is supported */
 
 #define SIS_DIRECTKEY         0x03145792
 
 /* SiSCtrl: Check mode for CRT2 */
-#define SiS_CF2_LCD        0x01
-#define SiS_CF2_TV         0x02
-#define SiS_CF2_VGA2       0x04
-#define SiS_CF2_TVPAL      0x08
-#define SiS_CF2_TVNTSC     0x10  /* + NTSC-J */
-#define SiS_CF2_TVPALM     0x20
-#define SiS_CF2_TVPALN     0x40
-#define SiS_CF2_CRT1LCDA   0x80
+#define SiS_CF2_LCD          0x01
+#define SiS_CF2_TV           0x02
+#define SiS_CF2_VGA2         0x04
+#define SiS_CF2_TVPAL        0x08
+#define SiS_CF2_TVNTSC       0x10  /* + NTSC-J */
+#define SiS_CF2_TVPALM       0x20
+#define SiS_CF2_TVPALN       0x40
+#define SiS_CF2_CRT1LCDA     0x80
+#define SiS_CF2_TYPEMASK     (SiS_CF2_LCD | SiS_CF2_TV | SiS_CF2_VGA2 | SiS_CF2_CRT1LCDA)
+#define SiS_CF2_TVSPECIAL    (SiS_CF2_LCD | SiS_CF2_TV)
+#define SiS_CF2_TVSPECMASK   (SiS_CF2_TVPAL | SiS_CF2_TVNTSC | SiS_CF2_TVPALM | SiS_CF2_TVPALN)
+#define SiS_CF2_TVHIVISION   SiS_CF2_TVPAL
+#define SiS_CF2_TVYPBPR525I  SiS_CF2_TVNTSC
+#define SiS_CF2_TVYPBPR525P  (SiS_CF2_TVPAL | SiS_CF2_TVNTSC)
+#define SiS_CF2_TVYPBPR750P  SiS_CF2_TVPALM
+#define SiS_CF2_TVYPBPR1080I (SiS_CF2_TVPALM | SiS_CF2_TVPAL)
 
 /* AGP stuff for DRI */
 #define AGP_PAGE_SIZE 4096
@@ -494,6 +533,7 @@ typedef struct {
     int			tvxpos, tvypos;
     int		      	tvxscale, tvyscale;
     int			ForceTVType;
+    unsigned long	ForceYPbPrType, ForceYPbPrAR;
     int			chtvtype;
     int                 NonDefaultPAL, NonDefaultNTSC;
     unsigned short	tvx, tvy;
@@ -502,7 +542,7 @@ typedef struct {
     unsigned long       sistvccbase;
     unsigned char       p2_35, p2_36, p2_37, p2_38, p2_48, p2_49, p2_4a;
     unsigned char	p2_0a, p2_2f, p2_30, p2_47;
-    unsigned char       scalingp1[9], scalingp4[9];
+    unsigned char       scalingp1[9], scalingp4[9], scalingp2[64];
     unsigned short      cursorBufferNum;
     BOOLEAN		restorebyset;
     BOOLEAN		CRT1gamma, CRT1gammaGiven, CRT2gamma, XvGamma, XvGammaGiven;
@@ -518,6 +558,7 @@ typedef struct {
     unsigned char *	FbBase1;
     unsigned long	OnScreenSize1;
     unsigned char       OldMode;
+    int			HWCursorMBufNum, HWCursorCBufNum;
 #ifdef SIS_CP
     SIS_CP_H_ENT
 #endif
@@ -595,7 +636,7 @@ typedef struct {
     Bool		CRT1changed;
     unsigned char       oldCR17, oldCR63, oldSR1F;
     unsigned char       oldCR32, oldCR36, oldCR37;
-    unsigned char       myCR32, myCR36, myCR37;
+    unsigned char       myCR32, myCR36, myCR37, myCR63;
     unsigned char       newCR32;
     unsigned long   	VBFlags;		/* Video bridge configuration */
     unsigned long       VBFlags_backup;         /* Backup for SlaveMode-modes */
@@ -806,6 +847,7 @@ typedef struct {
     int			newFastVram;		/* Replaces FastVram */
     int			ForceTVType;
     int                 NonDefaultPAL, NonDefaultNTSC;
+    unsigned long	ForceYPbPrType, ForceYPbPrAR;
     unsigned long       lockcalls;		/* Count unlock calls for debug */
     unsigned short	tvx, tvy;		/* Backup TV position registers */
     unsigned char	p2_01, p2_02, p2_1f, p2_20;    /* Backup TV position registers */
@@ -814,7 +856,7 @@ typedef struct {
     unsigned long       sistvccbase;
     unsigned char       p2_35, p2_36, p2_37, p2_38, p2_48, p2_49, p2_4a;
     unsigned char	p2_0a, p2_2f, p2_30, p2_47;
-    unsigned char       scalingp1[9], scalingp4[9];
+    unsigned char       scalingp1[9], scalingp4[9], scalingp2[64];
     BOOLEAN		ForceCursorOff;
     BOOLEAN		HaveCustomModes;
     BOOLEAN		IsCustom;
@@ -882,6 +924,8 @@ typedef struct {
     int			GammaPBriR, GammaPBriG, GammaPBriB;
     Bool		HideHWCursor;  /* Custom application */
     Bool		HWCursorIsVisible;
+    unsigned long       HWCursorBackup[16];
+    int			HWCursorMBufNum, HWCursorCBufNum;
 #ifdef SISMERGED
     Bool		MergedFB, MergedFBAuto;
     SiSScrn2Rel		CRT2Position;

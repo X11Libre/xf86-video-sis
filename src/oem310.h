@@ -1,36 +1,54 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/oem310.h,v 1.19 2003/12/16 17:35:06 twini Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/oem310.h,v 1.19 2003/12/16 17:35:06 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/oem310.h,v 1.24 2004/01/23 22:29:03 twini Exp $ */
 /*
  * OEM Data for 315/330 series
  *
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * If distributed as part of the linux kernel, the contents of this file
- * is entirely covered by the GPL.
+ * If distributed as part of the Linux kernel, the following license terms
+ * apply:
  *
- * Otherwise, the following terms apply:
+ * * This program is free software; you can redistribute it and/or modify
+ * * it under the terms of the GNU General Public License as published by
+ * * the Free Software Foundation; either version 2 of the named License,
+ * * or any later version.
+ * *
+ * * This program is distributed in the hope that it will be useful,
+ * * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * * GNU General Public License for more details.
+ * *
+ * * You should have received a copy of the GNU General Public License
+ * * along with this program; if not, write to the Free Software
+ * * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * Otherwise, the following license terms apply:
  *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * * Redistribution and use in source and binary forms, with or without
+ * * modification, are permitted provided that the following conditions
+ * * are met:
+ * * 1) Redistributions of source code must retain the above copyright
+ * *    notice, this list of conditions and the following disclaimer.
+ * * 2) Redistributions in binary form must reproduce the above copyright
+ * *    notice, this list of conditions and the following disclaimer in the
+ * *    documentation and/or other materials provided with the distribution.
+ * * 3) All advertising materials mentioning features or use of this software
+ * *    must display the following acknowledgement: "This product includes
+ * *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * * 4) The name of the author may not be used to endorse or promote products
+ * *    derived from this software without specific prior written permission.
+ * *
+ * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Author: 	Thomas Winischhofer <thomas@winischhofer.net>
- *
- * Based on code by Silicon Intergrated Systems 
  *
  */
 
@@ -54,7 +72,7 @@ static const UCHAR SiS310_LCDDelayCompensation_301[] =	    		/* 301 */
 };
 
 /* This is contained in 650+301B BIOSes, but it is wrong - so we don't use it */
-static const UCHAR SiS310_LCDDelayCompensation_650301B[] =	   	/* 30xB,LV */
+static const UCHAR SiS310_LCDDelayCompensation_650301LV[] =	   	/* 650 + 30xLV */
 {
 		 0x01,0x01,0x01,    /*   800x600 */
 		 0x01,0x01,0x01,    /*  1024x768 */
@@ -73,65 +91,7 @@ static const UCHAR SiS310_LCDDelayCompensation_650301B[] =	   	/* 30xB,LV */
 		 0x02,0x02,0x02
 };
 
-/* This data is correct, so we use it instead of the table above */
-static const UCHAR SiS310_LCDDelayCompensation_3xx301B[] =	   	/* 30xB,LV */
-{
-		 0x01,0x01,0x01,    /*   800x600 */
-		 0x0C,0x0C,0x0C,    /*  1024x768 */
-		 0x0C,0x0C,0x0C,    /* 1280x1024 */
-                 0x08,0x08,0x08,    /*   640x480 */
-		 0x0C,0x0C,0x0C,    /*  1024x600 (guessed) */
-		 0x0C,0x0C,0x0C,    /*  1152x864 (guessed) */
-		 0x0C,0x0C,0x0C,    /*  1280x960 (guessed) */
-		 0x0C,0x0C,0x0C,    /*  1152x768 (guessed) */
-		 0x0C,0x0C,0x0C,    /* 1400x1050 (guessed) */
-		 0x0C,0x0C,0x0C,    /*  1280x768 (guessed) */
-		 0x0C,0x0C,0x0C,    /* 1600x1200 (guessed) */
-		 0x02,0x02,0x02,
-		 0x02,0x02,0x02,
-		 0x02,0x02,0x02,
-		 0x02,0x02,0x02
-};
-
-static const UCHAR SiS310_LCDDelayCompensation_LVDS650[] =   	/* LVDS */
-{
-                 0x00,0x00,0x00,    /*   800x600 */
-		 0x00,0x00,0x00,    /*  1024x768 */
-		 0x00,0x00,0x00,    /* 1280x1024 */
-		 0x00,0x00,0x00,    /*   640x480 (unknown) */
-		 0x00,0x00,0x00,    /*  1024x600 (unknown) */
-		 0x00,0x00,0x00,    /*  1152x864 (unknown) */
-		 0x00,0x00,0x00,    /*  1280x960 (guessed) */
-		 0x00,0x00,0x00,    /*  1152x768 (unknown) */
-		 0x00,0x00,0x00,    /* 1400x1050 */
-		 0x00,0x00,0x00,    /*  1280x768  (guessed) */
-		 0x00,0x00,0x00,    /* 1600x1200 */
-		 0x00,0x00,0x00,
-		 0x00,0x00,0x00,
-		 0x00,0x00,0x00,
-		 0x00,0x00,0x00
-};
-
-static const UCHAR SiS310_LCDDelayCompensation_LVDS740[] =   	/* LVDS */
-{
-                 0x03,0x03,0x03,    /*   800x600 */
-		 0x03,0x03,0x03,    /*  1024x768 */
-		 0x03,0x03,0x03,    /* 1280x1024 */
-		 0x03,0x03,0x03,    /*   640x480 (unknown) */
-		 0x03,0x03,0x03,    /*  1024x600 (unknown) */
-		 0x03,0x03,0x03,    /*  1152x864 (unknown) */
-		 0x03,0x03,0x03,    /*  1280x960 (guessed) */
-		 0x03,0x03,0x03,    /*  1152x768 (unknown) */
-		 0x03,0x03,0x03,    /* 1400x1050 */
-		 0x03,0x03,0x03,    /*  1280x768  (guessed) */
-		 0x03,0x03,0x03,    /* 1600x1200 */
-		 0x00,0x00,0x00,
-		 0x00,0x00,0x00,
-		 0x00,0x00,0x00,
-		 0x00,0x00,0x00
-};
-
-static const UCHAR SiS310_LCDDelayCompensation_651301LV[] =	  /* M650/651 301LV */
+static const UCHAR SiS310_LCDDelayCompensation_651301LV[] =	  	/* M650/651 301LV */
 {
                  0x33,0x33,0x33,    /*   800x600 (guessed) - new: PanelType, not PanelRes ! */
 		 0x33,0x33,0x33,    /*  1024x768 */
@@ -150,7 +110,7 @@ static const UCHAR SiS310_LCDDelayCompensation_651301LV[] =	  /* M650/651 301LV 
 		 0x33,0x33,0x33
 };
 
-static const UCHAR SiS310_LCDDelayCompensation_651302LV[] =	   /* M650/651 302LV */
+static const UCHAR SiS310_LCDDelayCompensation_651302LV[] =	   	/* M650/651 302LV */
 {
                  0x33,0x33,0x33,    /*   800x600 (guessed) */
 		 0x33,0x33,0x33,    /*  1024x768 */
@@ -167,6 +127,25 @@ static const UCHAR SiS310_LCDDelayCompensation_651302LV[] =	   /* M650/651 302LV
 		 0x33,0x33,0x33,
 		 0x33,0x33,0x33,
 		 0x33,0x33,0x33
+};
+
+static const UCHAR SiS310_LCDDelayCompensation_3xx301B[] =	   	/* 30xB,LV */
+{
+		 0x01,0x01,0x01,    /*   800x600 */
+		 0x0C,0x0C,0x0C,    /*  1024x768 */
+		 0x0C,0x0C,0x0C,    /* 1280x1024 */
+                 0x08,0x08,0x08,    /*   640x480 */
+		 0x0C,0x0C,0x0C,    /*  1024x600 (guessed) */
+		 0x0C,0x0C,0x0C,    /*  1152x864 (guessed) */
+		 0x0C,0x0C,0x0C,    /*  1280x960 (guessed) */
+		 0x0C,0x0C,0x0C,    /*  1152x768 (guessed) */
+		 0x0C,0x0C,0x0C,    /* 1400x1050 (guessed) */
+		 0x0C,0x0C,0x0C,    /*  1280x768 (guessed) */
+		 0x0C,0x0C,0x0C,    /* 1600x1200 (guessed) */
+		 0x02,0x02,0x02,
+		 0x02,0x02,0x02,
+		 0x02,0x02,0x02,
+		 0x02,0x02,0x02
 };
 
 static const UCHAR SiS310_TVDelayCompensation_301[] = 		/* 301 */
@@ -188,13 +167,6 @@ static const UCHAR SiS310_TVDelayCompensation_740301B[] =	/* 740 + 30xB (30xLV?)
 		 0x05,0x05,
 		 0x05,0x05,
 		 0x05,0x05
-};
-
-static const UCHAR SiS310_TVDelayCompensation_LVDS[] =		/* LVDS */
-{
-		 0x0a,0x0a,
-		 0x0a,0x0a,
-		 0x0a,0x0a
 };
 
 static const UCHAR SiS310_TVDelayCompensation_651301LV[] =	/* M650, 651, 301LV */
@@ -231,17 +203,30 @@ static const UCHAR SiS_TVDelay661_301B[] =			/* 661, 301B et al */
 		 0x44,0x44
 };
 
-static const UCHAR SiS310_TVAntiFlick1[3][2] =
+static const UCHAR SiS310_TVDelayCompensation_LVDS[] =		/* LVDS */
+{
+		 0x0a,0x0a,
+		 0x0a,0x0a,
+		 0x0a,0x0a
+};
+
+static const UCHAR SiS310_TVAntiFlick1[6][2] =
 {
             {0x4,0x0},
 	    {0x4,0x8},
+	    {0x0,0x0},
+	    {0x0,0x0},
+	    {0x0,0x0},
 	    {0x0,0x0}
 };
 
-static const UCHAR SiS310_TVEdge1[3][2] =
+static const UCHAR SiS310_TVEdge1[6][2] =
 {
             {0x0,0x4},
 	    {0x0,0x4},
+	    {0x0,0x0},
+	    {0x0,0x0},
+	    {0x0,0x0},
 	    {0x0,0x0}
 };
 

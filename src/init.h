@@ -1,36 +1,54 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/init.h,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/init.h,v 1.38 2003/12/16 17:59:08 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/init.h,v 1.46 2004/01/27 11:58:27 twini Exp $ */
 /*
  * Data and prototypes for init.c
  *
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * If distributed as part of the linux kernel, the contents of this file
- * is entirely covered by the GPL.
+ * If distributed as part of the Linux kernel, the following license terms
+ * apply:
  *
- * Otherwise, the following terms apply:
+ * * This program is free software; you can redistribute it and/or modify
+ * * it under the terms of the GNU General Public License as published by
+ * * the Free Software Foundation; either version 2 of the named License,
+ * * or any later version.
+ * *
+ * * This program is distributed in the hope that it will be useful,
+ * * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * * GNU General Public License for more details.
+ * *
+ * * You should have received a copy of the GNU General Public License
+ * * along with this program; if not, write to the Free Software
+ * * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * Otherwise, the following license terms apply:
  *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * * Redistribution and use in source and binary forms, with or without
+ * * modification, are permitted provided that the following conditions
+ * * are met:
+ * * 1) Redistributions of source code must retain the above copyright
+ * *    notice, this list of conditions and the following disclaimer.
+ * * 2) Redistributions in binary form must reproduce the above copyright
+ * *    notice, this list of conditions and the following disclaimer in the
+ * *    documentation and/or other materials provided with the distribution.
+ * * 3) All advertising materials mentioning features or use of this software
+ * *    must display the following acknowledgement: "This product includes
+ * *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * * 4) The name of the author may not be used to endorse or promote products
+ * *    derived from this software without specific prior written permission.
+ * *
+ * * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Author: 	Thomas Winischhofer <thomas@winischhofer.net>
- *
- * Based on code by Silicon Intergrated Systems
  *
  */
 
@@ -740,6 +758,7 @@ static const UCHAR SiS_HiTVSt2Timing[] = {
 	0x63,0x4f,0x27,0x00,0xfc,0xff,0x6a,0x00
 };
 
+#if 0
 static const UCHAR SiS_HiTVTextTiming[] = {
         0x32,0x65,0x2c,0x5f,0x08,0x31,0x3a,0x65,
 	0x28,0x02,0x01,0x3d,0x06,0x3e,0x35,0x6d,
@@ -750,6 +769,7 @@ static const UCHAR SiS_HiTVTextTiming[] = {
         0x60,0x80,0x14,0x90,0x8c,0x60,0x04,0x96,
 	0x72,0x5c,0x11,0x00,0xfc,0xff,0x32,0x00
 };
+#endif
 
 static const UCHAR SiS_HiTVGroup3Data[] = {
         0x00,0x1a,0x22,0x63,0x62,0x22,0x08,0x5f,
@@ -773,6 +793,7 @@ static const UCHAR SiS_HiTVGroup3Simu[] = {
 	0x18,0x05,0x18,0x05,0x4c,0xa8,0x01
 };
 
+#if 0
 static const UCHAR SiS_HiTVGroup3Text[] = {
         0x00,0x1a,0x22,0x63,0x62,0x22,0x08,0xa7,
 	0xf5,0x20,0xce,0xce,0x55,0x47,0x2a,0xa6,
@@ -783,6 +804,7 @@ static const UCHAR SiS_HiTVGroup3Text[] = {
 	0x01,0x05,0x03,0x7e,0x65,0x31,0x14,0x75,
 	0x18,0x05,0x18,0x05,0x4c,0xa8,0x01
 };
+#endif
 
 static const UCHAR SiS_NTSCPhase[]    = {0x21,0xed,0xba,0x08};
 static const UCHAR SiS_PALPhase[]     = {0x2a,0x05,0xe3,0x00};
@@ -796,7 +818,7 @@ static const UCHAR SiS_SpecialPhase[] = {0x1e,0x8c,0x5c,0x7a};
 static const UCHAR SiS_SpecialPhaseM[]= {0x1e,0x83,0x0a,0xe0};
 static const UCHAR SiS_SpecialPhaseJ[]= {0x25,0xd4,0xfd,0x5e};
 
-static const SiS_TVDataStruct  SiS_StPALData[]=
+static const SiS_TVDataStruct  SiS_StPALData[] =
 {
  {    1,   1, 864, 525,1270, 400, 100,   0, 760,0xf4,0xff,0x1c,0x22},
  {    1,   1, 864, 525,1270, 350, 100,   0, 760,0xf4,0xff,0x1c,0x22},
@@ -816,10 +838,11 @@ static const SiS_TVDataStruct  SiS_ExtPALData[] =
 /*{  36,  25,1060, 648,1316, 530, 438,   0, 438,0xeb,0x05,0x25,0x16},*//* 800x600, 400x300 */
  {   36,  25,1060, 648,1270, 530, 438,   0, 438,0xeb,0x05,0x25,0x16},  /* 800x600, 400x300 - better */
  {    3,   2,1080, 619,1270, 540, 438,   0, 438,0xf3,0x00,0x1d,0x20},  /* 720x576 */
- {    1,   1,1170, 821,1270, 520, 686,   0, 686,0xF3,0x00,0x1D,0x20}   /* 1024x768 */
+ {    1,   1,1170, 821,1270, 520, 686,   0, 686,0xF3,0x00,0x1D,0x20},  /* 1024x768 */
+ {    1,   1,1170, 821,1270, 520, 686,   0, 686,0xF3,0x00,0x1D,0x20}   /* 1024x768 (for NTSC equ) */
 };
 
-static const SiS_TVDataStruct  SiS_StNTSCData[]=
+static const SiS_TVDataStruct  SiS_StNTSCData[] =
 {
  {    1,   1, 858, 525,1270, 400,  50,   0, 760,0xf1,0x04,0x1f,0x18},
  {    1,   1, 858, 525,1270, 350,  50,   0, 640,0xf1,0x04,0x1f,0x18},
@@ -828,7 +851,7 @@ static const SiS_TVDataStruct  SiS_StNTSCData[]=
  {    1,   1, 858, 525,1270, 480,   0,   0, 760,0xf1,0x04,0x1f,0x18}
 };
 
-static const SiS_TVDataStruct  SiS_ExtNTSCData[]=
+static const SiS_TVDataStruct  SiS_ExtNTSCData[] =
 {
  {  143,  65, 858, 443,1270, 440, 171,   0, 171,0xf1,0x04,0x1f,0x18},    /* 640x400, 320x200 */
  {   88,  35, 858, 393,1270, 440, 171,   0, 171,0xf1,0x04,0x1f,0x18},
@@ -836,35 +859,76 @@ static const SiS_TVDataStruct  SiS_ExtNTSCData[]=
  {  143,  70, 924, 393,1270, 440,  92,   0,  92,0xf4,0x0b,0x1c,0x0a},
  {  143,  76, 836, 523,1270, 440, 224,   0,   0,0xf1,0x05,0x1f,0x16},    /* 640x480, 320x240 */
  {  143, 120,1056, 643,1270, 440,   0, 128,   0,0xf4,0x10,0x1c,0x00},    /* 800x600, 400x300  */
- {  143,  76, 836, 523,1270, 440,   0, 128,   0,0xee,0x0c,0x22,0x08},    /* 720x480 - BETTER (from 300 series) */
 /*{   2,   1, 858, 503,1270, 480,   0, 128,   0,0xee,0x0c,0x22,0x08},*/  /* 720x480  (old, from 650) */
- {    1,   1,1100, 811,1412, 440,   0, 128,   0,0xee,0x0c,0x22,0x08}     /* 1024x768 CORRECTED */
-/*{  65,  64,1056, 791,1270, 480, 638,   0,   0,0xEE,0x0C,0x22,0x08} */  /* 1024x768 */
+ {  143,  76, 836, 523,1270, 440,   0, 128,   0,0xee,0x0c,0x22,0x08},    /* 720x480 - BETTER (from 300 series) */
+/*{  65,  64,1056, 791,1270, 480, 638,   0,   0,0xEE,0x0C,0x22,0x08} */  /* 1024x768 (525i) */
+ {    1,   1,1100, 811,1412, 440,   0, 128,   0,0xee,0x0c,0x22,0x08},    /* 1024x768 (525i) CORRECTED */
+ {   65,  64,1056, 791,1270, 480, 455,   0,   0,0x00,0x00,0x00,0x00}     /* 1024x768 (525p) */
 };
 
-static const SiS_TVDataStruct  SiS_St2HiTVData[]=
+static const SiS_TVDataStruct  SiS_StHiTVData[] =  /* Slave + TVSimu */
+{
+ {    1,   1, 0x37c,0x233,0x2b2,0x320,    0,  0, 0, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x37c,0x233,0x2b2,0x2bc,    0,  0, 0, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x37c,0x233,0x2b2,0x320,    0,  0, 0, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x37c,0x233,0x2b2,0x2bc,    0,  0, 0, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x37c,0x233,0x2b2,0x3c0,    0,  0, 0, 0x00,0x00,0x00,0x00},
+ {    8,   5, 0x41a,0x2ab,0x670,0x3c0,0x150,128, 0, 0x00,0x00,0x00,0x00}
+};
+
+static const SiS_TVDataStruct  SiS_St2HiTVData[] = /* Slave */
 {
  {    3,   1, 0x348,0x1e3,0x670,0x3c0,0x032,  0, 0, 0x00,0x00,0x00,0x00},
  {    1,   1, 0x37c,0x233,0x2b2,0x2bc, 	  0,  0, 0, 0x00,0x00,0x00,0x00},
  {    3,   1, 0x348,0x1e3,0x670,0x3c0,0x032,  0, 0, 0x00,0x00,0x00,0x00},
- {    1,   1, 0x3e8,0x233,0x311,0x2bc,    0,  0, 0, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x37c,0x233,0x2b2,0x2bc,    0,  0, 0, 0x00,0x00,0x00,0x00},
  {    5,   2, 0x348,0x233,0x670,0x3c0,0x08d,128, 0, 0x00,0x00,0x00,0x00},
  {    8,   5, 0x41a,0x2ab,0x670,0x3c0,0x17c,128, 0, 0x00,0x00,0x00,0x00}
 };
 
-static const SiS_TVDataStruct  SiS_ExtHiTVData[]=
+static const SiS_TVDataStruct  SiS_ExtHiTVData[] =
 {
  {    6,   1, 0x348,0x233,0x660,0x3c0,    0,  0, 0, 0x00,0x00,0x00,0x00},
  {    3,   1, 0x3c0,0x233,0x660,0x3c0,    0,  0, 0, 0x00,0x00,0x00,0x00},
- {    3,   1, 0x348,0x1e3,0x660,0x3c0,    0,  0, 0, 0x00,0x00,0x00,0x00},
+ {    6,   1, 0x348,0x233,0x660,0x3c0,    0,  0, 0, 0x00,0x00,0x00,0x00},
  {    3,   1, 0x3c0,0x233,0x660,0x3c0,    0,  0, 0, 0x00,0x00,0x00,0x00},
  {    5,   1, 0x348,0x233,0x670,0x3c0,0x166,128, 0, 0x00,0x00,0x00,0x00},  /* 640x480   */
  {   16,   5, 0x41a,0x2ab,0x670,0x3c0,0x143,128, 0, 0x00,0x00,0x00,0x00},  /* 800x600   */
  {   25,  12, 0x4ec,0x353,0x670,0x3c0,0x032,  0, 0, 0x00,0x00,0x00,0x00},  /* 1024x768  */
  {    5,   4, 0x627,0x464,0x670,0x3c0,0x128,  0, 0, 0x00,0x00,0x00,0x00},  /* 1280x1024 */
- {    4,   1, 0x41a,0x233,0x670,0x3c0,0x143,128, 0, 0x00,0x00,0x00,0x00},  /* 800x480   */
+ {    4,   1, 0x41a,0x233,0x60c,0x3c0,0x143,128, 0, 0x00,0x00,0x00,0x00},  /* 800x480   */
  {    5,   2, 0x578,0x293,0x670,0x3c0,0x032,  0, 0, 0x00,0x00,0x00,0x00},  /* 1024x576  */
  {    8,   5, 0x6d6,0x323,0x670,0x3c0,0x128,  0, 0, 0x00,0x00,0x00,0x00}   /* 1280x720  */
+};
+
+static const SiS_TVDataStruct  SiS_St525pData[] =
+{
+ {    1,   1, 0x6b4,0x20d,0x4f6,0x190,   50,  0, 0x2f8, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x6b4,0x20d,0x4f6,0x15e,   50,  0, 0x280, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x6b4,0x20d,0x4f6,0x190,   50,  0, 0x2f8, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x6b4,0x20d,0x4f6,0x15e,   50,  0, 0x280, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x6b4,0x20d,0x4f6,0x1e0,    0,  0, 0x2f8, 0x00,0x00,0x00,0x00}
+};
+
+static const SiS_TVDataStruct  SiS_St750pData[] =
+{
+ {    1,   1, 0x672,0x2ee,0x500,0x190,   50,  0, 0x2f8, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x672,0x2ee,0x500,0x15e,   50,  0, 0x280, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x672,0x2ee,0x500,0x190,    0,  0, 0x2d0, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x672,0x2ee,0x500,0x15e,    0,  0, 0x2d0, 0x00,0x00,0x00,0x00},
+ {    1,   1, 0x672,0x2ee,0x500,0x1e0,    0,  0, 0x2f8, 0x00,0x00,0x00,0x00}
+};
+
+static const SiS_TVDataStruct  SiS_Ext750pData[] =
+{
+ {    3,   1, 0x3a7,0x1d6,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},
+ {   24,   7, 0x3a7,0x1a4,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},
+ {    3,   1, 0x3a7,0x1d6,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},
+ {   24,   7, 0x3a7,0x1a4,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},
+ {   99,  32, 0x320,0x1fe,0x500,0x2d0,   50,  0,     0, 0x00,0x00,0x00,0x00},  /* 640x480   */
+ {    5,   4, 0x5d8,0x29e,0x500,0x2a8,   50,  0,     0, 0x00,0x00,0x00,0x00},  /* 800x600   */
+ {    2,   1, 0x35a,0x1f7,0x4f6,0x1e0,    0,128,     0, 0x00,0x00,0x00,0x00},  /* 720x480   */
+ {   68,  64, 0x55f,0x346,0x500,0x2a8,0x27e,  0,     0, 0x00,0x00,0x00,0x00},  /* 1024x768  */
 };
 
 static const SiS_LCDDataStruct  SiS_LCD1280x960Data[] =
@@ -1104,7 +1168,7 @@ static const SiS_LVDSDataStruct  SiS_LCDA1400x1050Data_2[]=
 };
 
 static const SiS_LVDSDataStruct  SiS_LCDA1600x1200Data_1[]=
-{ /* Clevo (Temporary data)  */
+{ /* Clevo, 651+301C */
 	{1200, 450, 2048,1250},
 	{1200, 400, 2048,1250},
 	{1280, 450, 2048,1250},
@@ -1114,14 +1178,16 @@ static const SiS_LVDSDataStruct  SiS_LCDA1600x1200Data_1[]=
 	{1584, 818, 2048,1250},
 	{1688,1066, 2048,1250},
 	{1688,1066, 2048,1250},
-	{2048,1250, 2048,1250}   /* this should be correct */
 #if 0
+	{2048,1250, 2048,1250}   /* this should be correct */
+#endif
+#if 1
 	{2160,1250, 2048,1250}   /* ? */
 #endif
 };
 
 static const SiS_LVDSDataStruct  SiS_LCDA1600x1200Data_2[]=
-{ /* Clevo (Temporary data. Seems invalid.) */
+{ /* Clevo, 651+301C */
 	{2160,1250, 2160,1250},
 	{2160,1250, 2160,1250},
 	{2160,1250, 2160,1250},

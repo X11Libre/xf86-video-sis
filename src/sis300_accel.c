@@ -1,32 +1,36 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis300_accel.c,v 1.23 2003/10/30 18:53:42 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis300_accel.c,v 1.27 2004/01/23 22:29:04 twini Exp $ */
 /*
- * 2D Acceleration for SiS300, SiS540, SiS630, SiS730, SiS530, SiS620
+ * 2D Acceleration for SiS 530, 620, 300, 540, 630, 730.
  *
- * Copyright Xavier Ducoin <x.ducoin@lectra.com>
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1) Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2) Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3) All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement: "This product includes
+ *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * 4) The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- *      Authors:
- *
- *      Xavier Ducoin <x.ducoin@lectra.com>
- *      Thomas Winischhofer <thomas@winischhofer.net>
+ * Authors:   Thomas Winischhofer <thomas@winischhofer.net>
+ *	      Can-Ru Yeou, SiS Inc.
  *
  */
 
@@ -42,6 +46,7 @@
 #include "compiler.h"
 #include "xaa.h"
 #include "xaalocal.h"
+#include "xaarop.h"
 
 #include "sis.h"
 #include "sis300_accel.h"
@@ -371,46 +376,6 @@ SiSRestoreAccelState(ScrnInfoPtr pScrn)
 }
 #endif
 
-static const int sisALUConv[] =
-{
-    0x00,       /* dest = 0;            0,      GXclear,        0 */
-    0x88,       /* dest &= src;         DSa,    GXand,          0x1 */
-    0x44,       /* dest = src & ~dest;  SDna,   GXandReverse,   0x2 */
-    0xCC,       /* dest = src;          S,      GXcopy,         0x3 */
-    0x22,       /* dest &= ~src;        DSna,   GXandInverted,  0x4 */
-    0xAA,       /* dest = dest;         D,      GXnoop,         0x5 */
-    0x66,       /* dest = ^src;         DSx,    GXxor,          0x6 */
-    0xEE,       /* dest |= src;         DSo,    GXor,           0x7 */
-    0x11,       /* dest = ~src & ~dest; DSon,   GXnor,          0x8 */
-    0x99,       /* dest ^= ~src ;       DSxn,   GXequiv,        0x9 */
-    0x55,       /* dest = ~dest;        Dn,     GXInvert,       0xA */
-    0xDD,       /* dest = src|~dest ;   SDno,   GXorReverse,    0xB */
-    0x33,       /* dest = ~src;         Sn,     GXcopyInverted, 0xC */
-    0xBB,       /* dest |= ~src;        DSno,   GXorInverted,   0xD */
-    0x77,       /* dest = ~src|~dest;   DSan,   GXnand,         0xE */
-    0xFF,       /* dest = 0xFF;         1,      GXset,          0xF */
-};
-/* same ROP but with Pattern as Source */
-static const int sisPatALUConv[] =
-{
-    0x00,       /* dest = 0;            0,      GXclear,        0 */
-    0xA0,       /* dest &= src;         DPa,    GXand,          0x1 */
-    0x50,       /* dest = src & ~dest;  PDna,   GXandReverse,   0x2 */
-    0xF0,       /* dest = src;          P,      GXcopy,         0x3 */
-    0x0A,       /* dest &= ~src;        DPna,   GXandInverted,  0x4 */
-    0xAA,       /* dest = dest;         D,      GXnoop,         0x5 */
-    0x5A,       /* dest = ^src;         DPx,    GXxor,          0x6 */
-    0xFA,       /* dest |= src;         DPo,    GXor,           0x7 */
-    0x05,       /* dest = ~src & ~dest; DPon,   GXnor,          0x8 */
-    0xA5,       /* dest ^= ~src ;       DPxn,   GXequiv,        0x9 */
-    0x55,       /* dest = ~dest;        Dn,     GXInvert,       0xA */
-    0xF5,       /* dest = src|~dest ;   PDno,   GXorReverse,    0xB */
-    0x0F,       /* dest = ~src;         Pn,     GXcopyInverted, 0xC */
-    0xAF,       /* dest |= ~src;        DPno,   GXorInverted,   0xD */
-    0x5F,       /* dest = ~src|~dest;   DPan,   GXnand,         0xE */
-    0xFF,       /* dest = 0xFF;         1,      GXset,          0xF */
-};
-
 static void SiSSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
                                 int xdir, int ydir, int rop,
                                 unsigned int planemask, int trans_color)
@@ -429,7 +394,7 @@ static void SiSSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 	   SiSSetupSRCTrans(trans_color)
 	   SiSSetupCMDFlag(TRANSPARENT_BITBLT)
 	} else {
-	   SiSSetupROP(sisALUConv[rop])
+	   SiSSetupROP(XAACopyROP[rop])
 	}
 	if(xdir > 0) {
 	   SiSSetupCMDFlag(X_INC)
@@ -499,7 +464,7 @@ SiSSetupForSolidFill(ScrnInfoPtr pScrn,
 	SiSSetupPATFG(color)
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
 	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	/* SiSSetupCMDFlag(PATFG) - is zero */
 }
 
@@ -657,7 +622,7 @@ SiSSetupForSolidLine(ScrnInfoPtr pScrn,
 	SiSSetupPATFG(color)
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
 	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	SiSSetupCMDFlag(PATFG | LINE)
 }
 
@@ -746,7 +711,7 @@ SiSSetupForDashedLine(ScrnInfoPtr pScrn,
 	SiSSetupStyleLow(*pattern)
 	SiSSetupStyleHigh(*(pattern+4))
 	SiSSetupStylePeriod(length-1);
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	SiSSetupPATFG(fg)
 	SiSSetupCMDFlag(LINE | LINE_STYLE)
 	if(bg != -1) {
@@ -806,7 +771,7 @@ SiSSetupForMonoPatternFill(ScrnInfoPtr pScrn,
 	SiSSetupDSTColorDepth(pSiS->DstColor);
 	SiSSetupMONOPAT(patx,paty)
 	SiSSetupPATFG(fg)
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	SiSSetupCMDFlag(PATMONO)
 	if(bg != -1) {
 	   SiSSetupPATBG(bg)
@@ -940,7 +905,7 @@ SiSSetupForCPUToScreenColorExpand(ScrnInfoPtr pScrn,
 	SiSSetupDSTColorDepth(pSiS->DstColor);
 	SiSSetupSRCXY(0,0)
 	SiSSetupSRCFG(fg)
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	SiSSetupCMDFlag(X_INC | Y_INC | COLOREXP)
 	if(bg == -1) {
 	   SiSSetupCMDFlag(TRANSPARENT)
@@ -992,7 +957,7 @@ SiSSetupForScreenToScreenColorExpand(ScrnInfoPtr pScrn,
 
 	SiSSetupDSTColorDepth(pSiS->DstColor)
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
-	SiSSetupROP(sisALUConv[rop])
+	SiSSetupROP(XAACopyROP[rop])
 	SiSSetupSRCFG(fg)
 	/* SiSSetupSRCXY(0,0) */
 
@@ -1158,7 +1123,7 @@ SiSSetupForScanlineCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
 	while((MMIO_IN16(pSiS->IOBase, 0x8242) & 0x1F00) != 0) {} /* WDR: == 0x10 */
 
 	SiSSetupSRCXY(0,0);
-	SiSSetupROP(sisALUConv[rop]);
+	SiSSetupROP(XAACopyROP[rop]);
 	SiSSetupSRCFG(fg);
 	SiSSetupDSTRect(pSiS->scrnOffset, -1);
 	SiSSetupDSTColorDepth(pSiS->DstColor);

@@ -1,32 +1,40 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_opt.c,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_opt.c,v 1.50 2003/12/09 17:49:26 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_opt.c,v 1.55 2004/01/23 22:29:05 twini Exp $ */
 /*
  * SiS driver option evaluation
  *
- * Copyright 2001, 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * Based on code by ? (included in XFree86 4.1)
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1) Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2) Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3) All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement: "This product includes
+ *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * 4) The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the supplier not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The supplier makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * THE SUPPLIER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * "NoAccel", "NoXVideo", "SWCursor", "HWCursor" and "Rotate" option portions
+ * Copyright (C) 1999-2004 The XFree86 Project, Inc. Licensed under the terms
+ * of the XFree86 license (http://www.xfree86.org/current/LICENSE1.html).
  *
  * Authors:  	Thomas Winischhofer <thomas@winischhofer.net>
- *		?
+ *              ?
  */
 
 #include "xf86.h"
@@ -48,6 +56,7 @@ typedef enum {
     OPTION_RENDER,
     OPTION_FORCE_CRT1TYPE,
     OPTION_FORCE_CRT2TYPE,
+    OPTION_YPBPRAR,
     OPTION_SHADOW_FB,
     OPTION_DRI,
     OPTION_AGP_SIZE,
@@ -151,6 +160,7 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_RENDER,        		"RenderAcceleration",     OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_FORCE_CRT1TYPE,    	"ForceCRT1Type",          OPTV_STRING,    {0}, FALSE },
     { OPTION_FORCE_CRT2TYPE,    	"ForceCRT2Type",          OPTV_STRING,    {0}, FALSE },
+    { OPTION_YPBPRAR,  		  	"YPbPrAspectRatio",       OPTV_STRING,    {0}, FALSE },
     { OPTION_SHADOW_FB,         	"ShadowFB",               OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_DRI,         		"DRI",               	  OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_AGP_SIZE,			"AGPSize",      	  OPTV_INTEGER,   {0}, FALSE },
@@ -331,6 +341,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->forcecrt2redetection = TRUE;   /* default changed since 13/09/2003 */
     pSiS->ForceCRT1Type = CRT1_VGA;
     pSiS->ForceCRT2Type = CRT2_DEFAULT;
+    pSiS->ForceYPbPrAR = TV_YPBPR169;
     pSiS->ForceTVType = -1;
     pSiS->CRT1gamma = TRUE;
     pSiS->CRT1gammaGiven = FALSE;
@@ -737,6 +748,9 @@ SiSOptions(ScrnInfoPtr pScrn)
        if(xf86GetOptValString(pSiS->Options, OPTION_FORCE_CRT2TYPE)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ForceCRT2Type");
        }
+       if(xf86GetOptValString(pSiS->Options, OPTION_YPBPRAR)) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "YPbPrAspectRatio");
+       }
        if(xf86GetOptValBool(pSiS->Options, OPTION_SCALELCD, &val)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ScaleLCD");
        }
@@ -994,30 +1008,75 @@ SiSOptions(ScrnInfoPtr pScrn)
                 pSiS->ForceCRT2Type = CRT2_VGA;
              else if(!xf86NameCmp(strptr,"NONE"))
                 pSiS->ForceCRT2Type = 0;
-	     else if(pSiS->Chipset == PCI_CHIP_SIS550) {
-	        if(!xf86NameCmp(strptr,"DSTN")) {
-		   if(pSiS->ForceCRT1Type == CRT1_VGA) {
-		      pSiS->ForceCRT2Type = CRT2_LCD;
-		      pSiS->DSTN = TRUE;
-		   }
-		} else if(!xf86NameCmp(strptr,"FSTN")) {
-		   if(pSiS->ForceCRT1Type == CRT1_VGA) {
-		      pSiS->ForceCRT2Type = CRT2_LCD;
-		      pSiS->FSTN = TRUE;
-		   }
+	     else if((!xf86NameCmp(strptr,"DSTN")) && (pSiS->Chipset == PCI_CHIP_SIS550)) {
+		if(pSiS->ForceCRT1Type == CRT1_VGA) {
+		   pSiS->ForceCRT2Type = CRT2_LCD;
+		   pSiS->DSTN = TRUE;
 		}
+	     } else if((!xf86NameCmp(strptr,"FSTN")) && (pSiS->Chipset == PCI_CHIP_SIS550)) {
+		if(pSiS->ForceCRT1Type == CRT1_VGA) {
+		   pSiS->ForceCRT2Type = CRT2_LCD;
+		   pSiS->FSTN = TRUE;
+		}
+#ifdef ENABLE_YPBPR
+	     } else if(!xf86NameCmp(strptr,"HIVISION")) {
+		pSiS->ForceCRT2Type = CRT2_TV;
+	        pSiS->ForceTVType = TV_HIVISION;
+	     } else if((!xf86NameCmp(strptr,"YPBPR1080I")) && (pSiS->VGAEngine == SIS_315_VGA)) {
+	        pSiS->ForceCRT2Type = CRT2_TV;
+		pSiS->ForceTVType = TV_YPBPR;
+		pSiS->ForceYPbPrType = TV_YPBPR1080I;
+	     } else if(((!xf86NameCmp(strptr,"YPBPR525I")) || (!xf86NameCmp(strptr,"YPBPR480I"))) &&
+	               (pSiS->VGAEngine == SIS_315_VGA)) {
+		pSiS->ForceCRT2Type = CRT2_TV;
+		pSiS->ForceTVType = TV_YPBPR;
+		pSiS->ForceYPbPrType = TV_YPBPR525I;
+	     } else if(((!xf86NameCmp(strptr,"YPBPR525P")) || (!xf86NameCmp(strptr,"YPBPR480P"))) &&
+	               (pSiS->VGAEngine == SIS_315_VGA)) {
+		pSiS->ForceCRT2Type = CRT2_TV;
+		pSiS->ForceTVType = TV_YPBPR;
+		pSiS->ForceYPbPrType = TV_YPBPR525P;
+	     } else if(((!xf86NameCmp(strptr,"YPBPR750P")) || (!xf86NameCmp(strptr,"YPBPR720P"))) &&
+	               (pSiS->VGAEngine == SIS_315_VGA)) {
+		pSiS->ForceCRT2Type = CRT2_TV;
+		pSiS->ForceTVType = TV_YPBPR;
+		pSiS->ForceYPbPrType = TV_YPBPR750P;
+#endif
 	     } else {
 	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mybadparm, strptr, "ForceCRT2Type");
 	        xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 	            "Valid parameters are \"LCD\" (=\"DVI-D\"), \"TV\", \"SVIDEO\", \"COMPOSITE\",\n"
-		    "\t\"SVIDEO+COMPOSITE\", \"SCART\", \"VGA\" (=\"DVI-A\") or \"NONE\", on the SiS550\n"
-		    "\talso \"DSTN\" and \"FSTN\"\n");
+		    "\t\"SVIDEO+COMPOSITE\", \"SCART\", \"VGA\" (=\"DVI-A\") or \"NONE\"; on the SiS550\n"
+		    "\talso \"DSTN\" and \"FSTN\""
+#ifdef ENABLE_YPBPR
+		    				"; on SiS 301/301B bridges also \"HIVISION\", and on\n"
+		    "\tSiS315/330 series with 301C/30xLV bridge also \"YPBPR480I\", \"YPBPR480P\",\n"
+		    "\t\"YPBPR720P\" and \"YPBPR1080I\""
+#endif
+		    "\n");
 	     }
 
              if(pSiS->ForceCRT2Type != CRT2_DEFAULT)
                 xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
                     "CRT2 type shall be %s\n", strptr);
           }
+
+	  if(pSiS->ForceTVType == TV_YPBPR) {
+	     strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_YPBPRAR);
+             if(strptr != NULL) {
+	        if(!xf86NameCmp(strptr,"4:3LB"))
+                   pSiS->ForceYPbPrAR = TV_YPBPR43LB;
+		else if(!xf86NameCmp(strptr,"4:3"))
+                   pSiS->ForceYPbPrAR = TV_YPBPR43;
+		else if(!xf86NameCmp(strptr,"16:9"))
+                   pSiS->ForceYPbPrAR = TV_YPBPR169;
+		else {
+		   xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mybadparm, strptr, "YPbPrAspectRatio");
+		   xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+	            	"Valid parameters are \"4:3LB\", \"4:3\" and \"16:9\"\n");
+		}
+	     }
+	  }
 
 	  strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_SPECIALTIMING);
           if(strptr != NULL) {
@@ -1192,21 +1251,21 @@ SiSOptions(ScrnInfoPtr pScrn)
           }
        }
 
-      /* CHTVType  (315/330 series only)
+      /* CHTVType  (315/330 series + Chrontel only)
        * Used for telling the driver if the TV output shall
-       * be 480i HDTV or SCART.
+       * be 525i YPbPr or SCART.
        */
        if(pSiS->VGAEngine == SIS_315_VGA) {
           strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_CHTVTYPE);
           if(strptr != NULL) {
              if(!xf86NameCmp(strptr,"SCART"))
                 pSiS->chtvtype = 1;
- 	     else if(!xf86NameCmp(strptr,"HDTV"))
+ 	     else if(!xf86NameCmp(strptr,"YPBPR525I"))
 	        pSiS->chtvtype = 0;
 	     else {
 	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mybadparm, strptr, "CHTVType");
 	        xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-	          "Valid parameters are \"SCART\" or \"HDTV\"\n");
+	          "Valid parameters are \"SCART\" or \"YPBPR525I\"\n");
 	     }
              if(pSiS->chtvtype != -1)
                 xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,

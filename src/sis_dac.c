@@ -1,37 +1,48 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_dac.c,v 1.51 2003/11/30 22:29:52 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_dac.c,v 1.57 2004/02/02 03:55:29 dawes Exp $ */
 /*
  * DAC helper functions (Save/Restore, MemClk, etc)
  *
- * Copyright 2001, 2002, 2003 by Thomas Winischhofer, Vienna, Austria.
- * Parts Copyright 1998,1999 by Alan Hourihane, Wigan, England.
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria.
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the provider not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The provider makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1) Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2) Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3) All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement: "This product includes
+ *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * 4) The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * THE PROVIDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE PROVIDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Author:  	Thomas Winischhofer <thomas@winischhofer.net>
  *
- * MemClock functions by:
- *	 	Alan Hourihane <alanh@fairlite.demon.co.uk>
- *           	Mike Chapman <mike@paranoia.com>,
- *           	Juanjo Santamarta <santamarta@ctv.es>,
- *           	Mitani Hiroshi <hmitani@drl.mei.co.jp>
- *           	David Thomas <davtom@dream.org.uk>.
+ * SiS_compute_vclk(), SiSCalcClock() and parts of SiSMclk():
+ * Copyright (C) 1998, 1999 by Alan Hourihane, Wigan, England
+ * Written by:
+ *	 Alan Hourihane <alanh@fairlite.demon.co.uk>,
+ *       Mike Chapman <mike@paranoia.com>,
+ *       Juanjo Santamarta <santamarta@ctv.es>,
+ *       Mitani Hiroshi <hmitani@drl.mei.co.jp>,
+ *       David Thomas <davtom@dream.org.uk>,
+ *	 Thomas Winischhofer <thomas@winischhofer.net>.
+ * Licensed under the terms of the XFree86 license
+ * (http://www.xfree86.org/current/LICENSE1.html)
+ *
  */
 
 #include "xf86.h"
@@ -839,7 +850,7 @@ SiS315Restore(ScrnInfoPtr pScrn, SISRegPtr sisReg)
     if(pSiS->sishw_ext.jChipType < SIS_661) {
        outSISIDXREG(SISCR, 0x79, sisReg->sisRegs3D4[0x79]);
     }
-    outSISIDXREG(SISCR, 0x63, sisReg->sisRegs3D4[0x63]);
+    outSISIDXREG(SISCR, pSiS->myCR63, sisReg->sisRegs3D4[pSiS->myCR63]);
 
     /* Leave PCI_IO_ENABLE on if accelerators are on (Is this required?) */
     if(sisReg->sisRegs3C4[0x1e] & 0x50) {  /*0x40=2D, 0x10=3D*/
@@ -848,6 +859,9 @@ SiS315Restore(ScrnInfoPtr pScrn, SISRegPtr sisReg)
     }
 
     /* Restore extended SR registers */
+    if(pSiS->sishw_ext.jChipType >= SIS_661) {
+       sisReg->sisRegs3C4[0x11] &= 0x0f;
+    }
     for(i = 0x06; i <= 0x3F; i++) {
        outSISIDXREG(SISSR, i, sisReg->sisRegs3C4[i]);
     }
@@ -1042,10 +1056,13 @@ SiS301BSave(ScrnInfoPtr pScrn, SISRegPtr sisReg)
     Part2max = 0x4d;
     Part3max = 0x3e;
     Part4max = 0x23;
-    if(pSiS->VBFlags & (VB_301C|VB_302ELV))
+    if(pSiS->VBFlags & (VB_301C|VB_302ELV)) {
        Part2max = 0xff;
-    if(pSiS->VBFlags & (VB_301C|VB_301LV|VB_302LV|VB_302ELV))
+       Part4max = 0x3c;
+    }
+    if(pSiS->VBFlags & (VB_301LV|VB_302LV)) {
        Part4max = 0x34;
+    }
 
     SiSVBSave(pScrn, sisReg, Part1max, Part2max, Part3max, Part4max);
 
@@ -1064,10 +1081,13 @@ SiS301BRestore(ScrnInfoPtr pScrn, SISRegPtr sisReg)
     Part2max = 0x4d;
     Part3max = 0x3e;
     Part4max = 0x22;
-    if(pSiS->VBFlags & (VB_301C|VB_302ELV))
+    if(pSiS->VBFlags & (VB_301C|VB_302ELV)) {
        Part2max = 0xff;
-    if(pSiS->VBFlags & (VB_301LV|VB_302LV|VB_302ELV))
-       Part4max = 0x24;
+       Part4max = 0x3c;
+    }
+    if(pSiS->VBFlags & (VB_301LV|VB_302LV)) {
+       Part4max = 0x34;
+    }
 
     SiS_DisableBridge(pSiS->SiS_Pr, &pSiS->sishw_ext);
 
@@ -1246,13 +1266,13 @@ SiSRestoreBridge(ScrnInfoPtr pScrn, SISRegPtr sisReg)
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
 #endif
 
-   for(i = 0x30; i <= 0x39; i++) {
+   for(i = 0x30; i <= 0x3b; i++) {
       if(i == 0x34) continue;
       outSISIDXREG(SISCR, i, sisReg->sisRegs3D4[i]);
    }
 
    if(pSiS->VGAEngine == SIS_315_VGA) {
-      outSISIDXREG(SISCR, 0x63, sisReg->sisRegs3D4[0x63]);
+      outSISIDXREG(SISCR, pSiS->myCR63, sisReg->sisRegs3D4[pSiS->myCR63]);
       if(pSiS->sishw_ext.jChipType < SIS_661) {
          outSISIDXREG(SISCR, 0x79, sisReg->sisRegs3D4[0x79]);
       }
@@ -1429,7 +1449,10 @@ SiSEstimateCRT2Clock(ScrnInfoPtr pScrn, BOOLEAN IsForMergedFBCRT2)
 		 return 70000;
 	      }
 	   } else if(pSiS->VBFlags & VB_SISBRIDGE) {
-	      return 70000;
+	      if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTYPBPR)
+	         return 75000;
+	      else
+	         return 70000;
 	   }
 	}
 
@@ -1450,10 +1473,16 @@ int SiSMemBandWidth(ScrnInfoPtr pScrn, BOOLEAN IsForCRT2)
 	int             bytesperpixel = (bpp + 7) / 8;
         float   	magic=0.0, total, crt2used, maxcrt2;
 	int		crt2clock, max=0;
+#ifdef __SUNPRO_C
+#define const
+#endif
         const float     magic300[4] = { 1.2,      1.368421, 2.263158, 1.2};
         const float     magic630[4] = { 1.441177, 1.441177, 2.588235, 1.441177 };
 	const float     magic315[4] = { 1.2,      1.368421, 1.368421, 1.2 };
 	const float     magic550[4] = { 1.441177, 1.441177, 2.588235, 1.441177 };
+#ifdef __SUNPRO_C
+#undef const
+#endif
 	BOOLEAN	        DHM, GetForCRT1;
 
         switch(pSiS->Chipset) {

@@ -1,32 +1,38 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis310_accel.c,v 1.32 2003/11/06 19:10:01 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis310_accel.c,v 1.37 2004/01/27 11:58:27 twini Exp $ */
 /*
  * 2D Acceleration for SiS 315 and 330 series
- * (315/550/650/740/M650/651/652/M652/330/660/661/M661/741/M741/760/M760)
  *
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1) Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2) Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3) All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement: "This product includes
+ *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * 4) The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Based on sis300_accel.c
- * 2003/08/18: Rewritten for using VRAM command queue (TW)
  *
  * Author:  	Thomas Winischhofer <thomas@winischhofer.net>
+ *
+ * 2003/08/18: Rewritten for using VRAM command queue
  *
  */
 
@@ -38,6 +44,7 @@
 #include "compiler.h"
 #include "xaa.h"
 #include "xaalocal.h"
+#include "xaarop.h"
 
 #include "sis.h"
 #include "sis310_accel.h"
@@ -182,10 +189,10 @@ extern void SiSSubsequentCPUToScreenTexture(ScrnInfoPtr	pScrn,
 				int srcx, int srcy,
 				int width, int height);
 
-extern CARD32 SiSAlphaTextureFormats[2];
-extern CARD32 SiSTextureFormats[2];		
-CARD32 SiSAlphaTextureFormats[2] = { PICT_a8,       0 };
-CARD32 SiSTextureFormats[2]      = { PICT_a8r8g8b8, 0 };		
+extern CARD32 SiSAlphaTextureFormats[3];
+extern CARD32 SiSTextureFormats[2];
+CARD32 SiSAlphaTextureFormats[3] = { PICT_a8,       PICT_a8r8g8b8, 0 };
+CARD32 SiSTextureFormats[2]      = { PICT_a8r8g8b8, 0 };
 #endif
 #endif
 
@@ -410,8 +417,7 @@ SiS315AccelInit(ScreenPtr pScreen)
 	      infoPtr->SetupForCPUToScreenAlphaTexture = SiSSetupForCPUToScreenAlphaTexture;
 	      infoPtr->SubsequentCPUToScreenAlphaTexture = SiSSubsequentCPUToScreenTexture;
 	      infoPtr->CPUToScreenAlphaTextureFormats = SiSAlphaTextureFormats;
-	      infoPtr->CPUToScreenAlphaTextureFlags = XAA_RENDER_NO_TILE |
-	      					      XAA_RENDER_NO_SRC_ALPHA;
+	      infoPtr->CPUToScreenAlphaTextureFlags = XAA_RENDER_NO_TILE;
 
               infoPtr->SetupForCPUToScreenTexture = SiSSetupForCPUToScreenTexture;
               infoPtr->SubsequentCPUToScreenTexture = SiSSubsequentCPUToScreenTexture;
@@ -522,47 +528,6 @@ SiSRestoreAccelState(ScrnInfoPtr pScrn)
 }
 #endif
 
-static const int sisALUConv[] =
-{
-    0x00,       /* dest = 0;            0,      GXclear,        0 */
-    0x88,       /* dest &= src;         DSa,    GXand,          0x1 */
-    0x44,       /* dest = src & ~dest;  SDna,   GXandReverse,   0x2 */
-    0xCC,       /* dest = src;          S,      GXcopy,         0x3 */
-    0x22,       /* dest &= ~src;        DSna,   GXandInverted,  0x4 */
-    0xAA,       /* dest = dest;         D,      GXnoop,         0x5 */
-    0x66,       /* dest = ^src;         DSx,    GXxor,          0x6 */
-    0xEE,       /* dest |= src;         DSo,    GXor,           0x7 */
-    0x11,       /* dest = ~src & ~dest; DSon,   GXnor,          0x8 */
-    0x99,       /* dest ^= ~src ;       DSxn,   GXequiv,        0x9 */
-    0x55,       /* dest = ~dest;        Dn,     GXInvert,       0xA */
-    0xDD,       /* dest = src|~dest ;   SDno,   GXorReverse,    0xB */
-    0x33,       /* dest = ~src;         Sn,     GXcopyInverted, 0xC */
-    0xBB,       /* dest |= ~src;        DSno,   GXorInverted,   0xD */
-    0x77,       /* dest = ~src|~dest;   DSan,   GXnand,         0xE */
-    0xFF,       /* dest = 0xFF;         1,      GXset,          0xF */
-};
-
-/* same ROP but with Pattern as Source */
-static const int sisPatALUConv[] =
-{
-    0x00,       /* dest = 0;            0,      GXclear,        0 */
-    0xA0,       /* dest &= src;         DPa,    GXand,          0x1 */
-    0x50,       /* dest = src & ~dest;  PDna,   GXandReverse,   0x2 */
-    0xF0,       /* dest = src;          P,      GXcopy,         0x3 */
-    0x0A,       /* dest &= ~src;        DPna,   GXandInverted,  0x4 */
-    0xAA,       /* dest = dest;         D,      GXnoop,         0x5 */
-    0x5A,       /* dest = ^src;         DPx,    GXxor,          0x6 */
-    0xFA,       /* dest |= src;         DPo,    GXor,           0x7 */
-    0x05,       /* dest = ~src & ~dest; DPon,   GXnor,          0x8 */
-    0xA5,       /* dest ^= ~src ;       DPxn,   GXequiv,        0x9 */
-    0x55,       /* dest = ~dest;        Dn,     GXInvert,       0xA */
-    0xF5,       /* dest = src|~dest ;   PDno,   GXorReverse,    0xB */
-    0x0F,       /* dest = ~src;         Pn,     GXcopyInverted, 0xC */
-    0xAF,       /* dest |= ~src;        DPno,   GXorInverted,   0xD */
-    0x5F,       /* dest = ~src|~dest;   DPan,   GXnand,         0xE */
-    0xFF,       /* dest = 0xFF;         1,      GXset,          0xF */
-};
-
 static void SiSSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
                                 int xdir, int ydir, int rop,
                                 unsigned int planemask, int trans_color)
@@ -587,7 +552,7 @@ static void SiSSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 	   SiSSetupSRCTrans(trans_color)
 	   SiSSetupCMDFlag(TRANSPARENT_BITBLT)
 	} else {
-	   SiSSetupROP(sisALUConv[rop])
+	   SiSSetupROP(XAACopyROP[rop])
 	   /* Set command - not needed, both 0 */
 	   /* SiSSetupCMDFlag(BITBLT | SRCVIDEO) */
 	}
@@ -710,14 +675,14 @@ SiSSetupForSolidFill(ScrnInfoPtr pScrn, int color,
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	SiSCheckQueue(16 * 1);
 	SiSSetupPATFGDSTRect(color, pSiS->scrnOffset, -1)
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	SiSSetupCMDFlag(PATFG)
         SiSSyncWP
 #else
   	SiSSetupPATFG(color)
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
 	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	SiSSetupCMDFlag(PATFG | pSiS->SiS310_AccelDepth)
 #endif
 }
@@ -855,7 +820,7 @@ SiSSetupForSolidLine(ScrnInfoPtr pScrn, int color, int rop,
 	SiSCheckQueue(16 * 3);
         SiSSetupLineCountPeriod(1, 1)
 	SiSSetupPATFGDSTRect(color, pSiS->scrnOffset, -1)
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	SiSSetupCMDFlag(PATFG | LINE)
         SiSSyncWP
 #else
@@ -863,7 +828,7 @@ SiSSetupForSolidLine(ScrnInfoPtr pScrn, int color, int rop,
 	SiSSetupPATFG(color)
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
 	SiSSetupDSTColorDepth(pSiS->DstColor)
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 	SiSSetupCMDFlag(PATFG | LINE | pSiS->SiS310_AccelDepth)
 #endif
 }
@@ -974,7 +939,7 @@ SiSSetupForDashedLine(ScrnInfoPtr pScrn,
 	SiSSetupPATFG(fg)
 #endif
 
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 
 	SiSSetupCMDFlag(LINE | LINE_STYLE)
 
@@ -1054,7 +1019,7 @@ SiSSetupForMonoPatternFill(ScrnInfoPtr pScrn,
 
 	SiSSetupMONOPAT(patx,paty)
 
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 
 #ifdef SISVRAMQ
         SiSSetupCMDFlag(PATMONO)
@@ -1213,7 +1178,7 @@ SiSSetupForColor8x8PatternFill(ScrnInfoPtr pScrn, int patternx, int patterny,
 	   patadr += 16;  /* = 64 due to (CARD32 *) */
 	}
 
-	SiSSetupROP(sisPatALUConv[rop])
+	SiSSetupROP(XAAPatternROP[rop])
 
 	SiSSetupCMDFlag(PATPATREG)
 
@@ -1272,7 +1237,7 @@ SiSSetupForCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
 
 #ifdef SISVRAMQ
         SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
-	SiSSetupROP(sisALUConv[rop]);
+	SiSSetupROP(XAACopyROP[rop]);
 	SiSSetupSRCFGDSTRect(fg, pSiS->scrnOffset, -1)
 	if(bg == -1) {
 	   SiSSetupCMDFlag(TRANSPARENT | ENCOLOREXP | SRCVIDEO);
@@ -1283,7 +1248,7 @@ SiSSetupForCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
         SiSSyncWP
 #else
 	SiSSetupSRCXY(0,0);
-	SiSSetupROP(sisALUConv[rop]);
+	SiSSetupROP(XAACopyROP[rop]);
 	SiSSetupSRCFG(fg);
 	SiSSetupDSTRect(pSiS->scrnOffset, -1);
 	SiSSetupDSTColorDepth(pSiS->DstColor);
@@ -1384,7 +1349,7 @@ SiSSetupForScanlineCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
 #endif
 	SiSSetupSRCXY(0,0);
 
-	SiSSetupROP(sisALUConv[rop]);
+	SiSSetupROP(XAACopyROP[rop]);
 	SiSSetupSRCFG(fg);
 	SiSSetupDSTRect(pSiS->scrnOffset, -1);
 #ifndef SISVRAMQ
@@ -1512,7 +1477,7 @@ SiSSetupForScreenToScreenColorExpand(ScrnInfoPtr pScrn,
 	SiSSetupDSTColorDepth(pSiS->DstColor)
 #endif
 	SiSSetupDSTRect(pSiS->scrnOffset, -1)
-	SiSSetupROP(sisALUConv[rop])
+	SiSSetupROP(XAACopyROP[rop])
 	SiSSetupSRCFG(fg)
 	/* SiSSetupSRCXY(0,0) */
 
@@ -1731,14 +1696,14 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
    			int height, int	flags)
 {
     	SISPtr pSiS = SISPTR(pScrn);
-    	int x, pitch, sizeNeeded, offset;
+    	int x, y, pitch, sizeNeeded, offset;
 	CARD8  myalpha;
 	CARD32 *dstPtr;
 	unsigned char *renderaccelarray;
 
 #ifdef ACCELDEBUG
-	xf86DrvMsg(0, X_INFO, "AT: op %d RGB %x %x %x, w %d h %d A-pitch %d\n",
-		op, red, green, blue, width, height, alphaPitch);
+	xf86DrvMsg(0, X_INFO, "AT: op %d ARGB %x %x %x %x, w %d h %d A-pitch %d\n",
+		op, alpha, red, green, blue, width, height, alphaPitch);
 #endif
 
     	if(op != PictOpOver) return FALSE;
@@ -1749,15 +1714,15 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
     	sizeNeeded = pitch * height;
     	if(pScrn->bitsPerPixel == 16) sizeNeeded <<= 1;
 
-	red &= 0xff00;
-	green &= 0xff00;
-	blue &= 0xff00;
-
 	if(!((renderaccelarray = pSiS->RenderAccelArray)))
 	   return FALSE;
 
 	if(!SiSAllocateLinear(pScrn, sizeNeeded))
 	   return FALSE;
+
+	red &= 0xff00;
+	green &= 0xff00;
+	blue &= 0xff00;
 
 #ifdef SISVRAMQ
         SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
@@ -1782,17 +1747,77 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
 	   SiSIdle
 	}
 
-        while(height--) {
-	   for(x = 0; x < width; x++) {
-	      myalpha = alphaPtr[x];
-	      dstPtr[x] = (renderaccelarray[red + myalpha] << 16)  |
-	   		  (renderaccelarray[green + myalpha] << 8) |
-			  renderaccelarray[blue + myalpha]         |
-			  myalpha << 24;
+	if(alphaType == PICT_a8) {
+
+	   if(alpha == 0xffff) {
+
+              while(height--) {
+	         for(x = 0; x < width; x++) {
+	            myalpha = alphaPtr[x];
+	            dstPtr[x] = (renderaccelarray[red + myalpha] << 16)  |
+	   	   	        (renderaccelarray[green + myalpha] << 8) |
+			        renderaccelarray[blue + myalpha]         |
+			        myalpha << 24;
+	         }
+	         dstPtr += pitch;
+	         alphaPtr += alphaPitch;
+              }
+
+	   } else {
+
+	      alpha &= 0xff00;
+
+	      while(height--) {
+	         for(x = 0; x < width; x++) {
+	            myalpha = alphaPtr[x];
+	            dstPtr[x] = (renderaccelarray[alpha + myalpha] << 24) |
+		    	 	(renderaccelarray[red + myalpha] << 16)   |
+	   	    	        (renderaccelarray[green + myalpha] << 8)  |
+			        renderaccelarray[blue + myalpha];
+	         }
+	         dstPtr += pitch;
+	         alphaPtr += alphaPitch;
+              }
+
 	   }
-	   dstPtr += pitch;
-	   alphaPtr += alphaPitch;
-        }
+
+	} else {
+
+	   width <<= 2;
+
+	   if(alpha == 0xffff) {
+
+	      while(height--) {
+	         for(x = 0, y = 0; x < width; x+=4, y++) {
+	            myalpha = alphaPtr[x];
+	            dstPtr[y] = (renderaccelarray[red + myalpha] << 16)  |
+	   	    	        (renderaccelarray[green + myalpha] << 8) |
+			        renderaccelarray[blue + myalpha]         |
+			        myalpha << 24;
+	         }
+	         dstPtr += pitch;
+	         alphaPtr += alphaPitch;
+              }
+
+	   } else {
+
+	      alpha &= 0xff00;
+
+	      while(height--) {
+	         for(x = 0, y = 0; x < width; x+=4, y++) {
+	            myalpha = alphaPtr[x];
+	            dstPtr[y] = (renderaccelarray[alpha + myalpha] << 24) |
+		    		(renderaccelarray[red + myalpha] << 16)   |
+	   	    	        (renderaccelarray[green + myalpha] << 8)  |
+			        renderaccelarray[blue + myalpha];
+	         }
+	         dstPtr += pitch;
+	         alphaPtr += alphaPitch;
+              }
+
+	   }
+
+	}
 
     	return TRUE;
 }
@@ -1869,8 +1894,7 @@ SiSSubsequentCPUToScreenTexture(ScrnInfoPtr pScrn,
 	long srcbase, dstbase;
 
 	srcbase = pSiS->AccelLinearScratch->offset << 1;
-	if(pScrn->bitsPerPixel == 32)
-	   srcbase <<= 1;
+	if(pScrn->bitsPerPixel == 32) srcbase <<= 1;
 
 #ifdef ACCELDEBUG
 	xf86DrvMsg(0, X_INFO, "FIRE: scrbase %x dx %d dy %d w %d h %d\n",

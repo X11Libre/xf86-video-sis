@@ -1,40 +1,42 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_video.c,v 1.44 2003/12/16 17:35:07 twini Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_video.c,v 1.44 2003/12/16 17:35:07 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_video.c,v 1.48 2004/01/23 22:29:06 twini Exp $ */
 /*
  * Xv driver for SiS 300, 315 and 330 series.
  *
- * Copyright 2002, 2003 by Thomas Winischhofer, Vienna, Austria.
- * All Rights Reserved.
+ * Copyright (C) 2001-2004 by Thomas Winischhofer, Vienna, Austria.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1) Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2) Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3) All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement: "This product includes
+ *    software developed by Thomas Winischhofer, Vienna, Austria."
+ * 4) The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Author:    Thomas Winischhofer <thomas@winischhofer.net>
+ *
+ * Formerly based on a mostly non-working code fragment for the 630 by
+ * Silicon Integrated Systems Corp, Inc., HsinChu, Taiwan which is
+ * Copyright (C) 2000 Silicon Integrated Systems Corp, Inc.
  *
  * Basic structure based on the mga Xv driver by Mark Vojkovich
  * and i810 Xv driver by Jonathan Bian <jonathan.bian@intel.com>.
- *
- * Formerly based on a mostly non-working fragment for the 630 by
- * Silicon Integrated Systems Corp, Inc., HsinChu, Taiwan.
- *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the copyright holder not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The copyright holder makes no representations
- * about the suitability of this software for any purpose.  It is provided
- * "as is" without express or implied warranty.
- *
- * THE COPYRIGHT HOLDER DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
- *
- * Authors:
- *	Thomas Winischhofer <thomas@winischhofer.net>:
- *      (Original code fragment for 630 by
- *            Sung-Ching Lin <sclin@sis.com.tw>)
- *
  *
  * All comments in this file are by Thomas Winischhofer.
  *
@@ -1603,6 +1605,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 #endif
         if(pSiS->xv_sisdirectunlocked) {
 	   SISSwitchCRT2Type(pScrn, (unsigned long)value);
+	   set_dispmode(pScrn, pPriv);
 	   set_allowswitchcrt(pSiS, pPriv);
 	   set_maxencoding(pSiS, pPriv);
         }
@@ -1612,6 +1615,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 #endif
         if(pSiS->xv_sisdirectunlocked) {
 	   SISSwitchCRT1Status(pScrn, (unsigned long)value);
+	   set_dispmode(pScrn, pPriv);
 	   set_allowswitchcrt(pSiS, pPriv);
 	   set_maxencoding(pSiS, pPriv);
         }
