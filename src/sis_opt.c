@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_opt.c,v 1.55 2004/01/23 22:29:05 twini Exp $ */
+/* $XFree86$ */
 /*
  * SiS driver option evaluation
  *
@@ -12,10 +12,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement: "This product includes
- *    software developed by Thomas Winischhofer, Vienna, Austria."
- * 4) The name of the author may not be used to endorse or promote products
+ * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
@@ -68,6 +65,9 @@ typedef enum {
     OPTION_FORCECRT1,
     OPTION_XVONCRT2,
     OPTION_PDC,
+    OPTION_PDCA,
+    OPTION_PDCS,
+    OPTION_PDCAS,
     OPTION_EMI,
     OPTION_TVSTANDARD,
     OPTION_USEROMDATA,
@@ -107,6 +107,7 @@ typedef enum {
     OPTION_RESTOREBYSET,
     OPTION_NODDCFORCRT2,
     OPTION_FORCECRT2REDETECTION,
+    OPTION_SENSEYPBPR,
     OPTION_CRT1GAMMA,
     OPTION_CRT2GAMMA,
     OPTION_XVGAMMA,
@@ -124,6 +125,7 @@ typedef enum {
     OPTION_XVINSIDECHROMAKEY,
     OPTION_XVYUVCHROMAKEY,
     OPTION_SCALELCD,
+    OPTION_CENTERLCD,
     OPTION_SPECIALTIMING,
     OPTION_LVDSHL,
     OPTION_ENABLEHOTKEY,
@@ -172,6 +174,9 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_FORCECRT1,         	"ForceCRT1",              OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_XVONCRT2,          	"XvOnCRT2",               OPTV_BOOLEAN,   {0}, FALSE },
     { OPTION_PDC,               	"PanelDelayCompensation", OPTV_INTEGER,   {0}, -1    },
+    { OPTION_PDCA,               	"PanelDelayCompensation1",OPTV_INTEGER,   {0}, -1    },
+    { OPTION_PDCS,               	"PDC", 			  OPTV_INTEGER,   {0}, -1    },
+    { OPTION_PDCAS,               	"PDC1",			  OPTV_INTEGER,   {0}, -1    },
     { OPTION_EMI,               	"EMI", 			  OPTV_INTEGER,   {0}, -1    },
     { OPTION_LVDSHL,			"LVDSHL", 	  	  OPTV_INTEGER,   {0}, -1    },
     { OPTION_SPECIALTIMING,        	"SpecialTiming",          OPTV_STRING,    {0}, -1    },
@@ -213,6 +218,7 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_RESTOREBYSET,		"RestoreBySetMode", 	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_NODDCFORCRT2,		"NoCRT2Detection", 	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_FORCECRT2REDETECTION,	"ForceCRT2ReDetection",   OPTV_BOOLEAN,   {0}, -1    },
+    { OPTION_SENSEYPBPR,		"SenseYPbPr",   	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_CRT1GAMMA,			"CRT1Gamma", 	  	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_CRT2GAMMA,			"CRT2Gamma", 	  	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_STOREDBRI,			"StoredGammaBrightness",  OPTV_STRING,    {0}, -1    },
@@ -232,6 +238,7 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_XVDISABLECOLORKEY,		"XvDisableColorKey",      OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_XVMEMCPY,			"XvUseMemcpy",  	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_SCALELCD,			"ScaleLCD",	   	  OPTV_BOOLEAN,   {0}, -1    },
+    { OPTION_CENTERLCD,			"CenterLCD",	   	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_ENABLEHOTKEY,		"EnableHotkey",	   	  OPTV_BOOLEAN,   {0}, -1    },
     { OPTION_ENABLESISCTRL,		"EnableSiSCtrl",   	  OPTV_BOOLEAN,   {0}, -1    },
 #ifdef SISMERGED
@@ -304,6 +311,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->XvOnCRT2 = FALSE;
     pSiS->NoYV12 = -1;
     pSiS->PDC = -1;
+    pSiS->PDCA = -1;
     pSiS->EMI = -1;
     pSiS->OptTVStand = -1;
     pSiS->OptROMUsage = -1;
@@ -339,6 +347,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->restorebyset = TRUE;
     pSiS->nocrt2ddcdetection = FALSE;
     pSiS->forcecrt2redetection = TRUE;   /* default changed since 13/09/2003 */
+    pSiS->SenseYPbPr = TRUE;
     pSiS->ForceCRT1Type = CRT1_VGA;
     pSiS->ForceCRT2Type = CRT2_DEFAULT;
     pSiS->ForceYPbPrAR = TV_YPBPR169;
@@ -361,6 +370,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->XvDefDisableGfx = FALSE;
     pSiS->XvDefDisableGfxLR = FALSE;
     pSiS->UsePanelScaler = -1;
+    pSiS->CenterLCD = -1;
     pSiS->XvUseMemcpy = TRUE;
     pSiS->XvUseChromaKey = FALSE;
     pSiS->XvDisableColorKey = FALSE;
@@ -742,6 +752,9 @@ SiSOptions(ScrnInfoPtr pScrn)
        if(xf86GetOptValBool(pSiS->Options, OPTION_FORCECRT2REDETECTION, &val)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ForceCRT2ReDetection");
        }
+       if(xf86GetOptValBool(pSiS->Options, OPTION_SENSEYPBPR, &val)) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "SenseYPbPr");
+       }
        if(xf86GetOptValString(pSiS->Options, OPTION_FORCE_CRT1TYPE)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ForceCRT1Type");
        }
@@ -754,8 +767,16 @@ SiSOptions(ScrnInfoPtr pScrn)
        if(xf86GetOptValBool(pSiS->Options, OPTION_SCALELCD, &val)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "ScaleLCD");
        }
-       if(xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &vali)) {
-          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "PanelDelayCompensation");
+        if(xf86GetOptValBool(pSiS->Options, OPTION_CENTERLCD, &val)) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "CenterLCD");
+       }
+       if((xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &vali)) ||
+          (xf86GetOptValInteger(pSiS->Options, OPTION_PDCS, &vali))) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "PanelDelayCompensation (PDC)");
+       }
+       if((xf86GetOptValInteger(pSiS->Options, OPTION_PDCA, &vali)) ||
+          (xf86GetOptValInteger(pSiS->Options, OPTION_PDCAS, &vali))) {
+          xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "PanelDelayCompensation1 (PDC1)");
        }
        if(xf86GetOptValInteger(pSiS->Options, OPTION_EMI, &vali)) {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING, mystring, "EMI");
@@ -935,6 +956,18 @@ SiSOptions(ScrnInfoPtr pScrn)
 	     } else  pSiS->forcecrt2redetection = FALSE;
           }
 
+	  /* SenseYPbPr (315/330 series only)
+           * If set to true, the driver will sense for YPbPr TV. This is
+	   * inconvenient for folks connecting SVideo and CVBS at the same
+	   * time, because this condition will be detected as YPbPr (since
+	   * the TV output pins are shared). "False" will not sense for
+	   * YPbPr and detect SVideo or CVBS only.
+           */
+          if(xf86GetOptValBool(pSiS->Options, OPTION_SENSEYPBPR, &val)) {
+             if(val) pSiS->SenseYPbPr = TRUE;
+	     else    pSiS->SenseYPbPr = FALSE;
+          }
+
 
 	  /* ForceCRT1Type (315/330 series only)
 	   * Used for forcing the driver to initialize CRT1 as
@@ -981,10 +1014,12 @@ SiSOptions(ScrnInfoPtr pScrn)
           if(strptr != NULL) {
              if(!xf86NameCmp(strptr,"TV"))
                 pSiS->ForceCRT2Type = CRT2_TV;
- 	     else if(!xf86NameCmp(strptr,"SVIDEO")) {
+ 	     else if( (!xf86NameCmp(strptr,"SVIDEO")) ||
+	     	      (!xf86NameCmp(strptr,"SVHS")) ) {
                 pSiS->ForceCRT2Type = CRT2_TV;
 	        pSiS->ForceTVType = TV_SVIDEO;
-             } else if(!xf86NameCmp(strptr,"COMPOSITE")) {
+             } else if( (!xf86NameCmp(strptr,"COMPOSITE")) ||
+	     		(!xf86NameCmp(strptr,"CVBS")) ) {
                 pSiS->ForceCRT2Type = CRT2_TV;
 	        pSiS->ForceTVType = TV_AVIDEO;
 	     } else if( (!xf86NameCmp(strptr,"COMPOSITE SVIDEO")) || /* Ugly, but shorter than a parsing function */
@@ -1138,8 +1173,24 @@ SiSOptions(ScrnInfoPtr pScrn)
 	         pSiS->UsePanelScaler ? disabledstr : enabledstr);
 	  }
 
+	 /* CenterLCD (300/315/330 + SiS video bridge only)
+          * If LCD shall not be scaled, this selects whether 1:1 data
+	  * will be sent to the output, or the image shall be centered
+	  * on the LCD. For LVDS panels, screen will always be centered,
+	  * since these have no built-in scaler. For TMDS, this is
+	  * selectable. Non-centered means that the driver will pass
+	  * 1:1 data to the output and that the panel will have to
+	  * scale by itself (if supported by the panel).
+          */
+	  if(xf86GetOptValBool(pSiS->Options, OPTION_CENTERLCD, &val)) {
+	     pSiS->CenterLCD = val ? 1 : 0;
+	     xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "Non-scaled LCD output will %sbe centered\n",
+	         pSiS->CenterLCD ? "not " : "");
+	  }
+
          /* PanelDelayCompensation (300/315/330 series only)
-          * This might be required if the LCD panel shows "small waves".
+          * This might be required if the LCD panel shows "small waves"
+	  * or wrong colors.
           * The parameter is an integer, (on 300 series usually either
 	  * 4, 32 or 24; on 315 series + LV bridge usually 3 or 51)
           * Why this option? Simply because SiS did poor BIOS design.
@@ -1147,19 +1198,48 @@ SiSOptions(ScrnInfoPtr pScrn)
           * particular machine. For most panels, the driver is able
           * to detect the correct value. However, some panels require
           * a different setting. For 300 series, the value given must
-	  * be within the mask 0x3c.
+	  * be within the mask 0x3c. For 661 and later, if must be
+	  * within the range of 0 to 31.
           */
-          if(xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &pSiS->PDC)) {
+	  {
+	  int val = -1;
+          xf86GetOptValInteger(pSiS->Options, OPTION_PDC, &val);
+	  xf86GetOptValInteger(pSiS->Options, OPTION_PDCS, &val);
+	  if(val != -1) {
+	     pSiS->PDC = val;
 	     if((pSiS->VGAEngine == SIS_300_VGA) && (pSiS->PDC & ~0x3c)) {
 	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 	            "Illegal PanelDelayCompensation parameter\n");
 	        pSiS->PDC = -1;
 	     } else {
+	        if(pSiS->VGAEngine == SIS_315_VGA) pSiS->PDC &= 0x1f;
                 xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
-                    "Panel delay compensation shall be %d\n",
+                    "Panel delay compensation shall be %d (for LCD=CRT2)\n",
 	             pSiS->PDC);
 	     }
           }
+
+	 /* PanelDelayCompensation1 (315 series only)
+          * Same as above, but for LCD-via-CRT1 ("LCDA")
+          */
+	  if(pSiS->VGAEngine == SIS_315_VGA) {
+	     val = -1;
+             xf86GetOptValInteger(pSiS->Options, OPTION_PDCA, &val);
+	     xf86GetOptValInteger(pSiS->Options, OPTION_PDCAS, &val);
+	     if(val != -1) {
+	        pSiS->PDCA = val;
+	        if(pSiS->PDCA > 0x1f) {
+	           xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+	                "Illegal PanelDelayCompensation1 (PDC1) parameter (0 <= PDC1 <= 31\n");
+	           pSiS->PDCA = -1;
+	        } else {
+                   xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
+                       	"Panel delay compensation shall be %d (for LCD=CRT1)\n",
+	                pSiS->PDCA);
+	        }
+	     }
+	  }
+	  }
 
 	 /* LVDSHL (300/315/330 series + 30xLV bridge only)
           * This might be required if the LCD panel is too dark.

@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_accel.c,v 1.37 2004/01/04 18:07:59 twini Exp $ */
+/* $XFree86$ */
 /*
  * 2D acceleration for SiS5597/5598 and 6326
  *
@@ -377,7 +377,7 @@ SiSSetupForMono8x8PatternFill(ScrnInfoPtr pScrn, int patternx, int patterny,
     patternRegPtr =  (unsigned int *)sisSETPATREG();
     pSiS->sisPatternReg[0] = pSiS->sisPatternReg[2] = patternx ;
     pSiS->sisPatternReg[1] = pSiS->sisPatternReg[3] = patterny ;
-    for ( i = 0 ; i < 16 /* sisPatternHeight */ ; ) {
+    for( i = 0 ; i < 16 /* sisPatternHeight */ ; ) {
         patternRegPtr[i++] = patternx ;
         patternRegPtr[i++] = patterny ;
     }

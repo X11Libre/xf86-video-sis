@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_accel.h,v 1.11 2004/01/04 18:07:59 twini Exp $ */
+/* $XFree86$ */
 /*
  * 2D acceleration for 5597/5598 and 6326
  * Definitions for the SIS engine communication
@@ -132,29 +132,17 @@ const int sisReg32MMIO[] = {
 /* background color */
 #define sisSETBGCOLOR(bgColor) \
    MMIO_OUT32(pSiS->IOBase, BR(5), (bgColor));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(5)) = (bgColor)
-#endif
 
 /* foreground color */
 #define sisSETFGCOLOR(fgColor) \
    MMIO_OUT32(pSiS->IOBase, BR(4), (fgcolor));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(4)) = (fgColor)
-#endif
 
 /* ROP */
 #define sisSETROPFG(op) \
    MMIO_OUT8(pSiS->IOBase, BR(4) + 3, op);
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(4)) = ((*(volatile unsigned int *)(pSiS->IOBase + BR(4)))&0xffffff) | (op<<24)
-#endif
 
 #define sisSETROPBG(op) \
   MMIO_OUT8(pSiS->IOBase, BR(5) + 3, op);
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(5)) = ((*(volatile unsigned int *)(pSiS->IOBase + BR(5)))&0xffffff) | (op<<24)
-#endif
 
 #define sisSETROP(op) \
    sisSETROPFG(op); sisSETROPBG(op);
@@ -162,23 +150,13 @@ const int sisReg32MMIO[] = {
 /* source and dest address */
 #define sisSETSRCADDR(srcAddr) \
   MMIO_OUT32(pSiS->IOBase, BR(0), (srcAddr & 0x3FFFFFL));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(0)) = srcAddr & 0x3FFFFFL
-#endif
 
 #define sisSETDSTADDR(dstAddr) \
   MMIO_OUT32(pSiS->IOBase, BR(1), (dstAddr & 0x3FFFFFL));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(1)) = dstAddr & 0x3FFFFFL
-#endif
 
 /* pitch */
 #define sisSETPITCH(srcPitch,dstPitch) \
   MMIO_OUT32(pSiS->IOBase, BR(2), ((((dstPitch) & 0xFFFF) << 16) | ((srcPitch) & 0xFFFF)));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(2)) = ((dstPitch&0xFFFF)<<16)| \
-      (srcPitch&0xFFFF)
-#endif
 
 #define sisSETSRCPITCH(srcPitch) \
   MMIO_OUT16(pSiS->IOBase, BR(2), ((srcPitch) & 0xFFFF));
@@ -192,54 +170,26 @@ const int sisReg32MMIO[] = {
  */
 #define sisSETHEIGHTWIDTH(Height, Width) \
   MMIO_OUT32(pSiS->IOBase, BR(3), ((((Height) & 0xFFFF) << 16) | ((Width) & 0xFFFF)));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(3)) = (((Height)&0xFFFF)<<16)| \
-      ((Width)&0xFFFF)
-#endif
 
 /* Clipping */
 #define sisSETCLIPTOP(x, y) \
    MMIO_OUT32(pSiS->IOBase, BR(8), ((((y) & 0xFFFF) << 16) | ((x) & 0xFFFF)));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(8)) = (((y)&0xFFFF)<<16)| \
-      ((x)&0xFFFF)
-#endif
 
 #define sisSETCLIPBOTTOM(x, y) \
    MMIO_OUT32(pSiS->IOBase, BR(9), ((((y) & 0xFFFF) << 16) | ((x) & 0xFFFF)));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(9)) = (((y)&0xFFFF)<<16)| \
-      ((x)&0xFFFF)
-#endif
 
 /* Line drawing */
 #define sisSETXStart(XStart) \
   MMIO_OUT32(pSiS->IOBase, BR(0), ((XStart) & 0xFFFF));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(0)) = XStart&0xFFFF
-#endif
 
 #define sisSETYStart(YStart) \
   MMIO_OUT32(pSiS->IOBase, BR(1), ((YStart) & 0xFFFF));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(1)) = YStart&0xFFFF
-#endif
 
 #define sisSETLineMajorCount(MajorAxisCount) \
    MMIO_OUT32(pSiS->IOBase, BR(3), ((MajorAxisCount) & 0xFFFF));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(3)) = MajorAxisCount&0xFFFF
-#endif
 
 #define sisSETLineSteps(K1,K2) \
    MMIO_OUT32(pSiS->IOBase, BR(6), ((((K1) & 0xFFFF) << 16) | ((K2) & 0xFFFF)));
-#if 0
-  *(volatile unsigned int *)(pSiS->IOBase + BR(6)) = (((K1)&0xFFFF)<<16)| \
-      ((K2)&0xFFFF)
-#endif
 
 #define sisSETLineErrorTerm(ErrorTerm) \
    MMIO_OUT16(pSiS->IOBase, BR(7), (ErrorTerm));
-#if 0
-  *(volatile unsigned short *)(pSiS->IOBase + BR(7)) = ErrorTerm
-#endif

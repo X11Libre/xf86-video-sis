@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis310_accel.c,v 1.37 2004/01/27 11:58:27 twini Exp $ */
+/* $XFree86$ */
 /*
  * 2D Acceleration for SiS 315 and 330 series
  *
@@ -12,10 +12,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement: "This product includes
- *    software developed by Thomas Winischhofer, Vienna, Austria."
- * 4) The name of the author may not be used to endorse or promote products
+ * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
@@ -189,9 +186,9 @@ extern void SiSSubsequentCPUToScreenTexture(ScrnInfoPtr	pScrn,
 				int srcx, int srcy,
 				int width, int height);
 
-extern CARD32 SiSAlphaTextureFormats[3];
+extern CARD32 SiSAlphaTextureFormats[2];
 extern CARD32 SiSTextureFormats[2];
-CARD32 SiSAlphaTextureFormats[3] = { PICT_a8,       PICT_a8r8g8b8, 0 };
+CARD32 SiSAlphaTextureFormats[2] = { PICT_a8      , 0 };
 CARD32 SiSTextureFormats[2]      = { PICT_a8r8g8b8, 0 };
 #endif
 #endif
@@ -1696,14 +1693,14 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
    			int height, int	flags)
 {
     	SISPtr pSiS = SISPTR(pScrn);
-    	int x, y, pitch, sizeNeeded, offset;
+    	int x, pitch, sizeNeeded, offset;
 	CARD8  myalpha;
 	CARD32 *dstPtr;
 	unsigned char *renderaccelarray;
 
 #ifdef ACCELDEBUG
-	xf86DrvMsg(0, X_INFO, "AT: op %d ARGB %x %x %x %x, w %d h %d A-pitch %d\n",
-		op, alpha, red, green, blue, width, height, alphaPitch);
+	xf86DrvMsg(0, X_INFO, "AT: op %d type %d ARGB %x %x %x %x, w %d h %d A-pitch %d\n",
+		op, alphaType, alpha, red, green, blue, width, height, alphaPitch);
 #endif
 
     	if(op != PictOpOver) return FALSE;
@@ -1747,75 +1744,36 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
 	   SiSIdle
 	}
 
-	if(alphaType == PICT_a8) {
 
-	   if(alpha == 0xffff) {
+	if(alpha == 0xffff) {
 
-              while(height--) {
-	         for(x = 0; x < width; x++) {
-	            myalpha = alphaPtr[x];
-	            dstPtr[x] = (renderaccelarray[red + myalpha] << 16)  |
-	   	   	        (renderaccelarray[green + myalpha] << 8) |
-			        renderaccelarray[blue + myalpha]         |
-			        myalpha << 24;
-	         }
-	         dstPtr += pitch;
-	         alphaPtr += alphaPitch;
-              }
-
-	   } else {
-
-	      alpha &= 0xff00;
-
-	      while(height--) {
-	         for(x = 0; x < width; x++) {
-	            myalpha = alphaPtr[x];
-	            dstPtr[x] = (renderaccelarray[alpha + myalpha] << 24) |
-		    	 	(renderaccelarray[red + myalpha] << 16)   |
-	   	    	        (renderaccelarray[green + myalpha] << 8)  |
-			        renderaccelarray[blue + myalpha];
-	         }
-	         dstPtr += pitch;
-	         alphaPtr += alphaPitch;
-              }
-
-	   }
+           while(height--) {
+	      for(x = 0; x < width; x++) {
+	         myalpha = alphaPtr[x];
+	         dstPtr[x] = (renderaccelarray[red + myalpha] << 16)  |
+	     	             (renderaccelarray[green + myalpha] << 8) |
+			     renderaccelarray[blue + myalpha]         |
+			     myalpha << 24;
+	      }
+	      dstPtr += pitch;
+	      alphaPtr += alphaPitch;
+           }
 
 	} else {
 
-	   width <<= 2;
+	   alpha &= 0xff00;
 
-	   if(alpha == 0xffff) {
-
-	      while(height--) {
-	         for(x = 0, y = 0; x < width; x+=4, y++) {
-	            myalpha = alphaPtr[x];
-	            dstPtr[y] = (renderaccelarray[red + myalpha] << 16)  |
-	   	    	        (renderaccelarray[green + myalpha] << 8) |
-			        renderaccelarray[blue + myalpha]         |
-			        myalpha << 24;
-	         }
-	         dstPtr += pitch;
-	         alphaPtr += alphaPitch;
-              }
-
-	   } else {
-
-	      alpha &= 0xff00;
-
-	      while(height--) {
-	         for(x = 0, y = 0; x < width; x+=4, y++) {
-	            myalpha = alphaPtr[x];
-	            dstPtr[y] = (renderaccelarray[alpha + myalpha] << 24) |
-		    		(renderaccelarray[red + myalpha] << 16)   |
-	   	    	        (renderaccelarray[green + myalpha] << 8)  |
-			        renderaccelarray[blue + myalpha];
-	         }
-	         dstPtr += pitch;
-	         alphaPtr += alphaPitch;
-              }
-
-	   }
+	   while(height--) {
+	      for(x = 0; x < width; x++) {
+	         myalpha = alphaPtr[x];
+	         dstPtr[x] = (renderaccelarray[alpha + myalpha] << 24) |
+		    	     (renderaccelarray[red + myalpha] << 16)   |
+	   	    	     (renderaccelarray[green + myalpha] << 8)  |
+			     renderaccelarray[blue + myalpha];
+	      }
+	      dstPtr += pitch;
+	      alphaPtr += alphaPitch;
+           }
 
 	}
 

@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_dac.h,v 1.18 2004/01/23 22:29:04 twini Exp $ */
+/* $XFree86$ */
 /*
  * DAC helper functions (Save/Restore, MemClk, etc)
  * Definitions and prototypes
@@ -13,10 +13,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement: "This product includes
- *    software developed by Thomas Winischhofer, Vienna, Austria."
- * 4) The name of the author may not be used to endorse or promote products
+ * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
@@ -63,6 +60,8 @@ extern void 	SiS_SetCH701x(SiS_Private *SiS_Pr, USHORT tempbx);
 extern USHORT 	SiS_GetCH70xx(SiS_Private *SiS_Pr, USHORT tempbx);
 extern void 	SiS_SetCH70xx(SiS_Private *SiS_Pr, USHORT tempbx);
 extern void     SiS_SetCH70xxANDOR(SiS_Private *SiS_Pr, USHORT tempax,USHORT tempbh);
+extern void     SiS_SetTrumpReg(SiS_Private *SiS_Pr, USHORT tempbx);
+extern USHORT   SiS_GetTrumpReg(SiS_Private *SiS_Pr, USHORT tempbx);
 extern void     SiS_DDC2Delay(SiS_Private *SiS_Pr, USHORT delaytime);
 extern USHORT   SiS_ReadDDC1Bit(SiS_Private *SiS_Pr);
 extern USHORT   SiS_HandleDDC(SiS_Private *SiS_Pr, unsigned long VBFlags, int VGAEngine,

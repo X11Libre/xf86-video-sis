@@ -1,4 +1,4 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_setup.c,v 1.29 2004/01/23 22:29:05 twini Exp $ */
+/* $XFree86$ */
 /*
  * Basic hardware and memory detection
  *
@@ -12,10 +12,7 @@
  * 2) Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3) All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement: "This product includes
- *    software developed by Thomas Winischhofer, Vienna, Austria."
- * 4) The name of the author may not be used to endorse or promote products
+ * 3) The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESSED OR
@@ -603,9 +600,22 @@ sis550Setup(ScrnInfoPtr pScrn)
 
        if(pSiS->Chipset == PCI_CHIP_SIS660) {
           inSISIDXREG(SISCR, 0x79, config);
-	  pScrn->videoRam = (1 << ((config & 0xf0) >> 4)) * 1024;
 	  pSiS->BusWidth = (config & 0x04) ? 128 : 64;
           ramtype = (config & 0x01) ? 8 : 4;
+	  if(pSiS->sishw_ext.jChipType >= SIS_660) {
+	     pScrn->videoRam = 0;
+	     if(config & 0xf0) {
+	        pScrn->videoRam = (1 << ((config & 0xf0) >> 4)) * 1024;
+	     }
+	     inSISIDXREG(SISCR, 0x78, config);
+	     config &= 0x30;
+	     if(config) {
+	        if(config == 0x10) pScrn->videoRam += 32768;
+		else		   pScrn->videoRam += 65536;
+	     }
+	  } else {
+	     pScrn->videoRam = (1 << ((config & 0xf0) >> 4)) * 1024;
+	  }
        } else {
           xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 	      "Shared Memory Area is disabled - awaiting doom\n");
