@@ -122,7 +122,7 @@
 #define NEED_REPLIES  		/* ? */
 #define EXTENSION_PROC_ARGS void *
 #include "extnsionst.h"  	/* required */
-#include "xineramaProto.h"  	/* required */
+#include "panoramiXproto.h"  	/* required */
 #endif
 #endif
 
