@@ -1,5 +1,5 @@
 /* $XFree86$ */
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/init301.c,v 1.12 2004/08/11 18:54:36 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/init301.c,v 1.13.2.1 2005/02/02 01:36:05 gisburn Exp $ */
 /*
  * Mode initializing code (CRT2 section)
  * for SiS 300/305/540/630/730 and
@@ -3501,9 +3501,9 @@ SiS_GetCRT2Data301(SiS_Private *SiS_Pr,USHORT ModeNo,USHORT ModeIdIndex,
 	   SiS_Pr->SiS_RVBHCMAX  = ROMAddr[romptr];
            SiS_Pr->SiS_RVBHCFACT = ROMAddr[romptr+1];
            SiS_Pr->SiS_VGAHT     = ROMAddr[romptr+2] | ((ROMAddr[romptr+3] & 0x0f) << 8);
-           SiS_Pr->SiS_VGAVT     = ROMAddr[romptr+4] | ((ROMAddr[romptr+3] & 0xf0) << 4);
+           SiS_Pr->SiS_VGAVT     = (ROMAddr[romptr+4] << 4) | ((ROMAddr[romptr+3] & 0xf0) >> 4);
            SiS_Pr->SiS_HT        = ROMAddr[romptr+5] | ((ROMAddr[romptr+6] & 0x0f) << 8);
-           SiS_Pr->SiS_VT        = ROMAddr[romptr+7] | ((ROMAddr[romptr+6] & 0xf0) << 4);
+           SiS_Pr->SiS_VT        = (ROMAddr[romptr+7] << 4) | ((ROMAddr[romptr+6] & 0xf0) >> 4);
 	   if(SiS_Pr->SiS_VGAHT) gotit = TRUE;
 	   else {
 	      SiS_Pr->SiS_LCDInfo |= DontExpandLCD;
