@@ -300,7 +300,7 @@ static XF86ModuleVersionInfo sisVersRec =
     MODULEVENDORSTRING,
     MODINFOSTRING1,
     MODINFOSTRING2,
-    XF86_VERSION_CURRENT,
+    XORG_VERSION_CURRENT,
     SIS_MAJOR_VERSION, SIS_MINOR_VERSION, SIS_PATCHLEVEL,
     ABI_CLASS_VIDEODRV,         /* This is a video driver */
     ABI_VIDEODRV_VERSION,
@@ -2347,13 +2347,13 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 	"Copyright (C) 2001-2004 Thomas Winischhofer <thomas@winischhofer.net> and others\n");
     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-        "Compiled for XFree86 %d.%d.%d.%d\n",
+        "Compiled for X.Org %d.%d.%d.%d\n",
 	XF86_VERSION_MAJOR, XF86_VERSION_MINOR,
 	XF86_VERSION_PATCH, XF86_VERSION_SNAP);
 #if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,99,0,0)
     if(xf86GetVersion() != XF86_VERSION_CURRENT) {
        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-         "This version of the driver is not compiled for this version of XFree86!\n");
+         "This version of the driver is not compiled for this version of X.Org!\n");
     }
 #endif
     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
@@ -4996,7 +4996,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 #endif
           } else {
 	     xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-	   	"Building list of built-in modes failed, using XFree86 defaults\n");
+	   	"Building list of built-in modes failed, using X.Org defaults\n");
 	  }
        } else {
           pSiS->HaveCustomModes = TRUE;
