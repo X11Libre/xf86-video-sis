@@ -1,5 +1,5 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/init301.c,v 1.58 2003/12/02 16:44:37 twini Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/init301.c,v 1.58 2003/12/02 16:44:37 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/init301.c,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/init301.c,v 1.59 2003/12/16 17:35:05 twini Exp $ */
 /*
  * Mode initializing code (CRT2 section)
  * for SiS 300/305/540/630/730 and
@@ -46,8 +46,9 @@
 #define SET_EMI		/* 302LV/ELV: Set EMI values */
 #endif
 
-#define COMPAL_HACK	/* Needed for compal 1400x1050 (EMI) */
+#define COMPAL_HACK	/* Needed for Compal 1400x1050 (EMI) */
 #define COMPAQ_HACK	/* Needed for Inventec/Compaq 1280x1024 (EMI) */
+#define ASUS_HACK	/* Needed for Asus A2H 1024x768 (EMI) */
 
 #include "init301.h"
 
@@ -262,6 +263,8 @@ SiS_AdjustCRT2Rate(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex,
 	   if(SiS_Pr->SiS_VBType & VB_SIS301B302B) {
 	      if(SiS_Pr->SiS_LCDInfo & DontExpandLCD) {
 	         if(tempbx == 0x2e) {  /* 640x480 */
+		    tempax |= Support64048060Hz;
+#if 0		    /* DDC info not relyable (eg Sony) */
  	            if(SiS_Pr->SiS_LCDResInfo == SiS_Pr->SiS_Panel1280x768) {
 	               tempax |= Support64048060Hz;
 		    } else if(SiS_Pr->SiS_LCDResInfo == SiS_Pr->SiS_PanelCustom) {
@@ -269,6 +272,7 @@ SiS_AdjustCRT2Rate(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex,
 		          tempax |= Support64048060Hz;
 		       }
 		    }
+#endif
 		 }
 	      }
 	   }
@@ -484,10 +488,10 @@ SiS_CR36BIOSWord23d(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo)
 void
 SiS_DDC2Delay(SiS_Private *SiS_Pr, USHORT delaytime)
 {
-  USHORT i;
+  USHORT i, j;
 
   for(i=0; i<delaytime; i++) {
-     SiS_GetReg(SiS_Pr->SiS_P3c4,0x05);
+     j += SiS_GetReg(SiS_Pr->SiS_P3c4,0x05);
   }
 }
 
@@ -613,7 +617,11 @@ SiS_PanelDelay(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo, USHORT DelayTime)
          } else {
        	    Delay = SiS_Pr->SiS_PanelDelayTbl[DelayIndex].timer[1];
          }
-	 SiS_DDC2Delay(SiS_Pr, Delay << 2);
+	 Delay <<= 2;
+	 if(SiS_Pr->SiS_VBType & (VB_SIS302LV | VB_SIS302ELV)) {
+	    Delay <<= 5;
+	 }
+	 SiS_DDC2Delay(SiS_Pr, Delay);
 
       }
 
@@ -2212,8 +2220,8 @@ SiS_SetCRT2ModeRegs(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex,
 
 	/* The following two are responsible for eventually wrong colors
 	 * in TV output. The DH (VB_NoLCD) conditions are unknown; the
-	 * b0 was found in some 651 machine (Pim); the b1 version in a
-	 * 650 box (Jake). What is the criteria?
+	 * b0 was found in some 651 machine (Pim; P4_23=0xe5); the b1 version
+	 * in a 650 box (Jake). What is the criteria?
 	 */
 
 	if((IS_SIS740) || (HwInfo->jChipType >= SIS_661)) {
@@ -3345,6 +3353,12 @@ SiS_GetLVDSDesPtrA(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex,
 	if(SiS_Pr->SiS_LCDInfo & DontExpandLCD) tempbx++;
      }
   }
+  if(SiS_Pr->SiS_CustomT == CUT_ASUSA2H_2) {
+     if(SiS_Pr->SiS_LCDResInfo == SiS_Pr->SiS_Panel1024x768) {
+	tempbx = 86;
+	if(SiS_Pr->SiS_LCDInfo & DontExpandLCD) tempbx++;
+     }
+  }
 
   if(ModeNo <= 0x13)
      tempal = SiS_Pr->SiS_SModeIDTable[ModeIdIndex].St_CRT2CRTC;
@@ -3394,6 +3408,8 @@ SiS_GetLVDSDesData(SiS_Private *SiS_Pr, USHORT ModeNo,USHORT ModeIdIndex,
 	case 83: PanelDesPtr = (SiS_LVDSDesStruct *)Uniwill1024x768Des_2; break;
 	case 84: PanelDesPtr = (SiS_LVDSDesStruct *)Compaq1280x1024Des_1; break;
 	case 85: PanelDesPtr = (SiS_LVDSDesStruct *)Compaq1280x1024Des_2; break;
+	case 86: PanelDesPtr = (SiS_LVDSDesStruct *)Asus1024x768Des_1;    break;  /*  custom  */
+	case 87: PanelDesPtr = (SiS_LVDSDesStruct *)Asus1024x768Des_2;    break;
 	default: PanelDesPtr = SiS_Pr->LVDS1024x768Des_1;   break;
      }
 #endif
@@ -3737,7 +3753,7 @@ SiS_DisableBridge(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo)
 		 if(SiS_Pr->SiS_VBType & (VB_SIS302LV | VB_SIS302ELV)) {
 	            if( (SiS_IsVAMode(SiS_Pr, HwInfo)) ||
 	                (SiS_CRT2IsLCD(SiS_Pr, HwInfo)) ) {
-		       SiS_PanelDelayLoop(SiS_Pr, HwInfo, 3, 10);
+		       SiS_PanelDelayLoop(SiS_Pr, HwInfo, 3, 20);
 		    }
 	         }
 
@@ -4175,6 +4191,9 @@ SiS_EnableBridge(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo)
 		        (SiS_Pr->SiS_CustomT != CUT_CLEVO1400)) {
 		        SiS_PanelDelayLoop(SiS_Pr, HwInfo, 3, 2);
 			SiS_SetRegOR(SiS_Pr->SiS_Part4Port,0x26,0x02);
+			if(SiS_Pr->SiS_VBType & (VB_SIS302LV | VB_SIS302ELV)) {
+			   SiS_GenericDelay(SiS_Pr, 0x4500);
+			}
 	                SiS_PanelDelayLoop(SiS_Pr, HwInfo, 3, 2);
 		     } else {
 		        SiS_SetRegOR(SiS_Pr->SiS_Part4Port,0x26,0x02);
@@ -4304,6 +4323,7 @@ SiS_EnableBridge(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo)
 		     /* Clevo   1024x768: 0x0d, 0x70, 0x40 (if type == 3) YES  (1.10.8y;  CR36=?2)      */
 		     /* Clevo   1024x768: 0x05, 0x60, 0x33 (if type != 3) YES  (1.10.8y;  CR36=?2)      */
 		     /* Asus    1024x768: ?                                ?   (1.10.8o;  CR36=?2)      */
+		     /* Asus    1024x768: 0x08, 0x10, 0x3c (problematic)  YES  (1.10.8q;  CR36=22)      */
 
 		     if(SiS_Pr->HaveEMI) {
 		        r30 = SiS_Pr->EMI_30;
@@ -4363,37 +4383,56 @@ SiS_EnableBridge(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo)
 			}
 		     }
 
-#ifdef COMPAL_HACK   /* BIOS values don't work so well */
+		     /* BIOS values don't work so well sometimes */
 		     if(!SiS_Pr->OverruleEMI) {
+#ifdef COMPAL_HACK
 		        if(SiS_Pr->SiS_CustomT == CUT_COMPAL1400_2) {
 		           if((cr36 & 0x0f) == 0x09) {
 			      r30 = 0x60; r31 = 0x05; r32 = 0x60; r33 = 0x00;
 			   }
  		        }
-		     }
 #endif
 #ifdef COMPAQ_HACK
-		     if(!SiS_Pr->OverruleEMI) {
 		        if(SiS_Pr->SiS_CustomT == CUT_COMPAQ1280) {
 		           if((cr36 & 0x0f) == 0x03) {
-			      r30 = 0x20; r31 = 0x12; r32 = 0xd0; r33 = 0x6b;        /* rev 1 */
-			      /* r30 = 0x60; r31 = 0x12; r32 = 0xd0; r33 = 0x6b;  */ /* rev 2 */
-			      /* r30 = 0x20; r31 = 0x05; r32 = 0x60; r33 = 0x00;  */ /* rev 3 */
-			      /* r30 = 0x60; r31 = 0x05; r32 = 0x60; r33 = 0x00;  */ /* rev 4 */
+			      r30 = 0x20; r31 = 0x12; r32 = 0xd0; r33 = 0x6b;     /* rev 1 */
 			   }
 			}
- 		     }
 #endif
-		     SiS_SetRegOR(SiS_Pr->SiS_Part4Port,0x30,0x20);
+#ifdef ASUS_HACK
+		        if(SiS_Pr->SiS_CustomT == CUT_ASUSA2H_2) {
+		           if((cr36 & 0x0f) == 0x02) {
+			      /* r30 = 0x60; r31 = 0x05; r32 = 0x60; r33 = 0x33;  */   /* rev 2 */
+			      /* r30 = 0x20; r31 = 0x05; r32 = 0x60; r33 = 0x33;  */   /* rev 3 */
+			      /* r30 = 0x60; r31 = 0x0d; r32 = 0x70; r33 = 0x40;  */   /* rev 4 */
+			      /* r30 = 0x20; r31 = 0x0d; r32 = 0x70; r33 = 0x40;  */   /* rev 5 */
+			   }
+			}
+#endif
+ 		     }
+		     if(!(SiS_Pr->OverruleEMI && (!r30) && (!r31) && (!r32) && (!r33))) {
+		        SiS_SetRegOR(SiS_Pr->SiS_Part4Port,0x30,0x20);
+		     }
 		     SiS_SetReg(SiS_Pr->SiS_Part4Port,0x31,r31);
 		     SiS_SetReg(SiS_Pr->SiS_Part4Port,0x32,r32);
 		     SiS_SetReg(SiS_Pr->SiS_Part4Port,0x33,r33);
-		     SiS_SetReg(SiS_Pr->SiS_Part4Port,0x34,0x10);
+		     if(!(SiS_Pr->OverruleEMI && (!r30) && (!r31) && (!r32) && (!r33))) {
+		        SiS_SetReg(SiS_Pr->SiS_Part4Port,0x34,0x10);
+		     } else {
+		        SiS_SetReg(SiS_Pr->SiS_Part4Port,0x34,0x00);
+		     }
 		     if( (SiS_IsVAMode(SiS_Pr,HwInfo)) ||
 	                 (SiS_CRT2IsLCD(SiS_Pr, HwInfo)) ) {
 	                if(r30 & 0x40) {
 		           SiS_PanelDelayLoop(SiS_Pr, HwInfo, 3, 5);
-		           SiS_WaitVBRetrace(SiS_Pr,HwInfo);
+			   if(delaylong) {
+			      SiS_PanelDelayLoop(SiS_Pr, HwInfo, 3, 5);
+			      delaylong = FALSE;
+			   }
+			   SiS_WaitVBRetrace(SiS_Pr,HwInfo);
+			   if(SiS_Pr->SiS_CustomT == CUT_ASUSA2H_2) {
+			      SiS_GenericDelay(SiS_Pr, 0x500);
+			   }
 	                   SiS_SetRegOR(SiS_Pr->SiS_Part4Port,0x30,0x40);
 	                }
 		     }
@@ -4437,6 +4476,9 @@ SiS_EnableBridge(SiS_Private *SiS_Pr, PSIS_HW_INFO HwInfo)
 			   SiS_PanelDelayLoop(SiS_Pr, HwInfo, 3, 10);
 		        }
                         SiS_WaitVBRetrace(SiS_Pr,HwInfo);
+			if(SiS_Pr->SiS_VBType & (VB_SIS302LV | VB_SIS302ELV)) {
+			   SiS_GenericDelay(SiS_Pr, 0x500);
+			}
 		        SiS_SetRegOR(SiS_Pr->SiS_Part4Port,0x26,0x01);
 	             }
 	          }
@@ -6978,6 +7020,10 @@ SiS_GetCRT2Part2Ptr(SiS_Private *SiS_Pr,USHORT ModeNo,USHORT ModeIdIndex,
   	   else if(SiS_Pr->SiS_SetFlag & LCDVESATiming) tempbx = 105;
 	}
      }
+  }  else if(SiS_Pr->SiS_CustomT == CUT_ASUSA2H_2) {
+     if(SiS_Pr->SiS_LCDResInfo == SiS_Pr->SiS_Panel1024x768) {
+        if(SiS_Pr->SiS_SetFlag & LCDVESATiming) tempbx = 106;
+     }
   }
 
   *CRT2Index = tempbx;
@@ -7748,6 +7794,7 @@ SiS_SetGroup2(SiS_Private *SiS_Pr, USHORT ModeNo, USHORT ModeIdIndex,USHORT Refr
 	case 103:		   CRT2Part2Ptr = (SiS_Part2PortTblStruct *)SiS310_CRT2Part2_Clevo1024x768_1; break;    /* Custom */
 	case 104:		   CRT2Part2Ptr = (SiS_Part2PortTblStruct *)SiS310_CRT2Part2_Clevo1024x768_2; break;
 	case 105:		   CRT2Part2Ptr = (SiS_Part2PortTblStruct *)SiS310_CRT2Part2_Clevo1024x768_3; break;
+	case 106:		   CRT2Part2Ptr = (SiS_Part2PortTblStruct *)SiS310_CRT2Part2_Asus1024x768_3; break;
 	default:                   CRT2Part2Ptr = SiS_Pr->SiS_CRT2Part2_1024x768_3;  break;
       }
 

@@ -1,5 +1,5 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.29 2003/11/29 12:08:02 twini Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.29 2003/11/29 12:08:02 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.h,v 1.30 2003/12/16 17:35:07 twini Exp $ */
 /*
  * Global data and definitions
  *
@@ -223,7 +223,14 @@ const customttable mycustomttable[] = {
 	  { 0, 0, 0, 0, 0 },
 	  { 0, 0, 0, 0, 0 },
 	  0x1043, 0x1612,
-	  "Asus", "A2H", CUT_ASUSA2H, "ASUS_A2H"
+	  "Asus", "A2H (V1)", CUT_ASUSA2H_1, "ASUS_A2H_1"
+	},
+	{ SIS_650, "1.10.8q", "",
+	  0,	/* For EMI */
+	  { 0, 0, 0, 0, 0 },
+	  { 0, 0, 0, 0, 0 },
+	  0x1043, 0x1612,
+	  "Asus", "A2H (V2)", CUT_ASUSA2H_2, "ASUS_A2H_2"
 	},
 	{ 4321, "", "",			/* never autodetected */
 	  0,

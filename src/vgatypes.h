@@ -1,5 +1,5 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.18 2003/12/16 17:45:20 twini Exp $ */
 /*
  * General type definitions for universal mode switching modules
  *
@@ -286,8 +286,9 @@ struct _SISFB_INFO {
 
 	unsigned char sisfb_haveemi;
 	unsigned char sisfb_emi30,sisfb_emi31,sisfb_emi32,sisfb_emi33;
+	unsigned char sisfb_haveemilcd;
 
-	char reserved[214]; 		/* for future use */
+	char reserved[213]; 		/* for future use */
 };
 #endif
 

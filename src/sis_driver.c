@@ -1,5 +1,5 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.160 2003/12/02 12:15:32 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.1.4.3 2003/12/18 19:29:14 kaleb Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_driver.c,v 1.166 2003/12/16 17:59:08 twini Exp $ */
 /*
  * Copyright 2001, 2002, 2003 by Thomas Winischhofer, Vienna, Austria.
  *
@@ -1583,6 +1583,8 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
     /* Attention: Usage of RandR may lead into virtual X and Y values
      * actually smaller than our MetaModes! To avoid this, we calculate
      * the maxCRT fields here (and not somewhere else, like in CopyNLink)
+     *
+     * *** For now: RandR will be disabled if SiS pseudo-Xinerama is on
      */
 
     if((pSiS->SiSXineramaVX != pScrn1->virtualX) || (pSiS->SiSXineramaVY != pScrn1->virtualY)) {
@@ -2659,10 +2661,14 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 				     pSiS->sisfbpdc = mysisfbinfo.sisfb_lcdpdc;
 				     if(sisfbversion >= 0x010618) {
 				        pSiS->sisfb_haveemi = mysisfbinfo.sisfb_haveemi ? TRUE : FALSE;
+					pSiS->sisfb_haveemilcd = TRUE;  /* will match most cases */
 					pSiS->sisfb_emi30 = mysisfbinfo.sisfb_emi30;
 					pSiS->sisfb_emi31 = mysisfbinfo.sisfb_emi31;
 					pSiS->sisfb_emi32 = mysisfbinfo.sisfb_emi32;
 					pSiS->sisfb_emi33 = mysisfbinfo.sisfb_emi33;
+					if(sisfbversion >= 0x010619) {
+					   pSiS->sisfb_haveemilcd = mysisfbinfo.sisfb_haveemilcd ? TRUE : FALSE;
+					}
 				     }
 				  }
 			       }
@@ -3649,10 +3655,15 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
     /* Backup VB connection and CRT1 on/off register */
     if((pSiS->VGAEngine == SIS_300_VGA) || (pSiS->VGAEngine == SIS_315_VGA)) {
-       inSISIDXREG(SISCR, 0x32, pSiS->oldCR32);
-       inSISIDXREG(SISCR, 0x17, pSiS->oldCR17);
-       inSISIDXREG(SISCR, 0x63, pSiS->oldCR63);
        inSISIDXREG(SISSR, 0x1f, pSiS->oldSR1F);
+       inSISIDXREG(SISCR, 0x17, pSiS->oldCR17);
+       inSISIDXREG(SISCR, 0x32, pSiS->oldCR32);
+       inSISIDXREG(SISCR, 0x36, pSiS->oldCR36);
+       inSISIDXREG(SISCR, 0x37, pSiS->oldCR37);
+       if(pSiS->VGAEngine == SIS_315_VGA) {
+          inSISIDXREG(SISCR, 0x63, pSiS->oldCR63);
+       }
+
        pSiS->postVBCR32 = pSiS->oldCR32;
     }
 
@@ -3774,7 +3785,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     SISCRT2PreInit(pScrn);
 
     /* Backup detected CRT2 devices */
-    pSiS->detectedCRT2Devices = pSiS->VBFlags & (CRT2_LCD | CRT2_TV | CRT2_VGA | TV_AVIDEO | TV_SVIDEO | TV_SCART);
+    pSiS->detectedCRT2Devices = pSiS->VBFlags & (CRT2_LCD|CRT2_TV|CRT2_VGA|TV_AVIDEO|TV_SVIDEO|TV_SCART);
 
     /* Setup SD flags */
     pSiS->SiS_SD_Flags |= SiS_SD_ADDLSUPFLAG;
@@ -4189,8 +4200,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
              pSiS->VBFlags |= (VB_DISPMODE_SINGLE | DISPTYPE_CRT1);
     }
 
-    if((pSiS->VGAEngine == SIS_315_VGA) ||
-       (pSiS->VGAEngine == SIS_300_VGA) ) {
+    if((pSiS->VGAEngine == SIS_315_VGA) || (pSiS->VGAEngine == SIS_300_VGA)) {
        if((!pSiS->NoXvideo) && (!pSiS->hasTwoOverlays)) {
 	  xf86DrvMsg(pScrn->scrnIndex, from,
 	      "Using Xv overlay by default on CRT%d\n",
@@ -4205,6 +4215,13 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
     /* VBFlags are initialized now. Back them up for SlaveMode modes. */
     pSiS->VBFlags_backup = pSiS->VBFlags;
+
+    /* Backup CR32,36,37 (in order to write them back after a VT switch) */
+    if((pSiS->VGAEngine == SIS_300_VGA) || (pSiS->VGAEngine == SIS_315_VGA)) {
+       inSISIDXREG(SISCR,0x32,pSiS->myCR32);
+       inSISIDXREG(SISCR,0x36,pSiS->myCR36);
+       inSISIDXREG(SISCR,0x37,pSiS->myCR37);
+    }
 
     /* Find out about paneldelaycompensation and evaluate option */
 #ifdef SISDUALHEAD
@@ -4349,7 +4366,8 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	        pSiS->SiS_Pr->EMI_31 = pSiS->sisfb_emi31;
 	        pSiS->SiS_Pr->EMI_32 = pSiS->sisfb_emi32;
 	        pSiS->SiS_Pr->EMI_33 = pSiS->sisfb_emi33;
-		pSiS->SiS_Pr->HaveEMI = pSiS->SiS_Pr->HaveEMILCD = TRUE;
+		pSiS->SiS_Pr->HaveEMI = TRUE;
+		if(pSiS->sisfb_haveemilcd) pSiS->SiS_Pr->HaveEMILCD = TRUE;
 		pSiS->SiS_Pr->OverruleEMI = FALSE;
 	     } else {
 	        inSISIDXREG(SISPART4, 0x30, pSiS->SiS_Pr->EMI_30);
@@ -5466,10 +5484,12 @@ SISSave(ScrnInfoPtr pScrn)
 
     /* "Save" these again as they may have been changed prior to SISSave() call */
     if((pSiS->VGAEngine == SIS_300_VGA) || (pSiS->VGAEngine == SIS_315_VGA)) {
+       sisReg->sisRegs3C4[0x1f] = pSiS->oldSR1F;
        sisReg->sisRegs3D4[0x17] = pSiS->oldCR17;
        if(vgaReg->numCRTC >= 0x17) vgaReg->CRTC[0x17] = pSiS->oldCR17;
        sisReg->sisRegs3D4[0x32] = pSiS->oldCR32;
-       sisReg->sisRegs3C4[0x1f] = pSiS->oldSR1F;
+       sisReg->sisRegs3D4[0x36] = pSiS->oldCR36;
+       sisReg->sisRegs3D4[0x37] = pSiS->oldCR37;
        if(pSiS->VGAEngine == SIS_315_VGA) {
 	  sisReg->sisRegs3D4[0x63] = pSiS->oldCR63;
        }
@@ -6066,7 +6086,7 @@ SISRestore(ScrnInfoPtr pScrn)
        /* First, restore CRT1 on/off and VB connection registers */
        outSISIDXREG(SISCR, 0x32, pSiS->oldCR32);
        if(!(pSiS->oldCR17 & 0x80)) {			/* CRT1 was off */
-          if(!(SiSBridgeIsInSlaveMode(pScrn))) {       /* Bridge is NOT in SlaveMode now -> do it */
+          if(!(SiSBridgeIsInSlaveMode(pScrn))) {        /* Bridge is NOT in SlaveMode now -> do it */
 	     doit = TRUE;
 	  } else {
 	     doitlater = TRUE;
@@ -6466,8 +6486,8 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 	  /* Read 0:449 which the BIOS sets to the current mode number
 	   * Unfortunately, this not reliable since the int10 emulation
 	   * does not change this. So if we call the VBE later, this
-	   * byte won't be touched. (which is why we set this manually
-	   * then)
+	   * byte won't be touched (which is why we set this manually
+	   * then).
 	   */
           unsigned char myoldmode = SiS_GetSetModeID(pScrn,0xFF);
 	  unsigned char cr30, cr31;
@@ -6477,7 +6497,6 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 	   * bridge...
 	   */
           inSISIDXREG(SISCR, 0x34, pSiS->OldMode);
-	  pSiS->OldMode &= 0x7f;
 	  inSISIDXREG(SISCR, 0x30, cr30);
 	  inSISIDXREG(SISCR, 0x31, cr31);
 
@@ -6495,12 +6514,15 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 	   * two is valid).
 	   */
 	  if(pSiS->OldMode > 0x7f) {
-	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-	   	"Previous video mode (%02x) invalid, using BIOS scratch (%02x)\n",
-		pSiS->OldMode, myoldmode);
 	     pSiS->OldMode = myoldmode;
 	  }
        }
+#ifdef SISDUALHEAD
+       if(pSiS->DualHeadMode) {
+          if(!pSiS->SecondHead) pSiSEnt->OldMode = pSiS->OldMode;
+          else                  pSiS->OldMode = pSiSEnt->OldMode;
+       }
+#endif
     }
 
     /* Initialise the first mode */
@@ -6829,6 +6851,11 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
           SiSnoXineramaExtension = FALSE;
           SiSXineramaExtensionInit(pScrn);
 	  if(!SiSnoXineramaExtension) {
+#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
+	     xf86DisableRandR();
+	     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+	     "SiS Pseudo-Xinerama enabled, RandR disabled\n");
+#endif
 	     pSiS->SiS_SD_Flags |= SiS_SD_PSEUDOXINERAMA;
 	  }
        }
@@ -7008,24 +7035,22 @@ SISSwitchCRT2Type(ScrnInfoPtr pScrn, unsigned long newvbflags)
     return TRUE;
 }
 
-Bool
+int
 SISCheckModeIndexForCRT2Type(ScrnInfoPtr pScrn, unsigned short cond, unsigned short index, Bool quiet)
 {
     SISPtr pSiS = SISPTR(pScrn);
     BOOLEAN hcm = pSiS->HaveCustomModes;
     DisplayModePtr mode = pScrn->modes, mastermode;
-    int i;
+    int i, result = 0;
     unsigned long vbflags = pSiS->VBFlags;
 
-    /* This has been extended to handle LCDA as well */
+    /* Not only CRT2, but also LCDA */
 
-    /* Only on 300 and 315/330 series */
-    if(pSiS->VGAEngine != SIS_300_VGA &&
-       pSiS->VGAEngine != SIS_315_VGA) return FALSE;
-
-    /* Mode is OK if there is no video bridge */
-    /* (Requires screen size check in app) */
-    if(!(pSiS->VBFlags & VB_VIDEOBRIDGE)) return TRUE;
+    /* returns 0 if mode ok,
+     *         0x01 if mode not ok for CRT2 device,
+     *         0x02 if mode too large for current root window
+     *         or combinations thereof
+     */
 
     /* No special treatment for NTSC-J here */
     if(cond) {
@@ -7045,14 +7070,10 @@ SISCheckModeIndexForCRT2Type(ScrnInfoPtr pScrn, unsigned short cond, unsigned sh
        }
     }
 
-    /* Mode is obviously OK if video bridge is disabled */
-    /* (Requires extra check for eventual screen size problems in app) */
-    if(!(vbflags & (CRT2_ENABLE | CRT1_LCDA))) return TRUE;
-
     /* Find mode of given index */
     if(index) {
        for(i = 0; i < index; i++) {
-          if(!mode) return FALSE;
+          if(!mode) return 0x03;
           mode = mode->next;
        }
     }
@@ -7080,7 +7101,7 @@ SISCheckModeIndexForCRT2Type(ScrnInfoPtr pScrn, unsigned short cond, unsigned sh
                 xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 		    "Desired mode too large for current screen size\n");
              }
-             return FALSE;
+             result |= 0x02;
           }
 
           /* Check if the desired mode is suitable for current CRT2 output device */
@@ -7089,7 +7110,7 @@ SISCheckModeIndexForCRT2Type(ScrnInfoPtr pScrn, unsigned short cond, unsigned sh
                 xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 		    "Desired mode not suitable for current CRT2 output device\n");
              }
-             return FALSE;
+             result |= 0x01;
           }
 
        }
@@ -7121,7 +7142,7 @@ SISCheckModeIndexForCRT2Type(ScrnInfoPtr pScrn, unsigned short cond, unsigned sh
                 xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 			"Desired mode too large for current screen size\n");
              }
-             return FALSE;
+             result |= 0x02;
           }
 
           /* Check if the desired mode is suitable for current CRT1 output device */
@@ -7130,7 +7151,7 @@ SISCheckModeIndexForCRT2Type(ScrnInfoPtr pScrn, unsigned short cond, unsigned sh
                  xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 	  	      "Desired mode not suitable for current CRT1 output device\n");
              }
-             return FALSE;
+             result |= 0x01;
           }
 
        }
@@ -7139,7 +7160,7 @@ SISCheckModeIndexForCRT2Type(ScrnInfoPtr pScrn, unsigned short cond, unsigned sh
     }
 #endif
 
-    return TRUE;
+    return result;
 }
 
 Bool
@@ -7611,8 +7632,10 @@ SISEnterVT(int scrnIndex, int flags)
 
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
 
-    if(pSiS->VGAEngine == SIS_300_VGA || pSiS->VGAEngine == SIS_315_VGA) {
-       andSISIDXREG(SISCR,0x34,0x7f);
+    if((pSiS->VGAEngine == SIS_300_VGA) || (pSiS->VGAEngine == SIS_315_VGA)) {
+       outSISIDXREG(SISCR,0x32,pSiS->myCR32);
+       outSISIDXREG(SISCR,0x36,pSiS->myCR36);
+       outSISIDXREG(SISCR,0x37,pSiS->myCR37);
     }
 
     if(!SISModeInit(pScrn, pScrn->currentMode)) {
@@ -7623,7 +7646,6 @@ SISEnterVT(int scrnIndex, int flags)
     SISAdjustFrame(scrnIndex, pScrn->frameX0, pScrn->frameY0, 0);
 
 #ifdef XF86DRI
-    /* this is to be done AFTER switching the mode */
     if(pSiS->directRenderingEnabled) {
        DRIUnlock(screenInfo.screens[scrnIndex]);
     }
@@ -7653,7 +7675,6 @@ SISLeaveVT(int scrnIndex, int flags)
 #ifdef XF86DRI
     ScreenPtr pScreen;
 
-    /* to be done before mode change */
     if(pSiS->directRenderingEnabled) {
        pScreen = screenInfo.screens[scrnIndex];
        DRILock(pScreen, 0);
@@ -7702,7 +7723,7 @@ SISLeaveVT(int scrnIndex, int flags)
 
     }
 
-    /* We use this (otherwise unused) bit to indicate that we are running
+    /* We use (otherwise unused) bit 7 to indicate that we are running
      * to keep sisfb to change the displaymode (this would result in
      * lethal display corruption upon quitting X or changing to a VT
      * until a reboot)
@@ -7778,12 +7799,16 @@ SISCloseScreen(int scrnIndex, ScreenPtr pScreen)
 	}
 
         vgaHWLock(hwp);
+
     }
 
-    if(pSiS->VGAEngine == SIS_300_VGA || pSiS->VGAEngine == SIS_315_VGA) {
-       andSISIDXREG(SISCR,0x34,0x7f);
-    }
-
+    /* We should restore the mode number in case vtsema = false as well,
+     * but since we haven't register access then we can't do it. I think
+     * I need to rework the save/restore stuff, like saving the video
+     * status when returning to the X server and by that save me the
+     * trouble if sisfb was started from a textmode VT while X was on.
+     */
+    
     SISUnmapMem(pScrn);
     vgaHWUnmapMem(pScrn);
 
@@ -11005,6 +11030,7 @@ SiS_CheckCalcModeIndex(ScrnInfoPtr pScrn, DisplayModePtr mode, unsigned long VBF
          return 0xfe;
 
       if((havecustommodes) &&
+         (pSiS->LCDwidth) &&		/* = test if LCD present */
          (!(mode->type & M_T_DEFAULT)) &&
 	 (!(mode->Flags & V_INTERLACE)))
          return 0xfe;

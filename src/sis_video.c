@@ -1,4 +1,5 @@
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_video.c,v 1.41 2003/11/19 00:49:06 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_video.c,v 1.44 2003/12/16 17:35:07 twini Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_video.c,v 1.44 2003/12/16 17:35:07 twini Exp $ */
 /*
  * Xv driver for SiS 300, 315 and 330 series.
  *
@@ -1676,12 +1677,12 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
      }
   } else if(attribute == pSiS->xv_CMD) {
      if(pSiS->xv_sisdirectunlocked) {
+        int result = 0;
         pSiS->xv_sd_result = (value & 0xffffff00);
-        if(SISCheckModeIndexForCRT2Type(pScrn, (unsigned short)(value & 0xff),
-	                                       (unsigned short)((value >> 8) & 0xff),
-					       FALSE)) {
-	   pSiS->xv_sd_result |= 0x01;
-	}
+        result = SISCheckModeIndexForCRT2Type(pScrn, (unsigned short)(value & 0xff),
+	                                      (unsigned short)((value >> 8) & 0xff),
+					      FALSE);
+	pSiS->xv_sd_result |= (result & 0xff);
      }
   } else if(attribute == pSiS->xv_SGA) {
      if(pSiS->xv_sisdirectunlocked) {
@@ -2081,12 +2082,10 @@ SiSHandleSiSDirectCommand(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv, sisdirectcomm
       break;
    case SDC_CMD_CHECKMODEFORCRT2:
       j = sdcbuf->sdc_parm[0];
-      sdcbuf->sdc_parm[0] = 0;
-      if(SISCheckModeIndexForCRT2Type(pScrn, (unsigned short)(j & 0xff),
-	                                     (unsigned short)((j >> 8) & 0xff),
-					     FALSE)) {
-	 sdcbuf->sdc_parm[0] = 1;
-      }
+      sdcbuf->sdc_parm[0] = SISCheckModeIndexForCRT2Type(pScrn,
+      			(unsigned short)(j & 0xff),
+	                (unsigned short)((j >> 8) & 0xff),
+			FALSE) & 0xff;
       break;
    default:
       sdcbuf->sdc_header = SDC_RESULT_UNDEFCMD;
@@ -2700,7 +2699,7 @@ set_brightness(SISPtr pSiS, CARD8 brightness)
 static __inline void
 set_contrast(SISPtr pSiS, CARD8 contrast)
 {
-    setvideoregmask(pSiS, Index_VI_Contrast_Enh_Ctrl, contrast ^ 0x07, 0x07);
+    setvideoregmask(pSiS, Index_VI_Contrast_Enh_Ctrl, contrast, 0x07);
 }
 
 /* 315 series and later only */
@@ -3398,6 +3397,7 @@ SISDisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 	 pPriv->mustwait = 1;
 	 pPriv->oldx1 = overlay.dstBox.x1; pPriv->oldx2 = overlay.dstBox.x2;
 	 pPriv->oldy1 = overlay.dstBox.y1; pPriv->oldy2 = overlay.dstBox.y2;
+
       }
 #ifdef SISMERGED
    }

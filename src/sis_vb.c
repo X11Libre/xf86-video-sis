@@ -1,5 +1,5 @@
-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/vgatypes.h,v 1.17 2003/12/02 12:15:33 twini Exp $ */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_vb.c,v 1.32 2003/11/23 19:44:26 twini Exp $ */
+/* $XdotOrg: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_vb.c,v 1.1.4.2 2003/12/06 13:24:25 kaleb Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/sis/sis_vb.c,v 1.34 2003/12/16 17:35:07 twini Exp $ */
 /*
  * Video bridge detection and configuration for 300, 315 and 330 series
  *
@@ -213,6 +213,8 @@ void SISLCDPreInit(ScrnInfoPtr pScrn)
     SISPtr  pSiS = SISPTR(pScrn);
     unsigned char CR32, CR36, CR37;
 
+    pSiS->LCDwidth = 0;
+
     if(!(pSiS->VBFlags & VB_VIDEOBRIDGE)) return;
 
     inSISIDXREG(SISCR, 0x32, CR32);
@@ -356,8 +358,7 @@ void SISTVPreInit(ScrnInfoPtr pScrn)
     unsigned char SR16, SR38, CR32, CR35=0, CR38=0, CR79;
     int temp = 0;
 
-    if(!(pSiS->VBFlags & VB_VIDEOBRIDGE))
-        return;
+    if(!(pSiS->VBFlags & VB_VIDEOBRIDGE)) return;
 
     inSISIDXREG(SISCR, 0x32, CR32);
     inSISIDXREG(SISSR, 0x16, SR16);
@@ -444,7 +445,7 @@ void SISTVPreInit(ScrnInfoPtr pScrn)
        }
     }
     
-    if(pSiS->VBFlags & (TV_SCART | TV_SVIDEO | TV_AVIDEO | TV_HIVISION | TV_YPBPR | TV_CHSCART | TV_CHHDTV)) {
+    if(pSiS->VBFlags & (TV_SCART|TV_SVIDEO|TV_AVIDEO|TV_HIVISION|TV_YPBPR|TV_CHSCART|TV_CHHDTV)) {
        xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
 			"%sTV standard %s\n",
 			(pSiS->VBFlags & (TV_CHSCART | TV_CHHDTV)) ? "Using " : "Detected default ",
@@ -462,8 +463,7 @@ void SISCRT2PreInit(ScrnInfoPtr pScrn)
     SISPtr  pSiS = SISPTR(pScrn);
     unsigned char CR32; 
 
-    if(!(pSiS->VBFlags & VB_VIDEOBRIDGE))
-       return;
+    if(!(pSiS->VBFlags & VB_VIDEOBRIDGE))  return;
 
     /* CRT2-VGA not supported on LVDS and 30xLV */
     if(pSiS->VBFlags & (VB_LVDS|VB_301LV|VB_302LV|VB_302ELV))
