@@ -7,7 +7,7 @@
 <!-- Title information -->
 <title>Information for SiS Users
 <author>Thomas Winischhofer (<email>thomas@winischhofer.net</email>)
-<date>5 October 2003
+<date>7 February 2005
 
 <ident>
 </ident>
@@ -43,8 +43,7 @@ The driver supports:
 
 This document gives an overview over the driver's features and configuration options.
 Please see http://www.winischhofer.net/linuxsisvga.shtml for detailed documentation
-and updates. Support for the 661, 741 and 760 is entirely untested as of this writing,
-and possibly incomplete for LCD output.
+and updates.
 
 <sect> xorg.conf Options <p>
 
