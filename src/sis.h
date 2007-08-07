@@ -109,10 +109,10 @@
 
 #define SIS_NAME                "SIS"
 #define SIS_DRIVER_NAME         "sis"
-#define SIS_MAJOR_VERSION       0
+#define SIS_MAJOR_VERSION	PACKAGE_VERSION_MAJOR
 #ifdef SISISXORG6899900
-#define SIS_MINOR_VERSION       9	/* DRI changes */
-#define SIS_PATCHLEVEL		1
+#define SIS_MINOR_VERSION	PACKAGE_VERSION_MINOR	/* DRI changes */
+#define SIS_PATCHLEVEL		PACKAGE_VERSION_PATCHLEVEL
 #else
 #define SIS_MINOR_VERSION       7
 #define SIS_PATCHLEVEL          1
