@@ -101,10 +101,10 @@ static const struct _sis6326mclk {
 
 #ifdef XSERVER_LIBPCIACCESS
 struct pci_device *
-sis_host_bridge (void)
+sis_get_device (int device)
 {
-    static const struct pci_slot_match bridge_match = {
-	0, 0, 0, PCI_MATCH_ANY, 0
+    struct pci_slot_match bridge_match = {
+	0, 0, device, PCI_MATCH_ANY, 0
     };
     struct pci_device_iterator	*slot_iterator;
     struct pci_device		*bridge;
@@ -116,9 +116,9 @@ sis_host_bridge (void)
 }
 
 unsigned int
-sis_pci_read_host_bridge_u32(int offset)
+sis_pci_read_device_u32(int device, int offset)
 {
-    struct pci_device host_bridge = sis_host_bridge();
+    struct pci_device *host_bridge = sis_get_device(device);
     unsigned int result;
 
     pci_device_cfg_read_u32(host_bridge, &result, offset);
@@ -126,9 +126,9 @@ sis_pci_read_host_bridge_u32(int offset)
 }
 
 unsigned char
-sis_pci_read_host_bridge_u32(int offset)
+sis_pci_read_device_u8(int device, int offset)
 {
-    struct pci_device host_bridge = sis_host_bridge();
+    struct pci_device *host_bridge = sis_get_device(device);
     unsigned char result;
 
     pci_device_cfg_read_u8(host_bridge, &result, offset);
@@ -138,28 +138,30 @@ sis_pci_read_host_bridge_u32(int offset)
 void
 sis_pci_write_host_bridge_u32(int offset, unsigned int value)
 {
-    struct pci_device host_bridge = sis_host_bridge();
+    struct pci_device *host_bridge = sis_get_device(0);
     pci_device_cfg_write_u32(host_bridge, value, offset);
 }
 
 void
 sis_pci_write_host_bridge_u8(int offset, unsigned char value)
 {
-    struct pci_device host_bridge = sis_host_bridge();
+    struct pci_device *host_bridge = sis_get_device(0);
     pci_device_cfg_write_u8(host_bridge, value, offset);
 }
-   
+
 #else
 unsigned int
-sis_pci_read_host_bridge_u32(int offset)
+sis_pci_read_device_u32(int device, int offset)
 {
-    return pciReadLong(0x00000000, offset);
+    PCITAG tag = pciTag(0, device, 0);
+    return pciReadLong(tag, offset);
 }
 
 unsigned char
-sis_pci_read_host_bridge_u8(int offset)
+sis_pci_read_device_u8(int device, int offset)
 {
-    return pciReadByte(0x00000000, offset);
+    PCITAG tag = pciTag(0, device, 0);
+    return pciReadByte(tag, offset);
 }
 
 void
@@ -176,6 +178,18 @@ sis_pci_write_host_bridge_u8(int offset, unsigned char value)
 
 
 #endif
+
+unsigned int
+sis_pci_read_host_bridge_u32(int offset)
+{
+    return sis_pci_read_device_u32(0, offset);
+}
+
+unsigned char
+sis_pci_read_host_bridge_u8(int offset)
+{
+    return sis_pci_read_device_u8(0, offset);
+}
    
 static int sisESSPresent(ScrnInfoPtr pScrn)
 {
@@ -690,7 +704,7 @@ sis550Setup(ScrnInfoPtr pScrn)
 
 	  /* LFB - local framebuffer: PCI reg hold total RAM (but configurable in BIOS) */
 	  /* TODO */
-	  pciconfig = pciReadByte(0x00000800, 0xcd);
+	  pciconfig = sis_pci_read_device_u8(1, 0xcd);
 	  pciconfig = (pciconfig >> 1) & 0x03;
 	  i = 0;
 	  if(pciconfig == 0x01)      i = 32768;

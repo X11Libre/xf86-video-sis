@@ -3169,7 +3169,7 @@ SiS_Handle760(struct SiS_Private *SiS_Pr)
 #ifdef SIS_LINUX_KERNEL
    somebase = sisfb_read_mio_pci_word(SiS_Pr, 0x74);
 #else
-   somebase = pciReadWord(0x00001000, 0x74);
+   somebase = sis_pci_read_device_u32(2, 0x74);
 #endif
    somebase &= 0xffff;
 
