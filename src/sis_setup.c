@@ -99,6 +99,48 @@ static const struct _sis6326mclk {
 	{134, 0, 0x4a, 0xa3 }
 };
 
+static int sisESSPresent(ScrnInfoPtr pScrn)
+{
+  int flags = 0;
+#ifndef XSERVER_LIBPCIACCESS
+  int i;
+  pciConfigPtr pdptr, *systemPCIdevices = NULL;
+
+  if((systemPCIdevices = xf86GetPciConfigInfo())) {
+      i = 0;
+      while((pdptr = systemPCIdevices[i])) {
+	  if((pdptr->pci_vendor == 0x1274) &&
+	     ((pdptr->pci_device == 0x5000) ||
+	      ((pdptr->pci_device & 0xFFF0) == 0x1370))) {
+	      flags |= ESS137xPRESENT;
+	      break;
+	  }
+	  i++;
+      }
+  }
+  return flags;
+#else
+  struct pci_id_match id_match = { 0x1274, PCI_MATCH_ANY,
+				   PCI_MATCH_ANY, PCI_MATCH_ANY,
+				   PCI_MATCH_ANY, PCI_MATCH_ANY,
+				   0 };
+  struct pci_device_iterator *id_iterator;
+  struct pci_device *ess137x;
+
+  id_iterator = pci_id_match_iterator_create(&id_match);
+
+  ess137x = pci_device_next(id_iterator);  
+  while (ess137x) {
+      if ((ess137x->device_id == 0x5000) ||
+	  ((ess137x->device_id & 0xfff0) == 0x1370)) {
+	  flags |= ESS137xPRESENT;
+      }
+      ess137x = pci_device_next(id_iterator);  
+  }
+  return flags;
+#endif
+}
+
 /* For old chipsets, 5597, 6326, 530/620 */
 static void
 sisOldSetup(ScrnInfoPtr pScrn)
@@ -113,7 +155,7 @@ sisOldSetup(ScrnInfoPtr pScrn)
 #if 0
     UChar  newsr13, newsr28, newsr29;
 #endif
-    pciConfigPtr pdptr, *systemPCIdevices = NULL;
+
 
     if(pSiS->oldChipset <= OC_SIS6225) {
 	inSISIDXREG(SISSR, 0x0F, temp);
@@ -206,22 +248,11 @@ sisOldSetup(ScrnInfoPtr pScrn)
     pSiS->Flags &= ~(ESS137xPRESENT);
     if(pSiS->Chipset == PCI_CHIP_SIS530) {
        if(pSiS->oldChipset == OC_SIS530A) {
-          if((systemPCIdevices = xf86GetPciConfigInfo())) {
-	      i = 0;
-	      while((pdptr = systemPCIdevices[i])) {
-		 if((pdptr->pci_vendor == 0x1274) &&
-		    ((pdptr->pci_device == 0x5000) ||
-		     ((pdptr->pci_device & 0xFFF0) == 0x1370))) {
-		     pSiS->Flags |= ESS137xPRESENT;
-		     break;
-		 }
-		 i++;
-	      }
-	  }
-	  if(pSiS->Flags & ESS137xPRESENT) {
-	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
-		 "SiS530/620: Found ESS device\n");
-	  }
+	   pSiS->Flags |= sisESSPresent(pScrn);
+       }
+       if(pSiS->Flags & ESS137xPRESENT) {
+	   xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
+		      "SiS530/620: Found ESS device\n");
        }
     }
 

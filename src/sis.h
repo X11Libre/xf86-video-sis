@@ -40,6 +40,8 @@
 #include <math.h>
 #include <setjmp.h>
 
+#include <sispcirename.h>
+
 #define SISDRIVERVERSIONYEAR    5
 #define SISDRIVERVERSIONMONTH   9
 #define SISDRIVERVERSIONDAY     20
