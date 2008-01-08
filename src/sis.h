@@ -39,6 +39,9 @@
 #include <string.h>
 #include <math.h>
 #include <setjmp.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 
 #include <sispcirename.h>
 
