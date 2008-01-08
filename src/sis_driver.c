@@ -3774,7 +3774,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  break;
        case PCI_CHIP_SIS630: /* 630 + 730 */
 	  pSiS->ChipType = SIS_630;
-	  if(pciReadLong(0x00000000, 0x00) == 0x07301039) {
+	  if(sis_pci_read_host_bridge_u32(0x00) == 0x07301039) {
 	     pSiS->ChipType = SIS_730;
 	  }
 	  pSiS->SiS_SD_Flags |= SiS_SD_IS300SERIES;
@@ -3813,7 +3813,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  break;
        case PCI_CHIP_SIS650: /* 650 + 740 */
 	  pSiS->ChipType = SIS_650;
-	  if(pciReadLong(0x00000000, 0x00) == 0x07401039) {
+	  if(sis_pci_read_host_bridge_u32(0x00) == 0x07401039) {
 	     pSiS->ChipType = SIS_740;
 	  }
 	  pSiS->ChipFlags |= (SiSCF_Integrated | SiSCF_Real256ECore | SiSCF_MMIOPalette);
@@ -3831,7 +3831,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  break;
        case PCI_CHIP_SIS660: /* 660, 661, 741, 760, 761, 670(?) */
 	  {
-	     ULong hpciid = pciReadLong(0x00000000, 0x00);
+	     ULong hpciid = sis_pci_read_host_bridge_u32(0x00);
 	     switch(hpciid) {
 	     case 0x06601039:
 		pSiS->ChipType = SIS_660;
@@ -4072,7 +4072,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        case PCI_CHIP_SIS6326:
 	  pSiS->oldChipset = OC_SIS6326; break;
        case PCI_CHIP_SIS530:
-	  if(pciReadLong(0x00000000, 0x00) == 0x06201039) {
+	  if(sis_pci_read_host_bridge_u32(0x00) == 0x06201039) {
 	     pSiS->oldChipset = OC_SIS620;
 	  } else {
 	     if((pSiS->ChipRev & 0x0f) < 0x0a)
