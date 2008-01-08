@@ -555,7 +555,7 @@ SiS_SiSFB_Lock(ScrnInfoPtr pScrn, Bool lock)
     if(!pSiS->sisfbfound) return;
     if(!pSiS->sisfb_havelock) return;
 
-    if((fd = open(pSiS->sisfbdevname, 'r')) != -1) {
+    if((fd = open(pSiS->sisfbdevname, O_RDONLY)) != -1) {
        parm = lock ? 1 : 0;
        ioctl(fd, SISFB_SET_LOCK, &parm);
        close(fd);
