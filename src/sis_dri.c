@@ -863,7 +863,7 @@ SISDRISwapContext(ScreenPtr pScreen, DRISyncType syncType,
      break;
 #endif
   case SIS_300_VGA:
-     *(pSiS->IOBase + 0x8B50) = 0xff;
+     *((unsigned char *)pSiS->IOBase + 0x8B50) = 0xff;
      *(CARD32 *)(pSiS->IOBase + 0x8B60) = 0xffffffff;
      break;
   }

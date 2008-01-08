@@ -855,15 +855,15 @@ typedef struct {
     ULong		masterFbSize;
     ULong		slaveFbAddress;
     ULong		slaveFbSize;
-    UChar		*FbBase;         	/* VRAM linear address */
+    void		*FbBase;         	/* VRAM linear address */
     UChar		*RealFbBase;         	/* Real VRAM linear address (for DHM, SiS76x UMA skipping) */
-    UChar		*IOBase;         	/* MMIO linear address */
+    void		*IOBase;         	/* MMIO linear address */
     UShort		MapCountIOBase;		/* map/unmap queue counter */
     UShort		MapCountFbBase;		/* map/unmap queue counter */
     Bool		forceUnmapIOBase;	/* ignore counter and unmap */
     Bool		forceUnmapFbBase;	/* ignore counter and unmap */
 #ifdef __alpha__
-    UChar		*IOBaseDense;    	/* MMIO for Alpha platform */
+    void		*IOBaseDense;    	/* MMIO for Alpha platform */
     UShort		MapCountIOBaseDense;
     Bool		forceUnmapIOBaseDense;  /* ignore counter and unmap */
 #endif
@@ -926,7 +926,7 @@ typedef struct {
     unsigned int	CPUFlags;
 #ifdef SIS_NEED_MAP_IOP
     CARD32		IOPAddress;		/* I/O port physical address */
-    UChar		*IOPBase;		/* I/O port linear address */
+    void		*IOPBase;		/* I/O port linear address */
     UShort		MapCountIOPBase;	/* map/unmap queue counter */
     Bool		forceUnmapIOPBase;	/* ignore counter and unmap */
 #endif
@@ -967,13 +967,13 @@ typedef struct {
     int			DSTN;		/* For 550 FSTN/DSTN; set by option, no detection */
     ULong		FbAddress;	/* VRAM physical address (in DHM: for each Fb!) */
     ULong		realFbAddress;	/* For DHM/PCI mem mapping: store global FBAddress */
-    UChar 		*FbBase;	/* VRAM virtual linear address */
-    UChar 		*RealFbBase;	/* Real VRAM virtual linear address (for DHM and SiS76x UMA skipping) */
+    void 		*FbBase;	/* VRAM virtual linear address */
+    void 		*RealFbBase;	/* Real VRAM virtual linear address (for DHM and SiS76x UMA skipping) */
     CARD32		IOAddress;	/* MMIO physical address */
-    UChar		*IOBase;	/* MMIO linear address */
+    void		*IOBase;	/* MMIO linear address */
     IOADDRESS		IODBase;	/* Base of PIO memory area */
 #ifdef __alpha__
-    UChar		*IOBaseDense;	/* MMIO for Alpha platform */
+    void		*IOBaseDense;	/* MMIO for Alpha platform */
 #endif
     SISIOADDRESS        RelIO;		/* Relocated IO Ports baseaddress */
     UChar		*BIOS;
@@ -1381,7 +1381,7 @@ typedef struct {
     Bool		SCLogQuiet;
 #ifdef SIS_NEED_MAP_IOP
     CARD32		IOPAddress;		/* I/O port physical address */
-    UChar 		*IOPBase;		/* I/O port linear address */
+    void 		*IOPBase;		/* I/O port linear address */
 #endif
 #ifdef SISMERGED
     Bool		MergedFB, MergedFBAuto;
