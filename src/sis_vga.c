@@ -1718,12 +1718,8 @@ SiSVGAMapMem(ScrnInfoPtr pScrn)
 
 #if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
 #if XSERVER_LIBPCIACCESS
-    /* XXX This is cacheable, right? Right? */
-    if(pci_device_map_range(pSiS->PciInfo, pSiS->VGAMapPhys, pSiS->VGAMapSize,
-                       PCI_DEV_MAP_FLAG_WRITABLE|PCI_DEV_MAP_FLAG_CACHABLE,
-                       &pSiS->VGAMemBase)) {
-        return FALSE;
-    }
+    pSiS->VGAMemBase = xf86MapDomainMemory(pScrn->scrnIndex, VIDMEM_MMIO_32BIT,
+			pSiS->PciInfo, pSiS->VGAMapPhys, pSiS->VGAMapSize);
 #else
     pSiS->VGAMemBase = xf86MapDomainMemory(pScrn->scrnIndex, VIDMEM_MMIO_32BIT,
 			pSiS->PciTag, pSiS->VGAMapPhys, pSiS->VGAMapSize);
