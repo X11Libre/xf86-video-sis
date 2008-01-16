@@ -1738,11 +1738,8 @@ SiSVGAUnmapMem(ScrnInfoPtr pScrn)
     SISPtr pSiS = SISPTR(pScrn);
 
     if(pSiS->VGAMemBase == NULL) return;
-#if XSERVER_LIBPCIACCESS
-    pci_device_unmap_range(pSiS->PciInfo, pSiS->VGAMemBase, pSiS->VGAMapSize);
-#else
+
     xf86UnMapVidMem(pScrn->scrnIndex, pSiS->VGAMemBase, pSiS->VGAMapSize);
-#endif
     pSiS->VGAMemBase = NULL;
 }
 #endif
