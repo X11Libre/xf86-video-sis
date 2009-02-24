@@ -880,6 +880,9 @@ SiSAccelInit(ScreenPtr pScreen)
 	     return FALSE;
           }
 
+#if EXA_VERSION_MAJOR < 3
+          /* UploadToScratch has been dropped in EXA version 3. */
+
           /* Reserve locked offscreen scratch area of 64K for glyph data */
 	  pSiS->exa_scratch = exaOffscreenAlloc(pScreen, 64 * 1024, 16, TRUE,
 						SiSScratchSave, pSiS);
@@ -887,7 +890,7 @@ SiSAccelInit(ScreenPtr pScreen)
 	     pSiS->exa_scratch_next = pSiS->exa_scratch->offset;
 	     pSiS->EXADriverPtr->UploadToScratch = SiSUploadToScratch;
 	  }
-
+#endif
        } else {
 
           pSiS->NoXvideo = TRUE; /* No fbmem manager -> no xv */

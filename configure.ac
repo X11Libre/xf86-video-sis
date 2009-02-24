@@ -99,6 +99,7 @@ fi
 
 # technically this should be a configure flag.  meh.
 AC_DEFINE(XF86EXA, 1, [Build support for Exa])
+AC_DEFINE(EXA_DRIVER_KNOWN_MAJOR, 3, [Major version of EXA we can handle])
 
 SAVE_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $XORG_CFLAGS"
