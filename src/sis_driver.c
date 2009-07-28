@@ -49,7 +49,9 @@
 
 #include "sis.h"
 
+#ifndef XSERVER_LIBPCIACCESS
 #include "xf86RAC.h"
+#endif
 #include "dixstruct.h"
 #include "shadowfb.h"
 #include "fb.h"
@@ -3552,6 +3554,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     SiS_MapVGAMem(pScrn);
 #endif
 
+#ifndef XSERVER_LIBPCIACCESS
     /* Set operating state */
 
     /* 1. memory */
@@ -3580,6 +3583,8 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
     /* Operations for which I/O access is required */
     pScrn->racIoFlags = RAC_COLORMAP | RAC_CURSOR | RAC_VIEWPORT;
+
+#endif
 
     /* Load ramdac module */
     if(!xf86LoadSubModule(pScrn, "ramdac")) {
@@ -4424,6 +4429,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     xf86DrvMsg(pScrn->scrnIndex, from, "MMIO registers at 0x%lX (size %ldK)\n",
 	   (ULong)pSiS->IOAddress, pSiS->mmioSize);
 
+#ifndef XSERVER_LIBPCIACCESS
     /* Register the PCI-assigned resources */
     if(xf86RegisterResources(pSiS->pEnt->index, NULL, ResExclusive)) {
        SISErrorLog(pScrn, "PCI resource conflicts detected\n");
@@ -4435,6 +4441,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        SISFreeRec(pScrn);
        return FALSE;
     }
+#endif
 
     from = X_PROBED;
     if(pSiS->pEnt->device->videoRam != 0) {
