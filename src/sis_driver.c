@@ -4099,6 +4099,8 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	     case SIS_315H:
 	     case SIS_330:
 	     case SIS_340:
+	     case SIS_650:
+	     case SIS_760:
 	     case XGI_40:     readpci = TRUE;
 			      break;
 	     case XGI_20:     readpci = TRUE;
