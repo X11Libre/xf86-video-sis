@@ -56,7 +56,6 @@
 #include "shadowfb.h"
 #include "fb.h"
 #include "micmap.h"
-#include "mibank.h"
 #include "mipointer.h"
 #include "mibstore.h"
 #include "edid.h"
