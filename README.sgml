@@ -1,12 +1,12 @@
 <!DOCTYPE linuxdoc PUBLIC "-//Xorg//DTD linuxdoc//EN" [
-<!ENTITY % defs SYSTEM "defs.ent"> %defs;
+<!ENTITY % defs SYSTEM "X11/defs.ent"> %defs;
 ]>
 
 <article>
 
 <!-- Title information -->
 <title>Information for SiS and XGI Users
-<author>Thomas Winischhofer (<email>thomas@winischhofer.net</email>)
+<author>Thomas Winischhofer (thomas@winischhofer.net)
 <date>6 July 2005
 
 <!-- Table of contents -->
