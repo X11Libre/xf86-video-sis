@@ -60,7 +60,7 @@
 
   This document provides a brief overview over the driver's features and
   configuration options. Please see
-  http://www.winischhofer.at/linuxsisvga.shtml for detailed
+  http://www.winischhofer.eu/linuxsisvga.shtml for detailed
   documentation and updates.
 
 
@@ -170,7 +170,7 @@
      Option
         This option enables/disables the driver's interface for the
         SiSCtrl utility. Please see
-        http://www.winischhofer.at/linuxsisvga.shtml for more
+        http://www.winischhofer.eu/linuxsisvga.shtml for more
         information.
 
      Option
