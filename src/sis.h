@@ -251,7 +251,6 @@
 #endif
 
 /* Need that for SiSCtrl and Pseudo-Xinerama */
-#define NEED_REPLIES				/* ? */
 #define EXTENSION_PROC_ARGS void *
 #include "extnsionst.h" 			/* required */
 #include <X11/extensions/panoramiXproto.h> 	/* required */
