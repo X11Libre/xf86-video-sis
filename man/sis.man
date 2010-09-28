@@ -1,5 +1,3 @@
-.\" $XFree86$
-.\" $XdotOrg$
 .\" shorthand for double quote that works everywhere.
 .ds q \N'34'
 #ifdef __xservername__
