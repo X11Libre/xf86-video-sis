@@ -2159,7 +2159,6 @@ SiSProcXineramaGetState(ClientPtr client)
     if(client->swapped) {
        swaps (&rep.sequenceNumber, n);
        swapl (&rep.length, n);
-       swaps (&rep.state, n);
     }
     WriteToClient(client, sizeof(xPanoramiXGetStateReply), (char *)&rep);
     return client->noClientException;
@@ -2184,7 +2183,6 @@ SiSProcXineramaGetScreenCount(ClientPtr client)
     if(client->swapped) {
        swaps(&rep.sequenceNumber, n);
        swapl(&rep.length, n);
-       swaps(&rep.ScreenCount, n);
     }
     WriteToClient(client, sizeof(xPanoramiXGetScreenCountReply), (char *)&rep);
     return client->noClientException;
@@ -2210,8 +2208,8 @@ SiSProcXineramaGetScreenSize(ClientPtr client)
     if(client->swapped) {
        swaps(&rep.sequenceNumber, n);
        swapl(&rep.length, n);
-       swaps(&rep.width, n);
-       swaps(&rep.height, n);
+       swapl(&rep.width, n);
+       swapl(&rep.height, n);
     }
     WriteToClient(client, sizeof(xPanoramiXGetScreenSizeReply), (char *)&rep);
     return client->noClientException;
