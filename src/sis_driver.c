@@ -299,9 +299,9 @@ SISFreeRec(ScrnInfoPtr pScrn)
     pSiSEnt = pSiS->entityPrivate;
 #endif
 
-    if(pSiS->pstate) xfree(pSiS->pstate);
+    if(pSiS->pstate) free(pSiS->pstate);
     pSiS->pstate = NULL;
-    if(pSiS->fonts) xfree(pSiS->fonts);
+    if(pSiS->fonts) free(pSiS->fonts);
     pSiS->fonts = NULL;
 
 #ifdef SISDUALHEAD
@@ -312,11 +312,11 @@ SISFreeRec(ScrnInfoPtr pScrn)
 	   * and we need the BIOS image and SiS_Private for the first
 	   * head.
 	   */
-	  if(pSiSEnt->BIOS) xfree(pSiSEnt->BIOS);
+	  if(pSiSEnt->BIOS) free(pSiSEnt->BIOS);
 	  pSiSEnt->BIOS = pSiS->BIOS = NULL;
-	  if(pSiSEnt->SiS_Pr) xfree(pSiSEnt->SiS_Pr);
+	  if(pSiSEnt->SiS_Pr) free(pSiSEnt->SiS_Pr);
 	  pSiSEnt->SiS_Pr = pSiS->SiS_Pr = NULL;
-	  if(pSiSEnt->RenderAccelArray) xfree(pSiSEnt->RenderAccelArray);
+	  if(pSiSEnt->RenderAccelArray) free(pSiSEnt->RenderAccelArray);
 	  pSiSEnt->RenderAccelArray = pSiS->RenderAccelArray = NULL;
 	  pSiSEnt->pScrn_1 = NULL;
        } else {
@@ -327,21 +327,21 @@ SISFreeRec(ScrnInfoPtr pScrn)
        }
     } else {
 #endif
-       if(pSiS->BIOS) xfree(pSiS->BIOS);
+       if(pSiS->BIOS) free(pSiS->BIOS);
        pSiS->BIOS = NULL;
-       if(pSiS->SiS_Pr) xfree(pSiS->SiS_Pr);
+       if(pSiS->SiS_Pr) free(pSiS->SiS_Pr);
        pSiS->SiS_Pr = NULL;
-       if(pSiS->RenderAccelArray) xfree(pSiS->RenderAccelArray);
+       if(pSiS->RenderAccelArray) free(pSiS->RenderAccelArray);
        pSiS->RenderAccelArray = NULL;
 #ifdef SISDUALHEAD
     }
 #endif
 #ifdef SISMERGED
-    if(pSiS->CRT2HSync) xfree(pSiS->CRT2HSync);
+    if(pSiS->CRT2HSync) free(pSiS->CRT2HSync);
     pSiS->CRT2HSync = NULL;
-    if(pSiS->CRT2VRefresh) xfree(pSiS->CRT2VRefresh);
+    if(pSiS->CRT2VRefresh) free(pSiS->CRT2VRefresh);
     pSiS->CRT2VRefresh = NULL;
-    if(pSiS->MetaModes) xfree(pSiS->MetaModes);
+    if(pSiS->MetaModes) free(pSiS->MetaModes);
     pSiS->MetaModes = NULL;
     if(pSiS->CRT2pScrn) {
        if(pSiS->CRT2pScrn->modes) {
@@ -353,10 +353,10 @@ SISFreeRec(ScrnInfoPtr pScrn)
 	     while(pSiS->CRT2pScrn->monitor->Modes)
 	        xf86DeleteMode(&pSiS->CRT2pScrn->monitor->Modes, pSiS->CRT2pScrn->monitor->Modes);
 	  }
-	  if(pSiS->CRT2pScrn->monitor->DDC) xfree(pSiS->CRT2pScrn->monitor->DDC);
-	  xfree(pSiS->CRT2pScrn->monitor);
+	  if(pSiS->CRT2pScrn->monitor->DDC) free(pSiS->CRT2pScrn->monitor->DDC);
+	  free(pSiS->CRT2pScrn->monitor);
        }
-       xfree(pSiS->CRT2pScrn);
+       free(pSiS->CRT2pScrn);
        pSiS->CRT2pScrn = NULL;
     }
     if(pSiS->CRT1Modes) {
@@ -366,8 +366,8 @@ SISFreeRec(ScrnInfoPtr pScrn)
 	     do {
 	        DisplayModePtr p = pScrn->currentMode->next;
 	        if(pScrn->currentMode->Private)
-	 	  xfree(pScrn->currentMode->Private);
-	        xfree(pScrn->currentMode);
+	 	  free(pScrn->currentMode->Private);
+	        free(pScrn->currentMode);
 	        pScrn->currentMode = p;
 	     } while(pScrn->currentMode != pScrn->modes);
 	  }
@@ -380,7 +380,7 @@ SISFreeRec(ScrnInfoPtr pScrn)
 #endif
     while(pSiS->SISVESAModeList) {
        sisModeInfoPtr mp = pSiS->SISVESAModeList->next;
-       xfree(pSiS->SISVESAModeList);
+       free(pSiS->SISVESAModeList);
        pSiS->SISVESAModeList = mp;
     }
     if(pSiS->pVbe) vbeFree(pSiS->pVbe);
@@ -392,7 +392,7 @@ SISFreeRec(ScrnInfoPtr pScrn)
 
     if(pScrn->driverPrivate == NULL)
         return;
-    xfree(pScrn->driverPrivate);
+    free(pScrn->driverPrivate);
     pScrn->driverPrivate = NULL;
 }
 
@@ -501,7 +501,7 @@ SISProbe(DriverPtr drv, int flags)
 			numDevSections, drv, &usedChipsXGI);
 
     /* Free it since we don't need that list after this */
-    xfree(devSections);
+    free(devSections);
 
     numUsed = numUsedSiS + numUsedXGI;
 
@@ -577,8 +577,8 @@ SISProbe(DriverPtr drv, int flags)
 
     }
 
-    if(usedChipsSiS) xfree(usedChipsSiS);
-    if(usedChipsXGI) xfree(usedChipsXGI);
+    if(usedChipsSiS) free(usedChipsSiS);
+    if(usedChipsXGI) free(usedChipsXGI);
 
     return foundScreen;
 }
@@ -642,10 +642,10 @@ SISCalculateGammaRamp(ScreenPtr pScreen, ScrnInfoPtr pScrn)
    if(!(nramp = xf86GetGammaRampSize(pScreen))) return;
 
    for(i=0; i<3; i++) {
-      ramp[i] = (UShort *)xalloc(nramp * sizeof(UShort));
+      ramp[i] = (UShort *)malloc(nramp * sizeof(UShort));
       if(!ramp[i]) {
-	 if(ramp[0]) { xfree(ramp[0]); ramp[0] = NULL; }
-	 if(ramp[1]) { xfree(ramp[1]); ramp[1] = NULL; }
+	 if(ramp[0]) { free(ramp[0]); ramp[0] = NULL; }
+	 if(ramp[1]) { free(ramp[1]); ramp[1] = NULL; }
 	 return;
       }
    }
@@ -705,9 +705,9 @@ SISCalculateGammaRamp(ScreenPtr pScreen, ScrnInfoPtr pScrn)
 
    xf86ChangeGammaRamp(pScreen, nramp, ramp[0], ramp[1], ramp[2]);
 
-   xfree(ramp[0]);
-   xfree(ramp[1]);
-   xfree(ramp[2]);
+   free(ramp[0]);
+   free(ramp[1]);
+   free(ramp[2]);
    ramp[0] = ramp[1] = ramp[2] = NULL;
 }
 #endif
@@ -1135,10 +1135,10 @@ SiSCopyModeNLink(ScrnInfoPtr pScrn, DisplayModePtr dest,
     DisplayModePtr mode;
     int dx = 0,dy = 0;
 
-    if(!((mode = xalloc(sizeof(DisplayModeRec))))) return dest;
+    if(!((mode = malloc(sizeof(DisplayModeRec))))) return dest;
     memcpy(mode, i, sizeof(DisplayModeRec));
-    if(!((mode->Private = xalloc(sizeof(SiSMergedDisplayModeRec))))) {
-       xfree(mode);
+    if(!((mode->Private = malloc(sizeof(SiSMergedDisplayModeRec))))) {
+       free(mode);
        return dest;
     }
     ((SiSMergedDisplayModePtr)mode->Private)->CRT1 = i;
@@ -1223,8 +1223,8 @@ SiSCopyModeNLink(ScrnInfoPtr pScrn, DisplayModePtr dest,
        xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 		"Skipped \"%s\" (%dx%d), not enough video RAM or beyond hardware specs\n",
 		mode->name, mode->HDisplay, mode->VDisplay);
-       xfree(mode->Private);
-       xfree(mode);
+       free(mode->Private);
+       free(mode);
 
        return dest;
     }
@@ -2387,7 +2387,7 @@ SiSXineramaResetProc(ExtensionEntry* extEntry)
 {
     /* Called by CloseDownExtensions() */
     if(SiSXineramadataPtr) {
-       Xfree(SiSXineramadataPtr);
+       free(SiSXineramadataPtr);
        SiSXineramadataPtr = NULL;
     }
 }
@@ -2452,7 +2452,7 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
 	  if(!pSiS->XineramaExtEntry) break;
 
 	  if(!(SiSXineramadataPtr = (SiSXineramaData *)
-	        xcalloc(SiSXineramaNumScreens, sizeof(SiSXineramaData)))) break;
+	        calloc(SiSXineramaNumScreens, sizeof(SiSXineramaData)))) break;
 
 	  SiSXineramaGeneration = serverGeneration;
 	  success = TRUE;
@@ -2491,10 +2491,10 @@ SiSFreeCRT2Structs(SISPtr pSiS)
 	     while(pSiS->CRT2pScrn->monitor->Modes)
 		xf86DeleteMode(&pSiS->CRT2pScrn->monitor->Modes, pSiS->CRT2pScrn->monitor->Modes);
 	  }
-	  if(pSiS->CRT2pScrn->monitor->DDC) xfree(pSiS->CRT2pScrn->monitor->DDC);
-	  xfree(pSiS->CRT2pScrn->monitor);
+	  if(pSiS->CRT2pScrn->monitor->DDC) free(pSiS->CRT2pScrn->monitor->DDC);
+	  free(pSiS->CRT2pScrn->monitor);
        }
-       xfree(pSiS->CRT2pScrn);
+       free(pSiS->CRT2pScrn);
        pSiS->CRT2pScrn = NULL;
    }
 }
@@ -2900,22 +2900,22 @@ SiS_CheckKernelFB(ScrnInfoPtr pScrn)
 	     Bool gotit = FALSE;
 
  	     if(!ioctl(fd, SISFB_GET_INFO_SIZE, &sisfbinfosize)) {
- 		if((mysisfbinfo = xalloc(sisfbinfosize))) {
+ 		if((mysisfbinfo = malloc(sisfbinfosize))) {
  		   if(!ioctl(fd, (SISFB_GET_INFO | (sisfbinfosize << 16)), mysisfbinfo)) {
  		      gotit = TRUE;
  		   } else {
- 		      xfree(mysisfbinfo);
+ 		      free(mysisfbinfo);
  		      mysisfbinfo = NULL;
  		   }
  		}
  	     } else {
- 		if((mysisfbinfo = xalloc(sizeof(*mysisfbinfo) + 16))) {
+ 		if((mysisfbinfo = malloc(sizeof(*mysisfbinfo) + 16))) {
  		   if(!ioctl(fd, SISFB_GET_INFO_OLD, mysisfbinfo)) {
  		      gotit = TRUE;
 		      xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 				"Possibly old version of sisfb detected. Please update.\n");
 		   } else {
-		      xfree(mysisfbinfo);
+		      free(mysisfbinfo);
 		      mysisfbinfo = NULL;
 		   }
 		}
@@ -3054,7 +3054,7 @@ SiS_CheckKernelFB(ScrnInfoPtr pScrn)
 		      }
 		   }
 	        }
-		xfree(mysisfbinfo);
+		free(mysisfbinfo);
 		mysisfbinfo = NULL;
 	     }
 	     close (fd);
@@ -4076,7 +4076,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        }
 #endif
        if(!pSiS->BIOS) {
-	  if(!(pSiS->BIOS = xcalloc(1, BIOS_SIZE))) {
+	  if(!(pSiS->BIOS = calloc(1, BIOS_SIZE))) {
 	     xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 		"Could not allocate memory for video BIOS image\n");
 	  } else {
@@ -4171,7 +4171,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	     } else {
 	        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 			 "Could not find/read video BIOS\n");
-		xfree(pSiS->BIOS);
+		free(pSiS->BIOS);
 		pSiS->BIOS = NULL;
 	     }
           }
@@ -5557,7 +5557,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     /* Do some MergedFB mode initialisation */
 #ifdef SISMERGED
     if(pSiS->MergedFB) {
-       pSiS->CRT2pScrn = xalloc(sizeof(ScrnInfoRec));
+       pSiS->CRT2pScrn = malloc(sizeof(ScrnInfoRec));
        if(!pSiS->CRT2pScrn) {
           SISErrorLog(pScrn, "Failed to allocate memory for 2nd pScrn, %s\n", mergeddisstr);
 	  pSiS->MergedFB = FALSE;
@@ -5590,7 +5590,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		} else {
 		   SISErrorLog(pScrn, mergednocrt1, mergeddisstr);
 		}
-		if(pSiS->CRT2pScrn) xfree(pSiS->CRT2pScrn);
+		if(pSiS->CRT2pScrn) free(pSiS->CRT2pScrn);
 		pSiS->CRT2pScrn = NULL;
 		pSiS->MergedFB = FALSE;
 	     }
@@ -5637,7 +5637,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		} else {
 		   SISErrorLog(pScrn, mergednocrt2, mergeddisstr);
 		}
-		if(pSiS->CRT2pScrn) xfree(pSiS->CRT2pScrn);
+		if(pSiS->CRT2pScrn) free(pSiS->CRT2pScrn);
 		pSiS->CRT2pScrn = NULL;
 		pSiS->MergedFB = FALSE;
 	     }
@@ -6014,7 +6014,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
 #ifdef SISMERGED
     if(pSiS->MergedFB) {
-       pSiS->CRT2pScrn->monitor = xalloc(sizeof(MonRec));
+       pSiS->CRT2pScrn->monitor = malloc(sizeof(MonRec));
        if(pSiS->CRT2pScrn->monitor) {
 	  DisplayModePtr tempm = NULL, currentm = NULL, newm = NULL;
 	  memcpy(pSiS->CRT2pScrn->monitor, pScrn->monitor, sizeof(MonRec));
@@ -6023,10 +6023,10 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  pSiS->CRT2pScrn->monitor->id = (char *)crt2monname;
 	  tempm = pScrn->monitor->Modes;
 	  while(tempm) {
-	     if(!(newm = xalloc(sizeof(DisplayModeRec)))) break;
+	     if(!(newm = malloc(sizeof(DisplayModeRec)))) break;
 	     memcpy(newm, tempm, sizeof(DisplayModeRec));
-	     if(!(newm->name = xalloc(strlen(tempm->name) + 1))) {
-	        xfree(newm);
+	     if(!(newm->name = malloc(strlen(tempm->name) + 1))) {
+	        free(newm);
 		break;
 	     }
 	     strcpy(newm->name, tempm->name);
@@ -6068,7 +6068,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        } else {
 	  SISErrorLog(pScrn, "Failed to allocate memory for CRT2 monitor, %s.\n",
 	  		mergeddisstr);
-	  if(pSiS->CRT2pScrn) xfree(pSiS->CRT2pScrn);
+	  if(pSiS->CRT2pScrn) free(pSiS->CRT2pScrn);
 	  pSiS->CRT2pScrn = NULL;
 	  pSiS->MergedFB = FALSE;
        }
@@ -7452,7 +7452,7 @@ SISVESASaveRestore(ScrnInfoPtr pScrn, vbeSaveRestoreFunction function)
 	     (function == MODE_SAVE)) {
 	     /* don't rely on the memory not being touched */
 	     if(!pSiS->pstate) {
-		pSiS->pstate = xalloc(pSiS->stateSize);
+		pSiS->pstate = malloc(pSiS->stateSize);
 	     }
 	     memcpy(pSiS->pstate, pSiS->state, pSiS->stateSize);
 	  }
@@ -8673,7 +8673,7 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 
     if(pSiS->ShadowFB) {
        pSiS->ShadowPitch = BitmapBytePad(pScrn->bitsPerPixel * width);
-       pSiS->ShadowPtr = xalloc(pSiS->ShadowPitch * height);
+       pSiS->ShadowPtr = malloc(pSiS->ShadowPitch * height);
        displayWidth = pSiS->ShadowPitch / (pScrn->bitsPerPixel >> 3);
        FBStart = pSiS->ShadowPtr;
     } else {
@@ -8847,14 +8847,14 @@ SISScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 
 	  pSiS->CRT2ColNum = 1 << pScrn->rgbBits;
 
-	  if((pSiS->crt2gcolortable = xalloc(pSiS->CRT2ColNum * 2 * sizeof(LOCO)))) {
+	  if((pSiS->crt2gcolortable = malloc(pSiS->CRT2ColNum * 2 * sizeof(LOCO)))) {
 	     pSiS->crt2colors = &pSiS->crt2gcolortable[pSiS->CRT2ColNum];
-	     if((pSiS->crt2cindices = xalloc(256 * sizeof(int)))) {
+	     if((pSiS->crt2cindices = malloc(256 * sizeof(int)))) {
 		int i = pSiS->CRT2ColNum;
 		SISCalculateGammaRampCRT2(pScrn);
 		while(i--) pSiS->crt2cindices[i] = i;
 	     } else {
-		xfree(pSiS->crt2gcolortable);
+		free(pSiS->crt2gcolortable);
 		pSiS->crt2gcolortable = NULL;
 		pSiS->CRT2SepGamma = FALSE;
 	     }
@@ -9939,7 +9939,7 @@ SISCloseScreen(int scrnIndex, ScreenPtr pScreen)
     if(pSiS->useEXA) {
        if(pSiS->EXADriverPtr) {
           exaDriverFini(pScreen);
-          xfree(pSiS->EXADriverPtr);
+          free(pSiS->EXADriverPtr);
           pSiS->EXADriverPtr = NULL;
           pSiS->exa_scratch = NULL;
        }
@@ -9952,33 +9952,33 @@ SISCloseScreen(int scrnIndex, ScreenPtr pScreen)
     }
 
     if(pSiS->ShadowPtr) {
-       xfree(pSiS->ShadowPtr);
+       free(pSiS->ShadowPtr);
        pSiS->ShadowPtr = NULL;
     }
 
     if(pSiS->DGAModes) {
-       xfree(pSiS->DGAModes);
+       free(pSiS->DGAModes);
        pSiS->DGAModes = NULL;
     }
 
     if(pSiS->adaptor) {
-       xfree(pSiS->adaptor);
+       free(pSiS->adaptor);
        pSiS->adaptor = NULL;
        pSiS->ResetXv = pSiS->ResetXvGamma = pSiS->ResetXvDisplay = NULL;
     }
 
     if(pSiS->blitadaptor) {
-       xfree(pSiS->blitadaptor);
+       free(pSiS->blitadaptor);
        pSiS->blitadaptor = NULL;
     }
 
     if(pSiS->crt2gcolortable) {
-       xfree(pSiS->crt2gcolortable);
+       free(pSiS->crt2gcolortable);
        pSiS->crt2gcolortable = NULL;
     }
 
     if(pSiS->crt2cindices) {
-       xfree(pSiS->crt2cindices);
+       free(pSiS->crt2cindices);
        pSiS->crt2cindices = NULL;
     }
 
