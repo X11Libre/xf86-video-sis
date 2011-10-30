@@ -90,6 +90,26 @@
 #include "dri.h"
 #endif
 
+/*
+ * LookupWindow was removed with video abi 11.
+ */
+#if (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 4)
+#ifndef DixGetAttrAccess
+#define DixGetAttrAccess   (1<<4)
+#endif
+#endif
+
+#if (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 2)
+static inline int
+dixLookupWindow(WindowPtr *pWin, XID id, ClientPtr client, Mask access)
+{
+    *pWin = LookupWindow(id, client);
+    if (!*pWin)
+	return BadWindow;
+    return Success;
+}
+#endif
+
 /* Globals (yes, these ARE really required to be global) */
 
 #ifdef SISUSEDEVPORT
@@ -2146,10 +2166,12 @@ SiSProcXineramaGetState(ClientPtr client)
     WindowPtr			pWin;
     xPanoramiXGetStateReply	rep;
     register int		n;
+    int				rc;
 
     REQUEST_SIZE_MATCH(xPanoramiXGetStateReq);
-    pWin = LookupWindow(stuff->window, client);
-    if(!pWin) return BadWindow;
+    rc = dixLookupWindow(&pWin, stuff->window, client, DixGetAttrAccess);
+    if (rc != Success)
+        return rc;
 
     rep.type = X_Reply;
     rep.length = 0;
@@ -2170,10 +2192,12 @@ SiSProcXineramaGetScreenCount(ClientPtr client)
     WindowPtr				pWin;
     xPanoramiXGetScreenCountReply	rep;
     register int			n;
+    int					rc;
 
     REQUEST_SIZE_MATCH(xPanoramiXGetScreenCountReq);
-    pWin = LookupWindow(stuff->window, client);
-    if(!pWin) return BadWindow;
+    rc = dixLookupWindow(&pWin, stuff->window, client, DixGetAttrAccess);
+    if (rc != Success)
+        return rc;
 
     rep.type = X_Reply;
     rep.length = 0;
@@ -2194,10 +2218,12 @@ SiSProcXineramaGetScreenSize(ClientPtr client)
     WindowPtr				pWin;
     xPanoramiXGetScreenSizeReply	rep;
     register int			n;
+    int					rc;
 
     REQUEST_SIZE_MATCH(xPanoramiXGetScreenSizeReq);
-    pWin = LookupWindow (stuff->window, client);
-    if(!pWin)  return BadWindow;
+    rc = dixLookupWindow(&pWin, stuff->window, client, DixGetAttrAccess);
+    if (rc != Success)
+        return rc;
 
     rep.type = X_Reply;
     rep.length = 0;
