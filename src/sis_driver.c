@@ -6858,8 +6858,10 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 #ifdef SIS_USE_XAA
        if(!pSiS->useEXA) {
 	  if (!xf86LoadSubModule(pScrn, "xaa")) {
-	    SISErrorLog(pScrn, "Could not load xaa module\n");
-	    goto my_error_1;
+	      xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+			 "Falling back to shadowfb\n");
+	      pSiS->NoAccel = 1;
+	      pSiS->ShadowFB = 1;
 	  }
        }
 #endif
@@ -6878,7 +6880,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  }
        }
 #endif
-       xf86DrvMsg(pScrn->scrnIndex, X_INFO, "2D acceleration enabled\n");
     }
 
     /* Load shadowfb (if needed) */
