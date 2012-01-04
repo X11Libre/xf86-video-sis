@@ -480,7 +480,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 #endif
     pSiS->ShadowFB = FALSE;
     pSiS->loadDRI = FALSE;
-#ifdef XF86DRI
+#ifdef SISDRI
     pSiS->agpWantedPages = AGP_PAGES;
 #endif
     pSiS->VESA = -1;
@@ -2034,7 +2034,7 @@ SiSOptions(ScrnInfoPtr pScrn)
        }
     }
 
-#ifdef XF86DRI
+#ifdef SISDRI
     /* DRI */
     from = X_DEFAULT;
     if(xf86GetOptValBool(pSiS->Options, OPTION_DRI, &pSiS->loadDRI)) {
