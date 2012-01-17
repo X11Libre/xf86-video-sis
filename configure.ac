@@ -100,7 +100,7 @@ AM_CONDITIONAL(DRI, test x$DRI = xyes)
 if test "$DRI" = yes; then
         PKG_CHECK_MODULES(DRI, [libdrm >= 2.0 xf86driproto])
         AC_DEFINE(SISDRI,1,[Enable DRI driver support])
-        AC_DEFINE(SIDDRI_DEVEL,1,[Enable developmental DRI driver support])
+        AC_DEFINE(SISDRI_DEVEL,1,[Enable developmental DRI driver support])
 fi
 
 # technically this should be a configure flag.  meh.

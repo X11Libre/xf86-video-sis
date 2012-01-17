@@ -369,7 +369,7 @@ SISDRIScreenInit(ScreenPtr pScreen)
    */
   pDRIInfo->SAREASize =
     ((sizeof(XF86DRISAREARec) + getpagesize() - 1) & getpagesize()); /* round to page */
-    /* ((sizeof(SISDRISAREARec) + 0xfff) & 0x1000); */ /* round to page */
+    /* ((sizeof(XF86DRISAREARec) + 0xfff) & 0x1000); */ /* round to page */
   /* + shared memory device private rec */
 #else
   /* For now the mapping works by using a fixed size defined
