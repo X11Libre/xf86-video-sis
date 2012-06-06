@@ -269,6 +269,8 @@
 #include "extnsionst.h" 			/* required */
 #include <X11/extensions/panoramiXproto.h> 	/* required */
 
+#include "compat-api.h"
+
 #undef SISCHECKOSSSE
 #ifdef XORG_VERSION_CURRENT
 #if XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,13,0)
@@ -1144,7 +1146,7 @@ typedef struct {
     CARD32		ColorExpandBase;
 
     int			Rotate, Reflect;
-    void		(*PointerMoved)(int index, int x, int y);
+    void		(*PointerMoved)(SCRN_ARG_TYPE arg, int x, int y);
 
     /* ShadowFB support */
     Bool		ShadowFB;
