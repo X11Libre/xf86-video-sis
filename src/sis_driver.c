@@ -9669,7 +9669,7 @@ SISAdjustFrame(ADJUST_FRAME_ARGS_DECL)
 
 #ifdef SISMERGED
     if(pSiS->MergedFB) {
-        SISAdjustFrameMerged(ADJUST_FRAME_ARGS(arg, x, y));
+        SISAdjustFrameMerged(ADJUST_FRAME_ARGS(pScrn, x, y));
 	return;
     }
 #endif
