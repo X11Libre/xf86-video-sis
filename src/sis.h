@@ -226,7 +226,7 @@
 #define INCL_YUV_BLIT_ADAPTOR	/* Include support for YUV->RGB blit adaptors (VRAM queue mode only) */
 #endif
 
-#if 1
+#ifdef HAVE_XAA_H
 #define SIS_USE_XAA		/* Include code for XAA */
 #endif
 
