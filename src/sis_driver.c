@@ -57,7 +57,6 @@
 #include "fb.h"
 #include "micmap.h"
 #include "mipointer.h"
-#include "mibstore.h"
 #include "edid.h"
 
 #define SIS_NEED_inSISREG
@@ -8883,7 +8882,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
     }
     pSiS->SiSFastVidCopyDone = TRUE;
 
-    miInitializeBackingStore(pScreen);
     xf86SetBackingStore(pScreen);
     xf86SetSilkenMouse(pScreen);
 
