@@ -93,6 +93,10 @@
 #include "dri.h"
 #endif
 
+#ifndef DEFAULT_DPI
+#define DEFAULT_DPI 96
+#endif
+
 /*
  * LookupWindow was removed with video abi 11.
  */
