@@ -429,14 +429,14 @@ SISErrorLog(ScrnInfoPtr pScrn, const char *format, ...)
     static const char *str = "**************************************************\n";
 
     va_start(ap, format);
-    xf86DrvMsg(pScrn->scrnIndex, X_ERROR, str);
+    xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "%s", str);
     xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 	"                      ERROR:\n");
     xf86VDrvMsgVerb(pScrn->scrnIndex, X_ERROR, 1, format, ap);
     va_end(ap);
     xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 	"                  END OF MESSAGE\n");
-    xf86DrvMsg(pScrn->scrnIndex, X_ERROR, str);
+    xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "%s", str);
 }
 
 static void
@@ -1914,14 +1914,14 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
        if(infochanged && !usenonrect) {
 	  xf86DrvMsg(pScrn1->scrnIndex, X_INFO,
 			"Virtual screen size does not match maximum display modes...\n");
-	  xf86DrvMsg(pScrn1->scrnIndex, X_INFO, rectxine);
+	  xf86DrvMsg(pScrn1->scrnIndex, X_INFO, "%s", rectxine);
 
        }
     } else if(infochanged && usenonrect) {
        usenonrect = FALSE;
        xf86DrvMsg(pScrn1->scrnIndex, X_INFO,
 		"Only clone modes available for this virtual screen size...\n");
-       xf86DrvMsg(pScrn1->scrnIndex, X_INFO, rectxine);
+       xf86DrvMsg(pScrn1->scrnIndex, X_INFO, "%s", rectxine);
     }
 
     if(pSiS->maxCRT1_X1) {		/* Means we have at least one non-clone mode */
