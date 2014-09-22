@@ -1004,7 +1004,9 @@ typedef struct {
     ScrnInfoPtr		pScrn;
     pciVideoPtr		PciInfo;
     int			PciBus, PciDevice, PciFunc;
+#ifndef XSERVER_LIBPCIACCESS
     PCITAG		PciTag;
+#endif
     EntityInfoPtr	pEnt;
     int			Chipset;
     unsigned char	ChipType;
