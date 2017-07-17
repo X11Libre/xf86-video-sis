@@ -6901,17 +6901,11 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        }
     }
 
-    /* Load the dri and glx modules if requested. */
+    /* Load the dri modules if requested. */
 #ifdef SISDRI
     if(pSiS->loadDRI) {
        if(!xf86LoaderCheckSymbol("DRIScreenInit")) {
-	  if(xf86LoadSubModule(pScrn, "dri")) {
-	     if(!xf86LoaderCheckSymbol("GlxSetVisualConfigs")) {
-	        if(!xf86LoadSubModule(pScrn, "glx")) {
-		   SISErrorLog(pScrn, "Failed to load glx module\n");
-		}
-	     }
-	  } else {
+	  if(!xf86LoadSubModule(pScrn, "dri")) {
 	     SISErrorLog(pScrn, "Failed to load dri module\n");
 	  }
        }

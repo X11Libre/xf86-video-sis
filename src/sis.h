@@ -197,7 +197,6 @@
 #include "sarea.h"
 #define _XF86DRI_SERVER_
 #include "dri.h"
-#include "GL/glxint.h"
 #include "sis_dri.h"
 #endif /* SISDRI */
 
@@ -1198,9 +1197,6 @@ typedef struct {
     Bool		directRenderingEnabled;
     DRIInfoPtr 		pDRIInfo;
     int			drmSubFD;
-    int			numVisualConfigs;
-    __GLXvisualConfig*	pVisualConfigs;
-    SISConfigPrivPtr	pVisualConfigsPriv;
     SISRegRec		DRContextRegs;
 #endif
 
