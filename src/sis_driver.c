@@ -9316,7 +9316,9 @@ SISMergedPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
   int		CRT1XOffs = 0, CRT1YOffs = 0, CRT2XOffs = 0, CRT2YOffs = 0;
   int		HVirt = pScrn1->virtualX;
   int		VVirt = pScrn1->virtualY;
+#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) < 20
   int		sigstate;
+#endif
   Bool		doit = FALSE, HaveNonRect = FALSE, HaveOffsRegions = FALSE;
   SiSScrn2Rel   srel = ((SiSMergedDisplayModePtr)pSiS->CurrentLayout.mode->Private)->CRT2Position;
 
@@ -13997,8 +13999,10 @@ UChar
 SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, UShort offset, UChar value)
 {
     UChar ret = 0;
+#ifndef XSERVER_LIBPCIACCESS
 #ifdef SIS_USE_BIOS_SCRATCH
     UChar *base;
+#endif
 #endif
 
     /* For some reasons (like detecting the current display mode),
