@@ -193,30 +193,30 @@
 typedef struct _SiSCtrlQueryVersion {
     CARD8	reqType;		/* always SiSCtrlReqCode */
     CARD8	SiSCtrlReqType;		/* always X_SiSCtrlQueryVersion */
-    CARD16	length B16;
+    CARD16	length;
 } xSiSCtrlQueryVersionReq;
 #define sz_xSiSCtrlQueryVersionReq	4
 
 typedef struct {
     BYTE	type;			/* X_Reply */
     BOOL	pad1;
-    CARD16	sequenceNumber B16;
-    CARD32	length B32;
-    CARD16	majorVersion B16;	/* major version of SISCTRL */
-    CARD16	minorVersion B16;	/* minor version of SISCTRL */
-    CARD32	pad2 B32;
-    CARD32	pad3 B32;
-    CARD32	pad4 B32;
-    CARD32	pad5 B32;
-    CARD32	pad6 B32;
+    CARD16	sequenceNumber;
+    CARD32	length;
+    CARD16	majorVersion;		/* major version of SISCTRL */
+    CARD16	minorVersion;		/* minor version of SISCTRL */
+    CARD32	pad2;
+    CARD32	pad3;
+    CARD32	pad4;
+    CARD32	pad5;
+    CARD32	pad6;
 } xSiSCtrlQueryVersionReply;
 #define sz_xSiSCtrlQueryVersionReply	32
 
 typedef struct {
     CARD8	reqType;		/* always SiSCtrlReqCode */
     CARD8	SiSCtrlReqType;		/* always SiSCtrl_SiSCtrlCommand */
-    CARD16	length B16;
-    CARD32	pad1 B32;
+    CARD16	length;
+    CARD32	pad1;
     CARD32	screen;
     CARD32 	sdc_id;
     CARD32 	sdc_chksum;
@@ -231,8 +231,8 @@ typedef struct {
 typedef struct {
     BYTE	type;			/* X_Reply */
     BOOL	pad1;
-    CARD16	sequenceNumber B16;
-    CARD32	length B32;
+    CARD16	sequenceNumber;
+    CARD32	length;
     CARD32	screen;
     CARD32 	sdc_id;
     CARD32 	sdc_chksum;
