@@ -6192,7 +6192,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
           Bool acceptcustommodes = TRUE;  /* Accept user modelines */
 	  Bool includelcdmodes   = TRUE;  /* Include modes reported by DDC */
 	  Bool isfordvi          = FALSE; /* Is for digital DVI output */
-	  Bool fakecrt2modes     = FALSE; /* Fake some modes for CRT2 */
 	  Bool IsForCRT2	 = FALSE;
 	  if(pSiS->UseVESA) {
 	     acceptcustommodes = FALSE;
@@ -6210,15 +6209,11 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		      if(pSiS->VBFlags & (CRT2_TV|CRT2_LCD)) {
 		         acceptcustommodes = FALSE;
 		         includelcdmodes   = FALSE;
-			 fakecrt2modes = TRUE;
 		      }
 		   }
 		} else {
 		   acceptcustommodes = FALSE;
 		   includelcdmodes   = FALSE;
-		   if(pSiS->VBFlags & (CRT2_TV|CRT2_LCD)) {
-		      fakecrt2modes = TRUE;
-		   }
 		}
 		clockRanges->interlaceAllowed = FALSE;
 		IsForCRT2 = TRUE;
@@ -6227,7 +6222,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		   if(!(pSiS->VBFlags2 & VB2_SISTMDSLCDABRIDGE)) {
 		      acceptcustommodes = FALSE;
 		      includelcdmodes   = FALSE;
-		      fakecrt2modes     = TRUE;
 		      /* Will handle i-lace in mode-switching code */
 		   } else {
 		      isfordvi = TRUE;
@@ -6246,7 +6240,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	        if(!(pSiS->VBFlags2 & VB2_SISTMDSLCDABRIDGE)) {
 		   acceptcustommodes = FALSE;
 		   includelcdmodes   = FALSE;
-		   fakecrt2modes     = TRUE;
 		   /* Will handle i-lace in mode-switching code */
 		} else {
 		   isfordvi = TRUE;
@@ -6282,7 +6275,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		   acceptcustommodes = FALSE;
 		   includelcdmodes   = FALSE;
 		   if(!(pSiS->VBFlags & DISPTYPE_CRT1)) {
-		      fakecrt2modes = TRUE;
 		      IsForCRT2 = TRUE;
 		   }
 		}
@@ -6291,7 +6283,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	     acceptcustommodes = FALSE;
 	     includelcdmodes   = FALSE;
 	     if((pSiS->VBFlags & CRT1_LCDA) || (!(pSiS->VBFlags & DISPTYPE_CRT1))) {
-		fakecrt2modes = TRUE;
 		IsForCRT2 = TRUE;
 	     }
 	  } else {
@@ -6301,7 +6292,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
 	  pSiS->HaveCustomModes = FALSE;
 	  if(SiSMakeOwnModeList(pScrn, acceptcustommodes, includelcdmodes,
-			isfordvi, &pSiS->HaveCustomModes, FALSE /*fakecrt2modes*/, IsForCRT2)) {
+			isfordvi, &pSiS->HaveCustomModes, FALSE, IsForCRT2)) {
 	     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 		 "Replaced %s mode list with built-in modes\n",
 	     pSiS->HaveCustomModes ? "default" : "entire");
@@ -6621,7 +6612,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        Bool acceptcustommodes = TRUE;
        Bool includelcdmodes   = TRUE;
        Bool isfordvi          = FALSE;
-       Bool fakecrt2modes     = FALSE;
 
        xf86DrvMsg(pScrn->scrnIndex, X_INFO, crtsetupstr, 2);
 
@@ -6649,20 +6639,16 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	     if(pSiS->VBFlags & (CRT2_LCD|CRT2_TV)) {
 		includelcdmodes   = FALSE;
 		acceptcustommodes = FALSE;
-		fakecrt2modes     = TRUE;
 	     }
 	  }
        } else {
 	  includelcdmodes   = FALSE;
 	  acceptcustommodes = FALSE;
-	  if(pSiS->VBFlags & (CRT2_LCD|CRT2_TV)) {
-	     fakecrt2modes = TRUE;
-	  }
        }
 
        pSiS->HaveCustomModes2 = FALSE;
        if(!SiSMakeOwnModeList(pSiS->CRT2pScrn, acceptcustommodes, includelcdmodes,
-				isfordvi, &pSiS->HaveCustomModes2, FALSE /* fakecrt2modes */, TRUE )) {
+				isfordvi, &pSiS->HaveCustomModes2, FALSE, TRUE )) {
 
 	  SISErrorLog(pScrn, "Building list of built-in modes for CRT2 failed, %s\n",
 				mergeddisstr);
