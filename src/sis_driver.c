@@ -2148,7 +2148,9 @@ int
 SiSProcXineramaQueryVersion(ClientPtr client)
 {
     xPanoramiXQueryVersionReply	  rep;
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int		  n;
+#endif
 
     REQUEST_SIZE_MATCH(xPanoramiXQueryVersionReq);
     rep.type = X_Reply;
@@ -2172,7 +2174,9 @@ SiSProcXineramaGetState(ClientPtr client)
     REQUEST(xPanoramiXGetStateReq);
     WindowPtr			pWin;
     xPanoramiXGetStateReply	rep;
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int		n;
+#endif
     int				rc;
 
     REQUEST_SIZE_MATCH(xPanoramiXGetStateReq);
@@ -2198,7 +2202,9 @@ SiSProcXineramaGetScreenCount(ClientPtr client)
     REQUEST(xPanoramiXGetScreenCountReq);
     WindowPtr				pWin;
     xPanoramiXGetScreenCountReply	rep;
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int			n;
+#endif
     int					rc;
 
     REQUEST_SIZE_MATCH(xPanoramiXGetScreenCountReq);
@@ -2224,7 +2230,9 @@ SiSProcXineramaGetScreenSize(ClientPtr client)
     REQUEST(xPanoramiXGetScreenSizeReq);
     WindowPtr				pWin;
     xPanoramiXGetScreenSizeReply	rep;
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int			n;
+#endif
     int					rc;
 
     REQUEST_SIZE_MATCH(xPanoramiXGetScreenSizeReq);
@@ -2259,7 +2267,9 @@ SiSProcXineramaIsActive(ClientPtr client)
     rep.sequenceNumber = client->sequence;
     rep.state = !SiSnoPanoramiXExtension;
     if(client->swapped) {
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
 	register int n;
+#endif
 	_swaps(&rep.sequenceNumber, n);
 	_swapl(&rep.length, n);
 	_swapl(&rep.state, n);
@@ -2280,7 +2290,9 @@ SiSProcXineramaQueryScreens(ClientPtr client)
     rep.number = (SiSnoPanoramiXExtension) ? 0 : SiSXineramaNumScreens;
     rep.length = rep.number * sz_XineramaScreenInfo >> 2;
     if(client->swapped) {
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
        register int n;
+#endif
        _swaps(&rep.sequenceNumber, n);
        _swapl(&rep.length, n);
        _swapl(&rep.number, n);
@@ -2297,7 +2309,9 @@ SiSProcXineramaQueryScreens(ClientPtr client)
 	  scratch.width  = SiSXineramadataPtr[i].width;
 	  scratch.height = SiSXineramadataPtr[i].height;
 	  if(client->swapped) {
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
 	     register int n;
+#endif
 	     _swaps(&scratch.x_org, n);
 	     _swaps(&scratch.y_org, n);
 	     _swaps(&scratch.width, n);
@@ -2337,7 +2351,9 @@ static int
 SiSSProcXineramaQueryVersion (ClientPtr client)
 {
     REQUEST(xPanoramiXQueryVersionReq);
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int n;
+#endif
     _swaps(&stuff->length,n);
     REQUEST_SIZE_MATCH (xPanoramiXQueryVersionReq);
     return SiSProcXineramaQueryVersion(client);
@@ -2347,7 +2363,9 @@ static int
 SiSSProcXineramaGetState(ClientPtr client)
 {
     REQUEST(xPanoramiXGetStateReq);
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int n;
+#endif
     _swaps (&stuff->length, n);
     REQUEST_SIZE_MATCH(xPanoramiXGetStateReq);
     return SiSProcXineramaGetState(client);
@@ -2357,7 +2375,9 @@ static int
 SiSSProcXineramaGetScreenCount(ClientPtr client)
 {
     REQUEST(xPanoramiXGetScreenCountReq);
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int n;
+#endif
     _swaps (&stuff->length, n);
     REQUEST_SIZE_MATCH(xPanoramiXGetScreenCountReq);
     return SiSProcXineramaGetScreenCount(client);
@@ -2367,7 +2387,9 @@ static int
 SiSSProcXineramaGetScreenSize(ClientPtr client)
 {
     REQUEST(xPanoramiXGetScreenSizeReq);
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int n;
+#endif
     _swaps (&stuff->length, n);
     REQUEST_SIZE_MATCH(xPanoramiXGetScreenSizeReq);
     return SiSProcXineramaGetScreenSize(client);
@@ -2377,7 +2399,9 @@ static int
 SiSSProcXineramaIsActive(ClientPtr client)
 {
     REQUEST(xXineramaIsActiveReq);
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int n;
+#endif
     _swaps (&stuff->length, n);
     REQUEST_SIZE_MATCH(xXineramaIsActiveReq);
     return SiSProcXineramaIsActive(client);
@@ -2387,7 +2411,9 @@ static int
 SiSSProcXineramaQueryScreens(ClientPtr client)
 {
     REQUEST(xXineramaQueryScreensReq);
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     register int n;
+#endif
     _swaps (&stuff->length, n);
     REQUEST_SIZE_MATCH(xXineramaQueryScreensReq);
     return SiSProcXineramaQueryScreens(client);
