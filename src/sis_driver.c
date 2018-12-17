@@ -1305,7 +1305,7 @@ SiSCopyModeNLink(ScrnInfoPtr pScrn, DisplayModePtr dest,
  * (Code base taken from mga driver)
  */
 static DisplayModePtr
-SiSGetModeFromName(char* str, DisplayModePtr i)
+SiSGetModeFromName(const char* str, DisplayModePtr i)
 {
     DisplayModePtr c = i;
     if(!i) return NULL;
