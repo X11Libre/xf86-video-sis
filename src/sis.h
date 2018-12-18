@@ -230,7 +230,7 @@
 
 #ifdef SISVRAMQ
 #ifdef XORG_VERSION_CURRENT
-#if defined(SIS_HAVE_EXA) || (defined(XF86EXA) && (XF86EXA != 0))
+#if defined(SIS_HAVE_EXA) || (defined(USE_EXA) && (USE_EXA != 0))
 #if 1
 #define SIS_USE_EXA		/* Include code for EXA */
 #endif
