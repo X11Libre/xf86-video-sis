@@ -8985,7 +8985,7 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
 	     case 24: refreshArea = SISRefreshArea24; break;
 	     case 32: refreshArea = SISRefreshArea32; break;
 	  }
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
+#if (XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)) && (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
 	  xf86DisableRandR();
 	  xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 		"Driver rotation enabled, disabling RandR\n");
@@ -8998,7 +8998,7 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
              if(!pSiS->PointerMoved) pSiS->PointerMoved = pScrn->PointerMoved;
 	     pScrn->PointerMoved = SISPointerMovedReflect;
 	     refreshArea = SISRefreshAreaReflect;
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
+#if (XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)) && (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
 	     xf86DisableRandR();
 	     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 		  "Driver reflection enabled, disabling RandR\n");
@@ -9109,7 +9109,7 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
        pSiS->Rotate = 0;
        pSiS->Reflect = 0;
        pSiS->ShadowFB = FALSE;
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
+#if (XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)) && (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
        if(pSiS->CRT1XOffs || pSiS->CRT1YOffs || pSiS->CRT2XOffs || pSiS->CRT2YOffs) {
 	  xf86DisableRandR();
 	  xf86DrvMsg(pScrn->scrnIndex, X_INFO,
