@@ -7722,7 +7722,7 @@ SISModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	     SiSPostSetMode(pScrn, &pSiS->ModeReg);
 
 #ifdef TWDEBUG
-	     xf86DrvMsg(pScrn->scrnIndex, X_INFO, "VBFlags %lx\n", pSiS->VBFlags);
+	     xf86DrvMsg(pScrn->scrnIndex, X_INFO, "VBFlags %x\n", pSiS->VBFlags);
 	     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 			"REAL REGISTER CONTENTS AFTER SETMODE:\n");
              (*pSiS->ModeInit)(pScrn, mode);
@@ -9752,7 +9752,7 @@ SISAdjustFrame(ADJUST_FRAME_ARGS_DECL)
     base += (pSiS->dhmOffset/4);
 
 #ifdef TWDEBUG
-    xf86DrvMsg(0, 0, "AdjustFrame: x %d y %d bpp %d dw %d base %d, dhmOffset %d\n",
+    xf86DrvMsg(0, 0, "AdjustFrame: x %d y %d bpp %d dw %d base %lx, dhmOffset %d\n",
     			x, y, pSiS->CurrentLayout.bitsPerPixel, pSiS->CurrentLayout.displayWidth, base, pSiS->dhmOffset);
 #endif
 
@@ -10291,7 +10291,7 @@ SiSEnableTurboQueue(ScrnInfoPtr pScrn)
 	      pSiS->cmdQueueBase = (unsigned int *)temp;
 	      outSISIDXREG(SISCR, 0x55, tempCR55);
 #ifdef TWDEBUG
-	      xf86DrvMsg(0, 0, "CmdQueueOffs 0x%x, CmdQueueAdd %p, shwrp 0x%x, status %x, base %p\n",
+	      xf86DrvMsg(0, 0, "CmdQueueOffs 0x%x, CmdQueueAdd %p, shwrp 0x%x, status %lx, base %p\n",
 		pSiS->cmdQueueOffset, pSiS->cmdQueueBase, *(pSiS->cmdQ_SharedWritePort),
 		SIS_MMIO_IN32(pSiS->IOBase, 0x85cc), (ULong *)temp);
 #endif
@@ -12999,7 +12999,7 @@ SiSPostSetMode(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 			NoOverlay ? "no" : ((pSiS->MiscFlags & MISC_SIS760ONEOVERLAY) ? "one" : "two"));
 
 #ifdef TWDEBUG
-	       xf86DrvMsg(0, 0, "SiS760: Memclock %d, c1 %d/%d c2 %d/%d, sum %d / %x\n",
+	       xf86DrvMsg(0, 0, "SiS760: Memclock %d, c1 %d/%d c2 %d/%d, sum %d / %lx\n",
 			pSiS->MemClock, myclock1, mycoldepth1,
 			myclock2, mycoldepth2, dotclocksum, pSiS->SiS_SD2_Flags);
 #endif
@@ -13733,7 +13733,7 @@ SiS_CheckModeCRT2(ScrnInfoPtr pScrn, DisplayModePtr mode, unsigned int VBFlags, 
    int    j;
 
 #ifdef TWDEBUG
-   xf86DrvMsg(0, X_INFO, "Inside CheckCalcModeIndex (VBFlags %lx, mode %dx%d)\n",
+   xf86DrvMsg(0, X_INFO, "Inside CheckCalcModeIndex (VBFlags %x, mode %dx%d)\n",
 	VBFlags,mode->HDisplay, mode->VDisplay);
 #endif
 
