@@ -807,7 +807,7 @@ typedef struct {
     UShort ch70xx[64];
     unsigned int sisMMIO85C0;
     UChar  sis6326tv[0x46];
-    unsigned int sisRegsPCI50, sisRegsPCIA0;
+    unsigned long sisRegsPCI50, sisRegsPCIA0;
     UChar  BIOSModeSave;
 } SISRegRec, *SISRegPtr;
 
@@ -1621,12 +1621,12 @@ extern int   SiS_GetTVyscale(ScrnInfoPtr pScrn);
 extern int   SiS_GetSISCRT1SaturationGain(ScrnInfoPtr pScrn);
 extern void  SiS_SetSISCRT1SaturationGain(ScrnInfoPtr pScrn, int val);
 
-extern unsigned int sis_pci_read_device_u32(int device, int offset);
+extern unsigned long sis_pci_read_device_u32(int device, int offset);
 extern unsigned char sis_pci_read_device_u8(int device, int offset);
-extern unsigned int sis_pci_read_host_bridge_u32(int offset);
+extern unsigned long sis_pci_read_host_bridge_u32(int offset);
 extern unsigned char sis_pci_read_host_bridge_u8(int offset);
 extern void sis_pci_write_host_bridge_u8(int offset, unsigned char value);
-extern void sis_pci_write_host_bridge_u32(int offset, unsigned int value);
+extern void sis_pci_write_host_bridge_u32(int offset, unsigned long value);
 #endif  /* _SIS_H_ */
 
 
