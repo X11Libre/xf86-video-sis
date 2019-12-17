@@ -322,38 +322,16 @@
 #define PCI_CHIP_SIS6326		0x6326
 #define PCI_CHIP_SIS300			0x0300
 #define PCI_CHIP_SIS315H		0x0310
+#define PCI_CHIP_SIS315			0x0315
 #define PCI_CHIP_SIS315PRO		0x0325
 #define PCI_CHIP_SIS330			0x0330
-#define PCI_CHIP_SIS630			0x6300
 #define PCI_CHIP_SIS540			0x5300
+#define PCI_CHIP_SIS630			0x6300
 #define PCI_CHIP_SIS550			0x5315
 #define PCI_CHIP_SIS650			0x6325
-
-/* For SiS315/550/650/740/330/660 - these should be moved elsewhere! */
-#ifndef PCI_CHIP_SIS315H
-#define PCI_CHIP_SIS315H	0x0310
-#endif
-#ifndef PCI_CHIP_SIS315
-#define PCI_CHIP_SIS315		0x0315
-#endif
-#ifndef PCI_CHIP_SIS315PRO
-#define PCI_CHIP_SIS315PRO	0x0325
-#endif
-#ifndef PCI_CHIP_SIS550
-#define PCI_CHIP_SIS550		0x5315	/* 550_VGA */
-#endif
-#ifndef PCI_CHIP_SIS650
-#define PCI_CHIP_SIS650		0x6325  /* 650_VGA and 740_VGA */
-#endif
-#ifndef PCI_CHIP_SIS330
-#define PCI_CHIP_SIS330		0x0330
-#endif
-#ifndef PCI_CHIP_SIS660
-#define PCI_CHIP_SIS660		0x6330	/* 661_VGA, 741_VGA, 760_VGA, 761_VGA */
-#endif
-#ifndef PCI_CHIP_SIS340
-#define PCI_CHIP_SIS340		0x0340
-#endif
+#define PCI_CHIP_SIS330			0x0330
+#define PCI_CHIP_SIS660			0x6330
+#define PCI_CHIP_SIS340			0x0340
 
 #ifndef PCI_VENDOR_XGI
 #define PCI_VENDOR_XGI		0x18ca
