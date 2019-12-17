@@ -302,9 +302,14 @@
 #define SISVERBLEVEL 4
 #endif
 
-#ifndef _XF86_PCIINFO_H
+/*
+ * SiS PCI Vendor ID
+ */
 #define PCI_VENDOR_SIS			0x1039
-/* SiS */
+
+/*
+ * SiS PCI Device ID
+ */
 #define PCI_CHIP_SG86C201		0x0001
 #define PCI_CHIP_SG86C202		0x0002
 #define PCI_CHIP_SIS5597		0x0200
@@ -323,8 +328,6 @@
 #define PCI_CHIP_SIS540			0x5300
 #define PCI_CHIP_SIS550			0x5315
 #define PCI_CHIP_SIS650			0x6325
-
-#endif
 
 /* For SiS315/550/650/740/330/660 - these should be moved elsewhere! */
 #ifndef PCI_CHIP_SIS315H
