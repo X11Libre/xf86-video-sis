@@ -507,9 +507,9 @@ sis315Setup(ScrnInfoPtr pScrn)
 	"",
 	"--unknown--",
 	"",
-	"Asymetric Dual Channel SDR SDRAM",
+	"Asymmetric Dual Channel SDR SDRAM",
 	"",
-	"Asymetric Dual Channel DDR SDRAM",
+	"Asymmetric Dual Channel DDR SDRAM",
 	"",
 	"Dual channel SDR SDRAM",
 	"",
@@ -631,7 +631,7 @@ sis315Setup(ScrnInfoPtr pScrn)
        /* If SINGLE_CHANNEL_2_RANK or DUAL_CHANNEL_1_RANK -> mem * 2 */
        if((config1 == 0x01) || (config1 == 0x03)) pScrn->videoRam <<= 1;
 
-       /* If DDR asymetric -> mem * 1,5 */
+       /* If DDR asymmetric -> mem * 1,5 */
        if(config1 == 0x02) pScrn->videoRam += pScrn->videoRam/2;
 
        xf86DrvMsg(pScrn->scrnIndex, X_PROBED,

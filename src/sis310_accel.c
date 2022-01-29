@@ -493,7 +493,7 @@ SiSSubsequentSolidFillTrap(ScrnInfoPtr pScrn, int y, int h,
         xf86DrvMsg(0, X_INFO, "Trap (%d %d %d %d) dxL %d dyL %d eL %d   dxR %d dyR %d eR %d\n",
 		left, right, y, h, dxL, dyL, eL, dxR, dyR, eR);
 
-	/* Determine egde angles */
+	/* Determine edge angles */
 	if(dxL < 0) 	{ dxL = -dxL; }
 	else 		{ SiSSetupCMDFlag(T_L_X_INC) }
 	if(dxR < 0) 	{ dxR = -dxR; }
@@ -1222,7 +1222,7 @@ SiSSubsequentScreenToScreenColorExpand(ScrnInfoPtr pScrn,
 	int newsrcx, newsrcy;
 
 	/* srcx and srcy are provided based on a scrnOffset pitch ( = displayWidth * bpp / 8 )
-	 * We recalulate srcx and srcy based on pitch = displayWidth / 8
+	 * We recalculate srcx and srcy based on pitch = displayWidth / 8
 	 */
         newsrcy = ((pSiS->scrnOffset * srcy) + (srcx * ((pScrn->bitsPerPixel+7)/8))) /
 					  (pScrn->displayWidth/8);

@@ -165,7 +165,7 @@ const int sisReg32MMIO[] = {
 
 /* Height and width
  * According to SIS 2D Engine Programming Guide
- * height -1, width - 1 independant of Bpp
+ * height -1, width - 1 independent of Bpp
  */
 #define sisSETHEIGHTWIDTH(Height, Width) \
   SIS_MMIO_OUT32(pSiS->IOBase, BR(3), ((((Height) & 0xFFFF) << 16) | ((Width) & 0xFFFF)));

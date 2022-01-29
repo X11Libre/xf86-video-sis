@@ -3300,7 +3300,7 @@ MIRROR:
     *   when the current scanline is beyond the current
     *   overlay position and below the maximum visible
     *   scanline (vertical screen resolution)
-    * - If a vertical retrace occures during writing the
+    * - If a vertical retrace occurs during writing the
     *   registers, the registers written BEFORE this re-
     *   trace happened, are not being read into the
     *   engine if the trigger is set after the retrace.

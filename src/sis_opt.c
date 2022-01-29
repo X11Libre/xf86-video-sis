@@ -1079,7 +1079,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 	   * In dual head mode, using the hotkey is lethal, so we
 	   * forbid it then in any case.
 	   * However, although the driver disables the hotkey as
-	   * BIOS developers intented to do that, some buggy BIOSes
+	   * BIOS developers intended to do that, some buggy BIOSes
 	   * still cause the machine to freeze. Hence the warning.
 	   */
 	  ival = 0;
@@ -1135,7 +1135,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 
 	  /* CRT2DDCDetection (315/330 series and later only)
 	   * If set to true, this disables CRT2 detection using DDC. This is
-	   * to avoid problems with not entirely DDC compiant LCD panels or
+	   * to avoid problems with not entirely DDC compliant LCD panels or
 	   * VGA monitors connected to the secondary VGA plug. Since LCD and
 	   * VGA share the same DDC channel, it might in some cases be impossible
 	   * to determine if the device is a CRT monitor or a flat panel.
@@ -1175,7 +1175,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 
 	  /* ForceCRT1Type (315/330 series and later only)
 	   * Used for forcing the driver to initialize CRT1 as
-	   * VGA (analog) or LCDA (for simultanious LCD and TV
+	   * VGA (analog) or LCDA (for simultaneous LCD and TV
 	   * display) - on M650/651 and 661 or later with 301C/30xLV only!
 	   */
 	  if(pSiS->VGAEngine == SIS_315_VGA) {

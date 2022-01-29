@@ -3468,7 +3468,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
      * its PCI resources enabled, leads to X assuming that
      * there are more than one "primary" cards in the system.
      * In this case, X treats ALL cards as "secondary" -
-     * which by no means is desireable. If sisfb is running,
+     * which by no means is desirable. If sisfb is running,
      * we can determine which card really is "primary" (in
      * terms of if it's the one that occupies the A0000 area
      * etc.) in a better way (Linux 2.6.12 or later). See below.
@@ -7789,7 +7789,7 @@ SiSSetVESAMode(ScrnInfoPtr pScrn, DisplayModePtr pMode)
     if(!(mode = SiSCalcVESAModeIndex(pScrn, pMode))) return FALSE;
 
     mode |= (1 << 15);	/* Don't clear framebuffer */
-    mode |= (1 << 14); 	/* Use linear adressing */
+    mode |= (1 << 14); 	/* Use linear addressing */
 
     if(VBESetVBEMode(pSiS->pVbe, mode, NULL) == FALSE) {
        SISErrorLog(pScrn, "Setting VESA mode 0x%x failed\n",
@@ -8425,7 +8425,7 @@ SISDisplayPowerManagementSet(ScrnInfoPtr pScrn, int PowerManagementMode, int fla
      * the correct PCI bridges before access the hardware. Now we have this
      * hook wrapped by the vga arbiter which should do all the work, in
      * kernels that implement it. For this case we might not want this hack
-     * bellow.
+     * below.
      */
     outSISIDXREG(SISSR,0x05,0x86);
     inSISIDXREG(SISSR,0x05,pmreg);
@@ -10297,7 +10297,7 @@ SiSEnableTurboQueue(ScrnInfoPtr pScrn)
 #endif
 #else
 	      /* For MMIO */
-	      /* Syncronous reset for Command Queue */
+	      /* Synchronous reset for Command Queue */
 	      orSISIDXREG(SISSR, 0x26, 0x01);
 	      /* Set Command Queue Threshold to max value 11111b */
 	      outSISIDXREG(SISSR, 0x27, 0x1F);
@@ -12930,7 +12930,7 @@ SiSPostSetMode(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 		*	This is not entirely accurate; the overlay
 		*	scaler also requires some time, so even though
 		*	the dotclocks are below these values, some
-		*	distortions in the overlay may occure.
+		*	distortions in the overlay may occur.
 		*	Solution: Don't use a 760 with shared memory.
 		*/
 	       if( (pSiS->VBFlags & DISPTYPE_CRT1) &&
@@ -13636,7 +13636,7 @@ SiSValidLCDUserMode(SISPtr pSiS, unsigned int VBFlags, DisplayModePtr mode, Bool
       if(mode->Clock > 130000)  return FALSE;
       if(mode->Clock > 111000) {
          xf86DrvMsg(pSiS->pScrn->scrnIndex, X_WARNING,
-	 	"WARNING: Mode clock beyond video bridge specs (%dMHz). Hardware damage might occure.\n",
+		"WARNING: Mode clock beyond video bridge specs (%dMHz). Hardware damage might occur.\n",
 		mode->Clock / 1000);
       }
       if(mode->HDisplay > 1600) return FALSE;

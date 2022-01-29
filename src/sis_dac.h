@@ -31,7 +31,7 @@
 int  SiS_compute_vclk(int Clock, int *out_n, int *out_dn, int *out_div,
 	     		int *out_sbit, int *out_scale);
 void SISDACPreInit(ScrnInfoPtr pScrn);
-void SISLoadPalette(ScrnInfoPtr pScrn, int numColors, int *indicies,
+void SISLoadPalette(ScrnInfoPtr pScrn, int numColors, int *indices,
 		        LOCO *colors, VisualPtr pVisual);
 void SiSCalcClock(ScrnInfoPtr pScrn, int clock, int max_VLD,
                         unsigned int *vclk);

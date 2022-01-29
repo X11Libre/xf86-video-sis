@@ -93,7 +93,7 @@ static void SiS301Restore(ScrnInfoPtr pScrn, SISRegPtr sisReg);
 static void SiS301BRestore(ScrnInfoPtr pScrn, SISRegPtr sisReg);
 static void SiSLVDSChrontelRestore(ScrnInfoPtr pScrn, SISRegPtr sisReg);
 static void SiS301LoadPalette(ScrnInfoPtr pScrn, int numColors,
-                      int *indicies, LOCO *colors, int myshift);
+                      int *indices, LOCO *colors, int myshift);
 static void SetBlock(CARD16 port, CARD8 from, CARD8 to, CARD8 *DataPtr);
 
 UChar       SiSGetCopyROP(int rop);
@@ -1361,7 +1361,7 @@ SiSMclk(SISPtr pSiS)
  * we return the maximum dotclock used by
  * - either the LCD attached, or
  * - TV
- * For VGA2, we share the bandwith equally.
+ * For VGA2, we share the bandwidth equally.
  */
 static int
 SiSEstimateCRT2Clock(ScrnInfoPtr pScrn, Bool FakeForCRT2)
@@ -1677,7 +1677,7 @@ int SiSMemBandWidth(ScrnInfoPtr pScrn, Bool IsForCRT2)
 /* Load the palette. We do this for all supported color depths
  * in order to support gamma correction. We hereby convert the
  * given colormap to a complete 24bit color palette and enable
- * the correspoding bit in SR7 to enable the 24bit lookup table.
+ * the corresponding bit in SR7 to enable the 24bit lookup table.
  * Gamma correction for CRT2 is only supported on SiS video bridges.
  * There are there 6-bit-RGB values submitted even if bpp is 16 and
  * weight is 565, because SetWeight() sets rgbBits to the maximum

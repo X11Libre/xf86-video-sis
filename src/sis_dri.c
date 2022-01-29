@@ -209,7 +209,7 @@ SISDRIScreenInit(ScreenPtr pScreen)
 #endif
   pDRIInfo->frameBufferSize = pSIS->FbMapSize;
 
-  /* scrnOffset is being calulated in sis_vga.c */
+  /* scrnOffset is being calculated in sis_vga.c */
   pDRIInfo->frameBufferStride = pSIS->scrnOffset;
 
   pDRIInfo->ddxDrawableTableEntry = SIS_MAX_DRAWABLES;

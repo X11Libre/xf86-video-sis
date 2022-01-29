@@ -1236,7 +1236,7 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
 	      SISSenseChrontel(pScrn, FALSE);
 
 	   } else if(temp1 == 0) {
-	      /* This indicates a communication problem, but it only occures if there
+	      /* This indicates a communication problem, but it only occurs if there
 	       * is no TV attached. So we don't use TV in this case.
 	       */
 	      xf86DrvMsg(pScrn->scrnIndex, X_INFO,
