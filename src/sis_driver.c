@@ -2762,7 +2762,7 @@ SiSPrintModes(ScrnInfoPtr pScrn)
 {
     DisplayModePtr p;
     float hsync, refresh = 0.0;
-    char *desc, *desc2, *prefix, *uprefix, *output;
+    const char *desc, *desc2, *prefix, *uprefix, *output;
 
     xf86DrvMsg(pScrn->scrnIndex, X_INFO, "Virtual size is %dx%d "
 	       "(pitch %d)\n", pScrn->virtualX, pScrn->virtualY,
@@ -6087,11 +6087,10 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  while(tempm) {
 	     if(!(newm = malloc(sizeof(DisplayModeRec)))) break;
 	     memcpy(newm, tempm, sizeof(DisplayModeRec));
-	     if(!(newm->name = malloc(strlen(tempm->name) + 1))) {
+	     if(!(newm->name = strdup(tempm->name))) {
 	        free(newm);
 		break;
 	     }
-	     strcpy(newm->name, tempm->name);
 	     if(!pSiS->CRT2pScrn->monitor->Modes) pSiS->CRT2pScrn->monitor->Modes = newm;
 	     if(currentm) {
 	        currentm->next = newm;

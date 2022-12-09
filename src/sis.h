@@ -1483,30 +1483,30 @@ typedef struct _pdctable {
     int  subsysVendor;
     int  subsysCard;
     int  pdc;
-    char *vendorName;
-    char *cardName;
+    const char *vendorName;
+    const char *cardName;
 } pdctable;
 
 typedef struct _chswtable {
     int  subsysVendor;
     int  subsysCard;
-    char *vendorName;
-    char *cardName;
+    const char *vendorName;
+    const char *cardName;
 } chswtable;
 
 typedef struct _customttable {
     UShort chipID;
-    char   *biosversion;
-    char   *biosdate;
+    const char   *biosversion;
+    const char   *biosdate;
     CARD32 bioschksum;
     UShort biosFootprintAddr[5];
     UChar  biosFootprintData[5];
     UShort pcisubsysvendor;
     UShort pcisubsyscard;
-    char   *vendorName;
-    char   *cardName;
+    const char   *vendorName;
+    const char   *cardName;
     ULong  SpecialID;
-    char   *optionName;
+    const char   *optionName;
 } customttable;
 
 #ifdef SISMERGED

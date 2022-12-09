@@ -194,6 +194,7 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScrn, BOOLEAN includelcdmodes, BOOLEAN isfo
    int		  i, j, k, l, index, vclkindex, UseWide;
    DisplayModePtr new = NULL, current = NULL, first = NULL;
    BOOLEAN	  done = FALSE, IsHDCLK;
+   char *	  name_string;
 #if 0
    DisplayModePtr backup = NULL;
 #endif
@@ -240,7 +241,7 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScrn, BOOLEAN includelcdmodes, BOOLEAN isfo
 
       if(!(new = malloc(sizeof(DisplayModeRec)))) return first;
       memset(new, 0, sizeof(DisplayModeRec));
-      if(!(new->name = malloc(10))) {
+      if(!(new->name = name_string = malloc(10))) {
 	 free(new);
 	 return first;
       }
@@ -252,7 +253,7 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScrn, BOOLEAN includelcdmodes, BOOLEAN isfo
 
       current = new;
 
-      sprintf(current->name, "%hu%hu", pSiS->SiS_Pr->SiS_RefIndex[i].XRes,
+      sprintf(name_string, "%hu%hu", pSiS->SiS_Pr->SiS_RefIndex[i].XRes,
 				      pSiS->SiS_Pr->SiS_RefIndex[i].YRes);
 
       current->status = MODE_OK;
@@ -388,7 +389,7 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScrn, BOOLEAN includelcdmodes, BOOLEAN isfo
 		  if(!(new = malloc(sizeof(DisplayModeRec)))) return first;
 
 		  memset(new, 0, sizeof(DisplayModeRec));
-		  if(!(new->name = malloc(12))) {
+		  if(!(new->name = name_string = malloc(12))) {
 		     free(new);
 		     return first;
 		  }
@@ -402,7 +403,7 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScrn, BOOLEAN includelcdmodes, BOOLEAN isfo
 
 		  pSiS->AddedPlasmaModes = TRUE;
 
-		  strcpy(current->name, SiS_PlasmaMode[l].name);
+		  strcpy(name_string, SiS_PlasmaMode[l].name);
 
 		  current->status = MODE_OK;
 
@@ -473,7 +474,7 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScrn, BOOLEAN includelcdmodes, BOOLEAN isfo
 	    if(!(new = malloc(sizeof(DisplayModeRec)))) return first;
 
 	    memset(new, 0, sizeof(DisplayModeRec));
-	    if(!(new->name = malloc(10))) {
+	    if(!(new->name = name_string = malloc(10))) {
 	       free(new);
 	       return first;
 	    }
@@ -485,7 +486,7 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScrn, BOOLEAN includelcdmodes, BOOLEAN isfo
 
 	    current = new;
 
-	    sprintf(current->name, "%dx%d", pSiS->SiS_Pr->CP_HDisplay[i],
+	    sprintf(name_string, "%dx%d", pSiS->SiS_Pr->CP_HDisplay[i],
 				pSiS->SiS_Pr->CP_VDisplay[i]);
 
 	    current->status = MODE_OK;

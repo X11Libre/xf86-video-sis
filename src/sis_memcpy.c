@@ -342,7 +342,7 @@ extern void	    SISFreeFBMemory(ScrnInfoPtr pScrn, void **handle);
 
 typedef struct {
     vidCopyFunc  mFunc;
-    char         *mName;
+    const char  *mName;
     unsigned int mycpuflag;
     int          grade;
     int 	 gradefrom;
