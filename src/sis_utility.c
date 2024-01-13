@@ -872,7 +872,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
    SISPortPrivPtr pPriv = NULL;
-   int i;
    ULong j;
 
    if(sdcbuf->sdc_id != SDC_ID) return BadMatch;
@@ -882,7 +881,7 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
    }
 
    j = sdcbuf->sdc_command;
-   for(i = 0; i < SDC_NUM_PARM_RESULT; i++) {
+   for(int i = 0; i < SDC_NUM_PARM_RESULT; i++) {
       j += sdcbuf->sdc_parm[i];
    }
 

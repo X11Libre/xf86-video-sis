@@ -5901,7 +5901,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
  	  /* Read the current EMI (if not overruled) */
 	  if(pSiS->VBFlags2 & VB2_SISEMIBRIDGE) {
-	     MessageType from = X_PROBED;
+	     from = X_PROBED;
 	     if(pSiS->EMI != -1) {
 		pSiS->SiS_Pr->EMI_30 = (pSiS->EMI >> 24) & 0x60;
 		pSiS->SiS_Pr->EMI_31 = (pSiS->EMI >> 16) & 0xff;

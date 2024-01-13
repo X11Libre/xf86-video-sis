@@ -1927,15 +1927,12 @@ SiSUploadToScratch(PixmapPtr pSrc, PixmapPtr pDst)
 void
 SISWriteBlitPacket(SISPtr pSiS, CARD32 *packet)
 {
-	CARD32 dummybuf;
-
 	SiSWritePacketPart(packet[0], packet[1], packet[2], packet[3]);
 	SiSWritePacketPart(packet[4], packet[5], packet[6], packet[7]);
 	SiSWritePacketPart(packet[8], packet[9], packet[10], packet[11]);
 	SiSWritePacketPart(packet[12], packet[13], packet[14], packet[15]);
 	SiSWritePacketPart(packet[16], packet[17], packet[18], packet[19]);
 	SiSSyncWP;
-	(void)dummybuf; /* Suppress compiler warning */
 }
 #endif
 

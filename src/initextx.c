@@ -746,11 +746,11 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
    BOOLEAN checkexpand = FALSE;
    BOOLEAN havesync = FALSE;
    BOOLEAN indb = FALSE;
-   int retry, i;
+   int retry;
    int panel1280x960 = (pSiS->VGAEngine == SIS_315_VGA) ? Panel310_1280x960 : Panel300_1280x960;
    unsigned char buffer[256];
 
-   for(i=0; i<7; i++) SiS_Pr->CP_DataValid[i] = FALSE;
+   for (int i=0; i<7; i++) SiS_Pr->CP_DataValid[i] = FALSE;
    SiS_Pr->CP_HaveCustomData = FALSE;
    SiS_Pr->CP_MaxX = SiS_Pr->CP_MaxY = SiS_Pr->CP_MaxClock = 0;
    SiS_Pr->CP_PreferredX = SiS_Pr->CP_PreferredY = 0;
@@ -806,7 +806,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
    } while(1);
 
 #ifdef TWDEBUG
-   for(i=0; i<256; i+=16) {
+   for (int i=0; i<256; i+=16) {
       xf86DrvMsg(pSiS->pScrn->scrnIndex, X_PROBED,
 	"%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
 	buffer[i],    buffer[i+1], buffer[i+2], buffer[i+3],
@@ -951,7 +951,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
        */
       if(paneltype == Panel_Custom) {
 
-	 int i, temp, base = 0x36;
+	 int temp, base = 0x36;
 	 unsigned long estpack;
 	 static const unsigned short estx[] = {
 		720, 720, 640, 640, 640, 640, 800, 800,
@@ -976,7 +976,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
 
 	 /* 1. From Established timings */
 	 estpack = (buffer[0x23] << 9) | (buffer[0x24] << 1) | ((buffer[0x25] >> 7) & 0x01);
-	 for(i=16; i>=0; i--) {
+	 for (int i=16; i>=0; i--) {
 	     if(estpack & (1 << i)) {
 		if(estx[16 - i] > SiS_Pr->CP_MaxX) SiS_Pr->CP_MaxX = estx[16 - i];
 		if(esty[16 - i] > SiS_Pr->CP_MaxY) SiS_Pr->CP_MaxY = esty[16 - i];
@@ -990,7 +990,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
 	 if(!(buffer[0x23] & 0x04)) SiS_Pr->CP_Supports64048075 = FALSE;
 
 	 /* 2. From Standard Timings */
-	 for(i=0x26; i < 0x36; i+=2) {
+	 for (int i=0x26; i < 0x36; i+=2) {
 	    if((buffer[i] != 0x01) && (buffer[i+1] != 0x01)) {
 	       temp = (buffer[i] + 31) * 8;
 	       if(temp > SiS_Pr->CP_MaxX) SiS_Pr->CP_MaxX = temp;
@@ -1005,7 +1005,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
 
 	 /* Now extract the Detailed Timings and convert them into modes */
 
-	for(i = 0; i < 4; i++, base += 18) {
+	for (int i = 0; i < 4; i++, base += 18) {
 
 	    /* Is this a detailed timing block or a monitor descriptor? */
 	    if(buffer[base] || buffer[base+1] || buffer[base+2]) {
@@ -1206,7 +1206,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
       }
 #if 0 /* "pixel rate" = pixel clock? */
       if(buffer[0x7e] & 0x1c) {
-	 for(i=0; i<((buffer[0x7e] & 0x1c) >> 2); i++) {
+	 for (int i=0; i<((buffer[0x7e] & 0x1c) >> 2); i++) {
 	    if(buffer[index + (i*8) + 6] && (buffer[index + (i*8) + 7] & 0x0f)) {
 	       int clk = (buffer[index + (i*8) + 6] | ((buffer[index + (i*8) + 7] & 0x0f) << 4)) * 1000;
 	       if(clk > SiS_Pr->CP_MaxClock) SiS_Pr->CP_MaxClock = clk;
@@ -1216,7 +1216,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
 #endif
       index += (((buffer[0x7e] & 0x1c) >> 2) * 8);   /* skip Frequency Ranges */
       if(buffer[0x7e] & 0x03) {
-	 for(i=0; i<(buffer[0x7e] & 0x03); i++) {
+	 for (int i=0; i<(buffer[0x7e] & 0x03); i++) {
 	    if((buffer[index + (i*27) + 9]) || (buffer[index + (i*27) + 10])) {
 	       int clk = ((buffer[index + (i*27) + 9]) | ((buffer[index + (i*27) + 9]) << 8)) * 10;
 	       if(clk > SiS_Pr->CP_MaxClock) SiS_Pr->CP_MaxClock = clk;
@@ -1228,7 +1228,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
       if(numcodes) {
 	 myindex = index;
 	 seekcode = (xres - 256) / 16;
-	 for(i=0; i<numcodes; i++) {
+	 for (int i=0; i<numcodes; i++) {
 	    if(buffer[myindex] == seekcode) break;
 	    myindex += 4;
 	 }
@@ -1249,7 +1249,6 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
        * Treat such wrongly reporting panels as custom.
        */
       if(paneltype != Panel_Custom) {
-	 int maxx, maxy, prefx, prefy;
 	 if((SiS_FindPanelFromDB(pSiS, panelvendor, panelproduct, &maxx, &maxy, &prefx, &prefy))) {
 	    paneltype = Panel_Custom;
 	    SiS_Pr->CP_MaxX = maxx;
@@ -1266,7 +1265,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
 
          index += (numcodes * 4);
 	 numcodes = buffer[0x7f] & 0x07;
-	 for(i=0; i<numcodes; i++, index += 18) {
+	 for (int i=0; i<numcodes; i++, index += 18) {
 	    xres = buffer[index+2] | ((buffer[index+4] & 0xf0) << 4);
             yres = buffer[index+5] | ((buffer[index+7] & 0xf0) << 4);
 
@@ -1347,7 +1346,7 @@ SiS_SenseLCDDDC(struct SiS_Private *SiS_Pr, SISPtr pSiS)
     */
    if(paneltype == panel1280x960) cr37 &= 0x0e;
 
-   for(i = 0; i < 7; i++) {
+   for (int i = 0; i < 7; i++) {
       if(SiS_Pr->CP_DataValid[i]) {
 	 xf86DrvMsg(pSiS->pScrn->scrnIndex, X_PROBED,
 	    "Non-standard LCD/DVI-D timing data no. %d:\n", i);
