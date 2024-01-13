@@ -98,7 +98,7 @@ static const struct _sis6326mclk {
 };
 
 #ifdef XSERVER_LIBPCIACCESS
-struct pci_device *
+static struct pci_device *
 sis_get_device (int device)
 {
     struct pci_slot_match bridge_match = {
