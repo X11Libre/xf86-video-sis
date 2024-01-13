@@ -856,7 +856,8 @@ sisutil_prepare_string(xSiSCtrlCommandReply *sdcbuf, const char *mystring)
    sdcbuf->sdc_buffer[0] = 0;
    if(mystring) {
       slen = strlen(mystring);
-      if(slen > 31) slen = 31;
+      if (slen > (sizeof(sdcbuf->sdc_buffer) - 1))
+         slen = sizeof(sdcbuf->sdc_buffer) - 1;
       strncpy(&sdcbuf->sdc_buffer[0], mystring, slen);
       sdcbuf->sdc_buffer[slen] = 0;
    }

@@ -3122,6 +3122,7 @@ SiS_CheckKernelFB(ScrnInfoPtr pScrn)
 
        if(pSiS->sisfbfound) {
           strncpy(pSiS->sisfbdevname, name, 15);
+          pSiS->sisfbdevname[15] = '\0';
        } else {
           xf86DrvMsg(pScrn->scrnIndex, X_PROBED, "sisfb not found\n");
        }
