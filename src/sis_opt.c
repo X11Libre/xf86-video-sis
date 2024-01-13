@@ -325,8 +325,8 @@ static void
 SiS_PrintIlRange(ScrnInfoPtr pScrn, int token, int min, int max, UChar showhex)
 {
     SISPtr pSiS = SISPTR(pScrn);
-    static const char *ilparmd = "Invalid parameter for \"%s\". Valid range is %d - %d\n";
-    static const char *ilparmh = "Invalid parameter for \"%s\". Valid range is 0x%x - 0x%x\n";
+    static const char * const ilparmd = "Invalid parameter for \"%s\". Valid range is %d - %d\n";
+    static const char * const ilparmh = "Invalid parameter for \"%s\". Valid range is 0x%x - 0x%x\n";
 
     xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 	showhex ? ilparmh : ilparmd,
@@ -434,13 +434,13 @@ SiSOptions(ScrnInfoPtr pScrn)
     MessageType from;
     char        *strptr;
     int         ival;
-    static const char *baddhm     = "Option \"%s\" ignored in Dual Head mode\n";
-    static const char *validparm  = "Valid parameters are";
-    static const char *disabledstr= "disabled";
-    static const char *enabledstr = "enabled";
-    static const char *gammaopt   = "%s expects either a boolean, or 1 or 3 real numbers (0.1 - 10.0)\n";
-    static const char *briopt     = "%s expects 1 or 3 real numbers (0.1 - 10.0)\n";
-    static const char *newbriopt     = "%s expects 1 or 3 real numbers (-1.0 - 1.0)\n";
+    static const char * const baddhm     = "Option \"%s\" ignored in Dual Head mode\n";
+    static const char * const validparm  = "Valid parameters are";
+    static const char * const disabledstr= "disabled";
+    static const char * const enabledstr = "enabled";
+    static const char * const gammaopt   = "%s expects either a boolean, or 1 or 3 real numbers (0.1 - 10.0)\n";
+    static const char * const briopt     = "%s expects 1 or 3 real numbers (0.1 - 10.0)\n";
+    static const char * const newbriopt  = "%s expects 1 or 3 real numbers (-1.0 - 1.0)\n";
     Bool        val, IsDHM = FALSE;
     Bool	IsSecondHead = FALSE;
 
@@ -997,7 +997,7 @@ SiSOptions(ScrnInfoPtr pScrn)
      */
 #ifdef SISDUALHEAD
     if((pSiS->DualHeadMode) && (pSiS->SecondHead)) {
-       static const char *mystring = "Option \"%s\" only accepted in CRT2 (Master) Device section\n";
+       static const char * const mystring = "Option \"%s\" only accepted in CRT2 (Master) Device section\n";
        int i;
        const short forbiddenopts[] = {
 		OPTION_TURBOQUEUE, OPTION_RESTOREBYSET, OPTION_ENABLEHOTKEY,
@@ -1592,7 +1592,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 	     }
 
 	     if(pSiS->OptTVStand != -1) {
-		static const char *tvstdstr = "TV standard shall be %s\n";
+		static const char * const tvstdstr = "TV standard shall be %s\n";
 		if(pSiS->Chipset == PCI_CHIP_SIS6326) {
 		   pSiS->NonDefaultPAL = -1;
 		   pSiS->NonDefaultNTSC = -1;

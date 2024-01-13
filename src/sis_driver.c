@@ -1602,8 +1602,8 @@ SiSRecalcDefaultVirtualSize(ScrnInfoPtr pScrn)
     SISPtr pSiS = SISPTR(pScrn);
     DisplayModePtr mode, bmode;
     int maxh, maxv;
-    static const char *str = "MergedFB: Virtual %s %d\n";
-    static const char *errstr = "Virtual %s to small for given CRT2Position offset\n";
+    static const char * const str = "MergedFB: Virtual %s %d\n";
+    static const char * const errstr = "Virtual %s to small for given CRT2Position offset\n";
 
     mode = bmode = pScrn->modes;
     maxh = maxv = 0;
@@ -1652,7 +1652,7 @@ SiSMergedFBSetDpi(ScrnInfoPtr pScrn1, ScrnInfoPtr pScrn2, SiSScrn2Rel srel)
    xf86MonPtr DDC1 = (xf86MonPtr)(pScrn1->monitor->DDC);
    xf86MonPtr DDC2 = (xf86MonPtr)(pScrn2->monitor->DDC);
    int ddcWidthmm = 0, ddcHeightmm = 0;
-   const char *dsstr = "MergedFB: Display dimensions: (%d, %d) mm\n";
+   const char * const dsstr = "MergedFB: Display dimensions: (%d, %d) mm\n";
 
    /* This sets the DPI for MergedFB mode. The problem is that
     * this can never be exact, because the output devices may
@@ -3164,22 +3164,22 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     Bool crt2freqoverruled = FALSE;
 #endif
 
-    static const char *ddcsstr = "CRT%d DDC monitor info: *******************************************\n";
-    static const char *ddcestr = "End of CRT%d DDC monitor info *************************************\n";
-    static const char *subshstr = "Substituting missing CRT%d monitor HSync range by DDC data\n";
-    static const char *subsvstr = "Substituting missing CRT%d monitor VRefresh range by DDC data\n";
-    static const char *saneh = "Correcting %s CRT%d monitor HSync range\n";
-    static const char *sanev = "Correcting %s CRT%d monitor VRefresh range\n";
+    static const char * const ddcsstr = "CRT%d DDC monitor info: *******************************************\n";
+    static const char * const ddcestr = "End of CRT%d DDC monitor info *************************************\n";
+    static const char * const subshstr = "Substituting missing CRT%d monitor HSync range by DDC data\n";
+    static const char * const subsvstr = "Substituting missing CRT%d monitor VRefresh range by DDC data\n";
+    static const char * const saneh = "Correcting %s CRT%d monitor HSync range\n";
+    static const char * const sanev = "Correcting %s CRT%d monitor VRefresh range\n";
 #ifdef SISMERGED
-    static const char *mergednocrt1 = "CRT1 not detected or forced off. %s.\n";
-    static const char *mergednocrt2 = "No CRT2 output selected or no video bridge detected. %s.\n";
-    static const char *mergeddisstr = "MergedFB mode disabled";
-    static const char *modesforstr = "Modes for CRT%d: **************************************************\n";
-    static const char *crtsetupstr = "*************************** CRT%d setup ***************************\n";
-    static const char *crt2monname = "CRT2";
+    static const char * const mergednocrt1 = "CRT1 not detected or forced off. %s.\n";
+    static const char * const mergednocrt2 = "No CRT2 output selected or no video bridge detected. %s.\n";
+    static const char * const mergeddisstr = "MergedFB mode disabled";
+    static const char * const modesforstr = "Modes for CRT%d: **************************************************\n";
+    static const char * const crtsetupstr = "*************************** CRT%d setup ***************************\n";
+    static const char * const crt2monname = "CRT2";
 #endif
 #if defined(SISDUALHEAD) || defined(SISMERGED)
-    static const char *notsuitablestr = "Not using mode \"%s\" (not suitable for %s mode)\n";
+    static const char * const notsuitablestr = "Not using mode \"%s\" (not suitable for %s mode)\n";
 #endif
 
     if(flags & PROBE_DETECT) {

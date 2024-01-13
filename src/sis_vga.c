@@ -1019,7 +1019,7 @@ void SISVGAPreInit(ScrnInfoPtr pScrn)
     int    upperlimitlvds, lowerlimitlvds;
     int    upperlimitch, lowerlimitch;
     int    chronteltype, chrontelidreg, upperlimitvb;
-    static const char *detectvb = "Detected SiS%s video bridge (%s, ID %d; Rev 0x%x)\n";
+    static const char * const detectvb = "Detected SiS%s video bridge (%s, ID %d; Rev 0x%x)\n";
 #if 0
     UChar sr17=0;
 #endif
