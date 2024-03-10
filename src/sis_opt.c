@@ -949,16 +949,13 @@ SiSOptions(ScrnInfoPtr pScrn)
 	     free(tempstr);
 	  }
 	  if((strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_METAMODES))) {
-	     pSiS->MetaModes = malloc(strlen(strptr) + 1);
-	     if(pSiS->MetaModes) memcpy(pSiS->MetaModes, strptr, strlen(strptr) + 1);
+	     pSiS->MetaModes = strdup(strptr);
 	  }
 	  if((strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_CRT2HSYNC))) {
-	     pSiS->CRT2HSync = malloc(strlen(strptr) + 1);
-	     if(pSiS->CRT2HSync) memcpy(pSiS->CRT2HSync, strptr, strlen(strptr) + 1);
+	     pSiS->CRT2HSync = strdup(strptr);
 	  }
 	  if((strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_CRT2VREFRESH))) {
-	     pSiS->CRT2VRefresh = malloc(strlen(strptr) + 1);
-	     if(pSiS->CRT2VRefresh) memcpy(pSiS->CRT2VRefresh, strptr, strlen(strptr) + 1);
+	     pSiS->CRT2VRefresh = strdup(strptr);
 	  }
 	  if((strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_MERGEDDPI))) {
 	     int val1 = 0, val2 = 0;
