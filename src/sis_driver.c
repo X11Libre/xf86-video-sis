@@ -302,7 +302,7 @@ SISGetRec(ScrnInfoPtr pScrn)
      */
     if(pScrn->driverPrivate != NULL) return TRUE;
 
-    pScrn->driverPrivate = xnfcalloc(sizeof(SISRec), 1);
+    pScrn->driverPrivate = XNFcallocarray(sizeof(SISRec), 1);
 
     /* Initialise it to 0 */
     memset(pScrn->driverPrivate, 0, sizeof(SISRec));
@@ -588,7 +588,7 @@ SISProbe(DriverPtr drv, int flags)
 	    }
 	    pPriv = xf86GetEntityPrivate(pScrn->entityList[0], SISEntityIndex);
 	    if(!pPriv->ptr) {
-	       pPriv->ptr = xnfcalloc(sizeof(SISEntRec), 1);
+	       pPriv->ptr = XNFcallocarray(sizeof(SISEntRec), 1);
 	       pSiSEnt = pPriv->ptr;
 	       memset(pSiSEnt, 0, sizeof(SISEntRec));
 	       pSiSEnt->lastInstance = -1;
@@ -3926,7 +3926,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     }
 #endif
     if(!pSiS->SiS_Pr) {
-       if(!(pSiS->SiS_Pr = xnfcalloc(sizeof(struct SiS_Private), 1))) {
+       if(!(pSiS->SiS_Pr = XNFcallocarray(sizeof(struct SiS_Private), 1))) {
 	  SISErrorLog(pScrn, "Could not allocate memory for SiS_Pr structure\n");
 	  goto my_error_1;
        }
@@ -6196,7 +6196,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
      * Setup the ClockRanges, which describe what clock ranges are available,
      * and what sort of modes they can be used for.
      */
-    clockRanges = xnfcalloc(sizeof(ClockRange), 1);
+    clockRanges = XNFcallocarray(sizeof(ClockRange), 1);
     clockRanges->next = NULL;
     clockRanges->minClock = pSiS->MinClock;
     clockRanges->maxClock = pSiS->MaxClock;
@@ -13538,7 +13538,7 @@ SiSBuildVesaModeList(ScrnInfoPtr pScrn, vbeInfoPtr pVbe, VbeInfoBlock *vbe)
 	  continue;
        }
 
-       m = xnfcalloc(sizeof(sisModeInfoRec), 1);
+       m = XNFcallocarray(sizeof(sisModeInfoRec), 1);
        if(!m) {
 	  VBEFreeModeInfo(mode);
 	  continue;
