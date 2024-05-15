@@ -994,7 +994,6 @@ SiS300UseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
     return TRUE;
 }
 
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,99,0,0)
 #ifdef ARGB_CURSOR
 #ifdef SIS_ARGB_CURSOR
 static Bool
@@ -1347,7 +1346,6 @@ static void SiS310LoadCursorImageARGB(ScrnInfoPtr pScrn, CursorPtr pCurs)
 }
 #endif
 #endif
-#endif
 
 Bool
 SiSHWCursorInit(ScreenPtr pScreen)
@@ -1374,14 +1372,12 @@ SiSHWCursorInit(ScreenPtr pScreen)
         infoPtr->SetCursorColors = SiS300SetCursorColors;
         infoPtr->LoadCursorImage = SiS300LoadCursorImage;
         infoPtr->UseHWCursor = SiS300UseHWCursor;
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,99,0,0)
 #ifdef ARGB_CURSOR
 #ifdef SIS_ARGB_CURSOR
         if(pSiS->OptUseColorCursor) {
 	   infoPtr->UseHWCursorARGB = SiSUseHWCursorARGB;
 	   infoPtr->LoadCursorARGB = SiS300LoadCursorImageARGB;
 	}
-#endif
 #endif
 #endif
         infoPtr->Flags =
@@ -1411,14 +1407,12 @@ SiSHWCursorInit(ScreenPtr pScreen)
         infoPtr->SetCursorColors = SiS310SetCursorColors;
         infoPtr->LoadCursorImage = SiS310LoadCursorImage;
         infoPtr->UseHWCursor = SiS300UseHWCursor;
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,99,0,0)
 #ifdef ARGB_CURSOR
 #ifdef SIS_ARGB_CURSOR
   	if(pSiS->OptUseColorCursor) {
 	   infoPtr->UseHWCursorARGB = SiSUseHWCursorARGB;
 	   infoPtr->LoadCursorARGB = SiS310LoadCursorImageARGB;
 	}
-#endif
 #endif
 #endif
         infoPtr->Flags =

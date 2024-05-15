@@ -869,14 +869,6 @@ SISSetupImageVideo(ScreenPtr pScreen)
     XF86VideoAdaptorPtr adapt;
     SISPortPrivPtr pPriv;
 
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
-    XAAInfoRecPtr pXAA = pSiS->AccelInfoPtr;
-
-    if(!pXAA || !pXAA->FillSolidRects) {
-       return NULL;
-    }
-#endif
-
     if(!(adapt = calloc(1, sizeof(XF86VideoAdaptorRec) +
                             sizeof(SISPortPrivRec) +
                             sizeof(DevUnion)))) {
@@ -1134,37 +1126,6 @@ SISSetupImageVideo(ScreenPtr pScreen)
 
     return adapt;
 }
-
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,3,0)
-static Bool
-RegionsEqual(RegionPtr A, RegionPtr B)
-{
-    int *dataA, *dataB;
-    int num;
-
-    num = REGION_NUM_RECTS(A);
-    if(num != REGION_NUM_RECTS(B))
-       return FALSE;
-
-    if((A->extents.x1 != B->extents.x1) ||
-       (A->extents.x2 != B->extents.x2) ||
-       (A->extents.y1 != B->extents.y1) ||
-       (A->extents.y2 != B->extents.y2))
-       return FALSE;
-
-    dataA = (int*)REGION_RECTS(A);
-    dataB = (int*)REGION_RECTS(B);
-
-    while(num--) {
-      if((dataA[0] != dataB[0]) || (dataA[1] != dataB[1]))
-         return FALSE;
-      dataA += 2;
-      dataB += 2;
-    }
-
-    return TRUE;
-}
-#endif
 
 /*********************************
  *       SetPortAttribute()      *
@@ -3649,11 +3610,7 @@ SISPutImage(
    /* update cliplist */
    if(pPriv->autopaintColorKey &&
       (pPriv->grabbedByV4L ||
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,3,0)
-       (!RegionsEqual(&pPriv->clip, clipBoxes)) ||
-#else
        (!REGION_EQUAL(pScrn->pScreen, &pPriv->clip, clipBoxes)) ||
-#endif
        (pPriv->PrevOverlay != pPriv->NoOverlay))) {
      /* We always paint the colorkey for V4L */
      if(!pPriv->grabbedByV4L) {
@@ -3671,13 +3628,7 @@ SISPutImage(
      } else {
 #endif
         if(!pSiS->disablecolorkeycurrent) {
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
-           (*pXAA->FillSolidRects)(pScrn, pPriv->colorKey, GXcopy, ~0,
-                           REGION_NUM_RECTS(clipBoxes),
-                           REGION_RECTS(clipBoxes));
-#else
 	   xf86XVFillKeyHelper(pScrn->pScreen, (pPriv->NoOverlay) ? 0x00ff0000 : pPriv->colorKey, clipBoxes);
-#endif
 	}
 #ifdef SIS_USE_XAA
      }
@@ -3918,13 +3869,7 @@ SISDisplaySurface (
 
       } else {
 #endif
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
-   	 (*pXAA->FillSolidRects)(pScrn, pPriv->colorKey, GXcopy, ~0,
-                        REGION_NUM_RECTS(clipBoxes),
-                        REGION_RECTS(clipBoxes));
-#else
          xf86XVFillKeyHelper(pScrn->pScreen, (pPriv->NoOverlay) ? 0x00ff0000 : pPriv->colorKey, clipBoxes);
-#endif
 #ifdef SIS_USE_XAA
       }
 #endif
@@ -4200,9 +4145,6 @@ SISPutImageBlit(
 ){
    SISPtr pSiS = SISPTR(pScrn);
    SISBPortPrivPtr pPriv = (SISBPortPrivPtr)(pSiS->blitPriv);
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
-   XAAInfoRecPtr pXAA = pSiS->AccelInfoPtr;
-#endif
    BoxPtr pbox = REGION_RECTS(clipBoxes);
    int    nbox = REGION_NUM_RECTS(clipBoxes);
    CARD32 dstbase = 0, offsety, offsetuv, temp;
@@ -4257,18 +4199,8 @@ SISPutImageBlit(
    }
 
    if(xoffset || yoffset) {
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,3,0)
-      if(!RegionsEqual(&pPriv->blitClip[index], clipBoxes)) {
-#else
       if(!REGION_EQUAL(pScrn->pScreen, &pPriv->blitClip[index], clipBoxes)) {
-#endif
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
-         (*pXAA->FillSolidRects)(pScrn, 0x00000000, GXcopy, ~0,
-                              REGION_NUM_RECTS(clipBoxes),
-                              REGION_RECTS(clipBoxes));
-#else
          xf86XVFillKeyHelper(pScrn->pScreen, 0x00000000, clipBoxes);
-#endif
          REGION_COPY(pScrn->pScreen, &pPriv->blitClip[index], clipBoxes);
       }
    }

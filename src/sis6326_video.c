@@ -524,13 +524,6 @@ SIS6326SetupImageVideo(ScreenPtr pScreen)
     XF86VideoAdaptorPtr adapt;
     SISPortPrivPtr pPriv;
 
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
-    XAAInfoRecPtr pXAA = pSiS->AccelInfoPtr;
-
-    if(!pXAA || !pXAA->FillSolidRects)
-       return NULL;
-#endif
-
     if(!(adapt = calloc(1, sizeof(XF86VideoAdaptorRec) +
                             sizeof(SISPortPrivRec) +
                             sizeof(DevUnion))))
@@ -601,37 +594,6 @@ SIS6326SetupImageVideo(ScreenPtr pScreen)
 
     return adapt;
 }
-
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,3,0)
-static Bool
-RegionsEqual(RegionPtr A, RegionPtr B)
-{
-    int *dataA, *dataB;
-    int num;
-
-    num = REGION_NUM_RECTS(A);
-    if(num != REGION_NUM_RECTS(B))
-    return FALSE;
-
-    if((A->extents.x1 != B->extents.x1) ||
-       (A->extents.x2 != B->extents.x2) ||
-       (A->extents.y1 != B->extents.y1) ||
-       (A->extents.y2 != B->extents.y2))
-    return FALSE;
-
-    dataA = (int*)REGION_RECTS(A);
-    dataB = (int*)REGION_RECTS(B);
-
-    while(num--) {
-      if((dataA[0] != dataB[0]) || (dataA[1] != dataB[1]))
-        return FALSE;
-      dataA += 2;
-      dataB += 2;
-    }
-
-    return TRUE;
-}
-#endif
 
 static int
 SIS6326SetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
@@ -1325,22 +1287,12 @@ SIS6326PutImage(
    /* update cliplist */
    if(  pPriv->autopaintColorKey &&
         (pPriv->grabbedByV4L ||
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,3,0)
-	 !RegionsEqual(&pPriv->clip, clipBoxes)) ) {
-#else
          !REGION_EQUAL(pScrn->pScreen, &pPriv->clip, clipBoxes)) ) {
-#endif
       /* We always paint colorkey for V4L */
       if(!pPriv->grabbedByV4L)
      	 REGION_COPY(pScrn->pScreen, &pPriv->clip, clipBoxes);
       /* draw these */
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
-      (*pSiS->AccelInfoPtr->FillSolidRects)(pScrn, pPriv->colorKey, GXcopy, ~0,
-                    REGION_NUM_RECTS(clipBoxes),
-                    REGION_RECTS(clipBoxes));
-#else
       xf86XVFillKeyHelper(pScrn->pScreen, pPriv->colorKey, clipBoxes);
-#endif
    }
 
    pPriv->currentBuf ^= 1;
@@ -1588,13 +1540,7 @@ SIS6326DisplaySurface (
    SIS6326DisplayVideo(pScrn, pPriv);
 
    if(pPriv->autopaintColorKey) {
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,1,99,1,0)
-      (*XAAPTR(pScrn)->FillSolidRects)(pScrn, pPriv->colorKey, GXcopy, ~0,
-                    REGION_NUM_RECTS(clipBoxes),
-                    REGION_RECTS(clipBoxes));
-#else
       xf86XVFillKeyHelper(pScrn->pScreen, pPriv->colorKey, clipBoxes);
-#endif
    }
 
    pPriv->videoStatus = CLIENT_VIDEO_ON;

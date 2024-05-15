@@ -637,9 +637,6 @@ SiSOptions(ScrnInfoPtr pScrn)
        pSiS->loadDRI = TRUE;
     }
 
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-    pSiS->OptUseColorCursor = 0;
-#else
     if(pSiS->VGAEngine == SIS_300_VGA) {
        pSiS->OptUseColorCursor = 0;
        pSiS->OptUseColorCursorBlend = 1;
@@ -652,7 +649,6 @@ SiSOptions(ScrnInfoPtr pScrn)
           pSiS->OptUseColorCursor = 1;
        }
     }
-#endif
 
     if(pSiS->VGAEngine == SIS_300_VGA) {
        pSiS->AllowHotkey = 0;
@@ -714,12 +710,7 @@ SiSOptions(ScrnInfoPtr pScrn)
      */
     if(!xf86ReturnOptValBool(pSiS->Options, OPTION_ACCEL, TRUE)) {
        pSiS->NoAccel = TRUE;
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-       pSiS->NoXvideo = TRUE;
-       xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "2D Acceleration and Xv disabled\n");
-#else
        xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "2D Acceleration disabled\n");
-#endif
     }
 
 #if defined(SIS_USE_XAA) && defined(SIS_USE_EXA)
@@ -782,7 +773,6 @@ SiSOptions(ScrnInfoPtr pScrn)
      * select emultation transparency threshold for 300 series
      *
      */
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,99,0,0)
 #ifdef ARGB_CURSOR
 #ifdef SIS_ARGB_CURSOR
     if((pSiS->HWCursor) &&
@@ -826,7 +816,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 	  }
        }
     }
-#endif
 #endif
 #endif
 
@@ -1952,14 +1941,8 @@ SiSOptions(ScrnInfoPtr pScrn)
     }
     if(pSiS->ShadowFB) {
 	pSiS->NoAccel = TRUE;
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-	pSiS->NoXvideo = TRUE;
-	xf86DrvMsg(pScrn->scrnIndex, from,
-	   "Using \"Shadow Framebuffer\" - 2D acceleration and Xv disabled\n");
-#else
 	xf86DrvMsg(pScrn->scrnIndex, from,
 	   "Using \"Shadow Framebuffer\" - 2D acceleration disabled\n");
-#endif
     }
 
     /* Rotate */
@@ -2053,11 +2036,7 @@ SiSOptions(ScrnInfoPtr pScrn)
     /* XVideo
      * Set enables/disables Xv hardware video acceleration
      */
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-    if((!pSiS->NoAccel) && (!pSiS->NoXvideo)) {
-#else
     if(!pSiS->NoXvideo) {
-#endif
        if(!xf86ReturnOptValBool(pSiS->Options, OPTION_XVIDEO, TRUE)) {
 	  pSiS->NoXvideo = TRUE;
 	  xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "XVideo extension (Xv) disabled\n");

@@ -140,11 +140,7 @@ extern unsigned char SiSGetPatternROP(int rop);
 CARD32 dummybuf;
 
 #ifdef SIS_NEED_ARRAY
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,0,0,0)
 #define SiSRenderOpsMAX 0x2b
-#else
-#define SiSRenderOpsMAX 0x0f
-#endif
 static const CARD8 SiSRenderOps[] = {	/* PictOpXXX 1 = supported, 0 = unsupported */
      1, 1, 1, 1,
      0, 0, 0, 0,
@@ -314,32 +310,6 @@ SiSSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn,
 	srcbase = dstbase = 0;
 	mymin = min(src_y, dst_y);
 	mymax = max(src_y, dst_y);
-
-	/* Libxaa.a has a bug: The tilecache cannot operate
-	 * correctly if there are 512x512 slots, but no 256x256
-	 * slots. This leads to catastrophic data fed to us.
-	 * Filter this out here and warn the user.
-	 * Fixed in 4.3.99.10 (?) and Debian's 4.3.0.1
-	 */
-#if (XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,3,99,10,0)) && (XF86_VERSION_CURRENT != XF86_VERSION_NUMERIC(4,3,0,1,0))
-	if((src_x < 0)  ||
-	   (dst_x < 0)  ||
-	   (src_y < 0)  ||
-	   (dst_y < 0)  ||
-	   (width <= 0) ||
-	   (height <= 0)) {
-	   xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-		"BitBlit fatal error: Illegal coordinates:\n");
-	   xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-	        "Source x %d y %d, dest x %d y %d, width %d height %d\n",
-			  src_x, src_y, dst_x, dst_y, width, height);
-	   xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-		"This is very probably caused by a known bug in libxaa.a.\n");
-	   xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-		"Please update libxaa.a to avoid this error.\n");
-	   return;
-	}
-#endif
 
 	/* Although the chip knows the direction to use
 	 * if the source and destination areas overlap,
@@ -1431,29 +1401,23 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	switch(op) {
 	case PictOpClear:
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,0,0,0)
 	case PictOpDisjointClear:
 	case PictOpConjointClear:
-#endif
 	   SiSSetupPATFGDSTRect(0, pSiS->scrnOffset, DEV_HEIGHT)
 	   /* SiSSetupROP(0x00) - is already 0 */
 	   SiSSetupCMDFlag(PATFG)
 	   docopy = FALSE;
 	   break;
 	case PictOpSrc:
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,0,0,0)
 	case PictOpDisjointSrc:
 	case PictOpConjointSrc:
-#endif
 	   SiSSetupSRCPitchDSTRect((pitch << 2), pSiS->scrnOffset, DEV_HEIGHT);
 	   SiSSetupAlpha(0xff)
 	   SiSSetupCMDFlag(ALPHA_BLEND | SRCVIDEO | A_NODESTALPHA)
 	   break;
 	case PictOpDst:
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,0,0,0)
 	case PictOpDisjointDst:
 	case PictOpConjointDst:
-#endif
 	   SiSSetupSRCPitchDSTRect((pitch << 2), pSiS->scrnOffset, DEV_HEIGHT);
 	   SiSSetupAlpha(0x00)
 	   SiSSetupCMDFlag(ALPHA_BLEND | SRCVIDEO | A_CONSTANTALPHA)
@@ -1570,29 +1534,23 @@ SiSSetupForCPUToScreenTexture(ScrnInfoPtr pScrn,
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	switch(op) {
 	case PictOpClear:
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,0,0,0)
 	case PictOpDisjointClear:
 	case PictOpConjointClear:
-#endif
 	   SiSSetupPATFGDSTRect(0, pSiS->scrnOffset, DEV_HEIGHT)
 	   /* SiSSetupROP(0x00) - is already zero */
 	   SiSSetupCMDFlag(PATFG)
 	   docopy = FALSE;
 	   break;
 	case PictOpSrc:
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,0,0,0)
 	case PictOpDisjointSrc:
 	case PictOpConjointSrc:
-#endif
 	   SiSSetupSRCPitchDSTRect(pitch, pSiS->scrnOffset, DEV_HEIGHT);
 	   SiSSetupAlpha(0xff)
 	   SiSSetupCMDFlag(ALPHA_BLEND | SRCVIDEO | A_NODESTALPHA)
 	   break;
 	case PictOpDst:
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,0,0,0)
 	case PictOpDisjointDst:
 	case PictOpConjointDst:
-#endif
 	   SiSSetupSRCPitchDSTRect(pitch, pSiS->scrnOffset, DEV_HEIGHT);
 	   SiSSetupAlpha(0x00)
 	   SiSSetupCMDFlag(ALPHA_BLEND | SRCVIDEO | A_CONSTANTALPHA)

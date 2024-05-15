@@ -90,9 +90,6 @@
 #undef SISISXORG6899900
 #include "xorgVersion.h"
 #define SISMYSERVERNAME "X.org"
-#define XF86_VERSION_NUMERIC(major,minor,patch,snap,dummy) \
-	(((major) * 10000000) + ((minor) * 100000) + ((patch) * 1000) + snap)
-#define XF86_VERSION_CURRENT XF86_VERSION_NUMERIC(4,3,99,902,0)
 #if XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,900,0) || XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(4,0,0,0,0)
 #define SISISXORG6899900
 #endif
@@ -110,10 +107,8 @@
 #define SIS_CURRENT_VERSION     ((SIS_MAJOR_VERSION << 16) | \
                                  (SIS_MINOR_VERSION << 8) | SIS_PATCHLEVEL )
 
-#if (XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,99,0,0)) || (defined(XvExtension))
 #include "xf86xv.h"
 #include <X11/extensions/Xv.h>
-#endif
 
 /* Platform/architecture related definitions: */
 
@@ -160,12 +155,8 @@
 #endif
 
 #ifdef SISDRI
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,99,3,0)
 #define SISHAVEDRMWRITE
-#endif
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,99,14,0)
 #define SISNEWDRI
-#endif
 #undef SIS315DRI		/* define this if dri is adapted for 315/330 series */
 #include "xf86drm.h"
 #include "sarea.h"
@@ -231,7 +222,8 @@
 #include "compat-api.h"
 
 #undef SISCHECKOSSSE
-#if (XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,13,0)) || (XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(1,19,99,1,0))
+// xf86InterceptSigIll() is discontinued in xorg-server 1.20
+#if (XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(1,19,99,1,0))
 #define SISCHECKOSSSE		/* Automatic check OS for SSE; requires SigIll facility */
 #endif
 

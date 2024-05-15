@@ -1224,13 +1224,11 @@ SiSCopyModeNLink(ScrnInfoPtr pScrn, DisplayModePtr dest,
     mode->VTotal += dy;
 
     mode->type = M_T_DEFAULT;
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,2,99,2,0)
     /* Set up as user defined (ie fake that the mode has been named in the
      * Modes-list in the screen section; corrects cycling with CTRL-ALT-[-+]
      * when source mode has not been listed there.)
      */
     mode->type |= M_T_USERDEF;
-#endif
 
     /* Set the VRefresh field (in order to make RandR use it for the rates). We
      * simply set this to the refresh rate for the CRT1 mode (since CRT2 will
@@ -2873,12 +2871,8 @@ SiS_LoadInitVBE(ScrnInfoPtr pScrn)
     if(pSiS->pVbe) return;
 
     if(xf86LoadSubModule(pScrn, "vbe")) {
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-       pSiS->pVbe = VBEInit(pSiS->pInt, pSiS->pEnt->index);
-#else
        pSiS->pVbe = VBEExtendedInit(pSiS->pInt, pSiS->pEnt->index,
 	                SET_BIOS_SCRATCH | RESTORE_BIOS_SCRATCH);
-#endif
     }
 
     if(!pSiS->pVbe) {
@@ -3185,11 +3179,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
        if(xf86LoadSubModule(pScrn, "vbe")) {
           int index = xf86GetEntityInfo(pScrn->entityList[0])->index;
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-	  if((pVbe = VBEInit(NULL, index)))
-#else
           if((pVbe = VBEExtendedInit(NULL, index, 0)))
-#endif
           {
              ConfiguredMonitor = vbeDoEDID(pVbe, NULL);
              vbeFree(pVbe);
@@ -3255,7 +3245,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     pSiS->pInt = NULL;
 
     /* Save PCI Domain Base */
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0) || GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) >= 12
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) >= 12
     pSiS->IODBase = 0;
 #else
     pSiS->IODBase = pScrn->domainIOBase;
@@ -4169,11 +4159,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	        ULong  segstart;
 		for(segstart = BIOS_BASE; segstart < 0x000f0000; segstart += 0x00001000) {
 
-#if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-		   if(xf86ReadBIOS(segstart, 0, pSiS->BIOS, biossize) != biossize) continue;
-#else
 		   if(xf86ReadDomainMemory(pSiS->PciTag, segstart, biossize, pSiS->BIOS) != biossize) continue;
-#endif
 
 		   if(!SISCheckBIOS(pSiS, mypciid, mypcivendor, biossize)) continue;
 
@@ -8967,7 +8953,7 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
 	     case 24: refreshArea = SISRefreshArea24; break;
 	     case 32: refreshArea = SISRefreshArea32; break;
 	  }
-#if (XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)) && (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
+#if (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
 	  xf86DisableRandR();
 	  xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 		"Driver rotation enabled, disabling RandR\n");
@@ -8980,7 +8966,7 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
              if(!pSiS->PointerMoved) pSiS->PointerMoved = pScrn->PointerMoved;
 	     pScrn->PointerMoved = SISPointerMovedReflect;
 	     refreshArea = SISRefreshAreaReflect;
-#if (XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)) && (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
+#if (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
 	     xf86DisableRandR();
 	     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 		  "Driver reflection enabled, disabling RandR\n");
@@ -9003,7 +8989,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
 
     /* Initialize Xv */
     pSiS->ResetXv = pSiS->ResetXvGamma = pSiS->ResetXvDisplay = NULL;
-#if (XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,99,0,0)) || (defined(XvExtension))
     if((!pSiS->NoXvideo) && (!(pSiS->SiS_SD2_Flags & SiS_SD2_NOOVERLAY))) {
 
        if((pSiS->VGAEngine == SIS_300_VGA) ||
@@ -9064,7 +9049,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
 
        }
     }
-#endif
 
 #ifdef SISDRI
     if(pSiS->loadDRI) {
@@ -9091,7 +9075,7 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
        pSiS->Rotate = 0;
        pSiS->Reflect = 0;
        pSiS->ShadowFB = FALSE;
-#if (XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)) && (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
+#if (GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 24)
        if(pSiS->CRT1XOffs || pSiS->CRT1YOffs || pSiS->CRT2XOffs || pSiS->CRT2YOffs) {
 	  xf86DisableRandR();
 	  xf86DrvMsg(pScrn->scrnIndex, X_INFO,

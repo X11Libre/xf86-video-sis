@@ -46,11 +46,7 @@
 #include "fb.h"
 
 #ifndef SISHAVEDRMWRITE
-# if XF86_VERSION_CURRENT < XF86_VERSION_NUMERIC(4,2,99,0,0)
-extern Bool drmSiSAgpInit(int driSubFD, int offset, int size);
-# else
 #  include "xf86drmCompat.h"
-# endif
 #endif
 
 #define SISHAVECREATEBUSID
@@ -60,9 +56,7 @@ extern char *DRICreatePCIBusID(pciVideoPtr PciInfo);
 #endif
 #endif
 
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
 #include "sis_common.h"
-#endif
 
 #ifndef DRIINFO_MAJOR_VERSION
 #define DRIINFO_MAJOR_VERSION 4
@@ -118,9 +112,7 @@ SISDRIScreenInit(ScreenPtr pScreen)
   SISPtr pSIS = SISPTR(pScrn);
   DRIInfoPtr pDRIInfo;
   SISDRIPtr pSISDRI;
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
   drmVersionPtr version;
-#endif
 
    pSIS->cmdQueueLenPtrBackup = NULL;
 #ifdef SIS315DRI
@@ -259,7 +251,6 @@ SISDRIScreenInit(ScreenPtr pScreen)
      return FALSE;
   }
 
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
   /* Check DRM kernel version */
   version = drmGetVersion(pSIS->drmSubFD);
   if(version) {
@@ -290,7 +281,6 @@ SISDRIScreenInit(ScreenPtr pScreen)
      }
      drmFreeVersion(version);
   }
-#endif
 
   /* MMIO */
   pSISDRI->regs.size = SISIOMAPSIZE;

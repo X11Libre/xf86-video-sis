@@ -1714,17 +1714,12 @@ SiSVGAMapMem(ScrnInfoPtr pScrn)
     if(pSiS->VGAMapSize == 0) pSiS->VGAMapSize = (64 * 1024);
     if(pSiS->VGAMapPhys == 0) pSiS->VGAMapPhys = 0xA0000;
 
-#if XF86_VERSION_CURRENT >= XF86_VERSION_NUMERIC(4,3,0,0,0)
 #if XSERVER_LIBPCIACCESS
     (void) pci_device_map_legacy(pSiS->PciInfo, pSiS->VGAMapPhys, pSiS->VGAMapSize,
                                  PCI_DEV_MAP_FLAG_WRITABLE, &pSiS->VGAMemBase);
 #else
     pSiS->VGAMemBase = xf86MapDomainMemory(pScrn->scrnIndex, VIDMEM_MMIO_32BIT,
 			pSiS->PciTag, pSiS->VGAMapPhys, pSiS->VGAMapSize);
-#endif
-#else
-    pSiS->VGAMemBase = xf86MapVidMem(pScrn->scrnIndex, VIDMEM_MMIO_32BIT,
-			pSiS->VGAMapPhys, pSiS->VGAMapSize);
 #endif
 
     return(pSiS->VGAMemBase != NULL);
