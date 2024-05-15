@@ -88,20 +88,13 @@
 #define SIS_HaveDriverFuncs 0
 
 #undef SISISXORG6899900
-#ifdef XORG_VERSION_CURRENT
 #include "xorgVersion.h"
 #define SISMYSERVERNAME "X.org"
-#ifndef XF86_VERSION_NUMERIC
 #define XF86_VERSION_NUMERIC(major,minor,patch,snap,dummy) \
 	(((major) * 10000000) + ((minor) * 100000) + ((patch) * 1000) + snap)
 #define XF86_VERSION_CURRENT XF86_VERSION_NUMERIC(4,3,99,902,0)
-#endif
 #if XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,900,0) || XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(4,0,0,0,0)
 #define SISISXORG6899900
-#endif
-#else
-#include "xf86Version.h"
-#define SISMYSERVERNAME "XFree86"
 #endif
 
 #define SIS_NAME                "SIS"
@@ -210,10 +203,8 @@
 #endif
 
 #ifdef SISVRAMQ
-#ifdef XORG_VERSION_CURRENT
 #if defined(SIS_HAVE_EXA) || (defined(USE_EXA) && (USE_EXA != 0))
 #define SIS_USE_EXA		/* Include code for EXA */
-#endif
 #endif
 #endif
 
@@ -240,17 +231,13 @@
 #include "compat-api.h"
 
 #undef SISCHECKOSSSE
-#ifdef XORG_VERSION_CURRENT
 #if (XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,13,0)) || (XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(1,19,99,1,0))
 #define SISCHECKOSSSE		/* Automatic check OS for SSE; requires SigIll facility */
 #endif
-#endif
 
 #undef SISGAMMARAMP
-#ifdef XORG_VERSION_CURRENT
 #if (XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,13,0)) || (XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(1,0,0,0,0))
 #define SISGAMMARAMP		/* Driver can set gamma ramp; requires additional symbols in xf86sym.h */
-#endif
 #endif
 
 #ifdef TWDEBUG
