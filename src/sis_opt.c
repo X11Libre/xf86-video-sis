@@ -152,9 +152,6 @@ typedef enum {
     OPTION_FORCE1ASPECT,
     OPTION_FORCE2ASPECT,
     OPTION_TVBLUE,
-#ifdef SIS_CP
-    SIS_CP_OPT_OPTIONS
-#endif
     OPTION_PSEUDO
 } SISOpts;
 
@@ -292,9 +289,6 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_MERGEDFBNONRECT,		"MergedNonRectangular",		OPTV_BOOLEAN,	{0}, FALSE },
     { OPTION_MERGEDFBMOUSER,		"MergedMouseRestriction",	OPTV_BOOLEAN,	{0}, FALSE },
 #endif
-#endif
-#ifdef SIS_CP
-    SIS_CP_OPTION_DETAIL
 #endif
     { -1,				NULL,				OPTV_NONE,	{0}, FALSE }
 };
@@ -596,9 +590,6 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->UseSiSXinerama = TRUE;
     pSiS->CRT2IsScrn0 = FALSE;
 #endif
-#endif
-#ifdef SIS_CP
-    SIS_CP_OPT_DEFAULT
 #endif
 
     /* Chipset dependent defaults */
@@ -1018,9 +1009,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 #endif
 #ifndef SISCHECKOSSSE
 		OPTION_XVSSECOPY,
-#endif
-#ifdef SIS_CP
-		SIS_CP_OPT_DH_WARN
 #endif
 		-1
        };
@@ -1860,11 +1848,6 @@ SiSOptions(ScrnInfoPtr pScrn)
        }
 #endif
 #endif /* __i386__ || __AMD64__ || __amd64__ */
-
-#ifdef SIS_CP
-       SIS_CP_OPT_DOOPT
-#endif
-
     }  /* DualHead */
 
     /* CRT1Gamma - enable/disable gamma correction for CRT1

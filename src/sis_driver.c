@@ -4341,9 +4341,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  pSiSEnt->SenseYPbPr = pSiS->SenseYPbPr;
 	  pSiSEnt->XvUseMemcpy = pSiS->XvUseMemcpy;
 	  pSiSEnt->BenchMemCpy = pSiS->BenchMemCpy;
-#ifdef SIS_CP
-	  SIS_CP_DRIVER_COPYOPTIONSENT
-#endif
        } else {
 	  /* We always use same cursor type on both screens */
 	  pSiS->HWCursor = pSiSEnt->HWCursor;
@@ -4425,9 +4422,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  pSiSEnt->NewGammaConR = pSiS->NewGammaConR;
 	  pSiSEnt->NewGammaConG = pSiS->NewGammaConG;
 	  pSiSEnt->NewGammaConB = pSiS->NewGammaConB;
-#ifdef SIS_CP
-	  SIS_CP_DRIVER_COPYOPTIONS
-#endif
        }
     }
 #endif
@@ -5574,10 +5568,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  pSiS->NonDefaultPAL = pSiS->NonDefaultNTSC = -1;
        }
     }
-
-#ifdef SIS_CP
-    SIS_CP_DRIVER_RECONFIGOPT
-#endif
 
     if((pSiS->Chipset == PCI_CHIP_SIS6326) && (pSiS->SiS6326Flags & SIS6326_HASTV)) {
        if(pSiS->sis6326tvplug != -1) {
@@ -10563,9 +10553,6 @@ void SiSPreSetMode(ScrnInfoPtr pScrn, DisplayModePtr mode, int viewmode)
 	  } else {
 	     pSiS->SiS_Pr->SiS_CHSOverScan = FALSE;
 	  }
-#ifdef SIS_CP
-	  SIS_CP_DRIVER_CONFIG
-#endif
 	  break;
 
        case CRT2_LCD:

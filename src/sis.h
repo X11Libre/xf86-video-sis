@@ -68,11 +68,6 @@
 #define TWDEBUG    /* for debugging */
 #endif
 
-#undef SIS_CP
-#if 0
-#include "siscp.H"
-#endif
-
 #include "compiler.h"
 #include "xf86Pci.h"
 #include "xf86_OSproc.h"
@@ -948,9 +943,6 @@ typedef struct {
     UShort		MapCountIOPBase;	/* map/unmap queue counter */
     Bool		forceUnmapIOPBase;	/* ignore counter and unmap */
 #endif
-#ifdef SIS_CP
-    SIS_CP_H_ENT
-#endif
 } SISEntRec, *SISEntPtr;
 #endif
 
@@ -1312,9 +1304,6 @@ typedef struct {
     int			SiS76xUMASize;
     int			CRT1isoff;
     ULong		UMAsize, LFBsize;	/* For SiSCtrl extension info only */
-#ifdef SIS_CP
-    SIS_CP_H
-#endif
     ULong		ChipFlags;
     ULong		SiS_SD_Flags, SiS_SD2_Flags, SiS_SD3_Flags, SiS_SD4_Flags;
     Bool		UseHWARGBCursor;

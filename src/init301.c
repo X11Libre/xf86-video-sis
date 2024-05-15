@@ -7352,11 +7352,7 @@ SiS_SetGroup3(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned short 
 
   if(SiS_Pr->SiS_VBInfo & SetCRT2ToLCDA) return;
 
-#ifndef SIS_CP
   SiS_SetReg(SiS_Pr->SiS_Part3Port,0x00,0x00);
-#else
-  SIS_CP_INIT301_CP
-#endif
 
   if(SiS_Pr->SiS_TVMode & TVSetPALTiming) {
      SiS_SetReg(SiS_Pr->SiS_Part3Port,0x13,0xFA);
@@ -7396,10 +7392,6 @@ SiS_SetGroup3(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned short 
 	}
      }
   }
-
-#ifdef SIS_CP
-  SIS_CP_INIT301_CP2
-#endif
 }
 
 /*********************************************/
@@ -8075,9 +8067,7 @@ SiS_SetCHTVReg(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned short
       /* Register 0x3D does not exist in non-macrovision register map
             (Maybe this is a macrovision register?)
        */
-#ifndef SIS_CP
       SiS_SetCH70xx(SiS_Pr,0x3d,0x00);
-#endif
 
       /* Register 0x10 only contains 1 writable bit (S0) for sensing,
              all other bits a read-only. Macrovision?
@@ -8192,11 +8182,6 @@ SiS_SetCHTVReg(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned short
 #endif	/* 315 */
 
    }
-
-#ifdef SIS_CP
-   SIS_CP_INIT301_CP3
-#endif
-
 }
 
 #ifdef SIS315H  /* ----------- 315 series only ---------- */
