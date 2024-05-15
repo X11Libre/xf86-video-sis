@@ -64,14 +64,7 @@
 #endif
 #endif
 
-#if 0
-#define TWDEBUG    /* for debugging */
-#endif
-
 #undef SIS_CP
-#if 0
-#include "siscp.H"
-#endif
 
 #include "compiler.h"
 #include "xf86Pci.h"
@@ -105,13 +98,6 @@
 #endif
 #if XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,900,0) || XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(4,0,0,0,0)
 #define SISISXORG6899900
-#endif
-#if 0
-#ifdef HaveDriverFuncs
-#define SIS_HAVE_DRIVER_FUNC
-#undef  SIS_HaveDriverFuncs
-#define SIS_HaveDriverFuncs HaveDriverFuncs
-#endif
 #endif
 #else
 #include "xf86Version.h"
@@ -155,11 +141,6 @@
 /* List of architectures likely to be incomplete */
 /* This is BROKEN, see comment in sis_driver.c */
 #undef SIS_NEED_MAP_IOP
-#if 0
-#if defined(__arm32__) || defined(__mips__)
-#define SIS_NEED_MAP_IOP
-#endif
-#endif
 
 /* SISUSEDEVPORT: Used on architectures without direct inX/outX access. In this case,
  * we use read()/write() to /dev/port. LINUX ONLY! (How can this be done on *BSD?)
@@ -231,19 +212,9 @@
 #ifdef SISVRAMQ
 #ifdef XORG_VERSION_CURRENT
 #if defined(SIS_HAVE_EXA) || (defined(USE_EXA) && (USE_EXA != 0))
-#if 1
 #define SIS_USE_EXA		/* Include code for EXA */
 #endif
 #endif
-#endif
-#endif
-
-#if 0
-#define SISDEINT		/* Include Xv deinterlacer code (not functional yet!) */
-#endif
-
-#if 0
-#define XV_SD_DEPRECATED	/* Include deprecated XV SD interface for SiSCtrl */
 #endif
 
 /* End of configurable stuff --------------------------------- */
@@ -279,20 +250,6 @@
 #ifdef XORG_VERSION_CURRENT
 #if (XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,13,0)) || (XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(1,0,0,0,0))
 #define SISGAMMARAMP		/* Driver can set gamma ramp; requires additional symbols in xf86sym.h */
-#endif
-#endif
-
-#if 0	/* Perhaps for future use */
-#if 1
-#define SIS_PCI_BUS(a) (a)->bus
-#define SIS_PCI_DEVICE(a) (a)->device
-#define SIS_PCI_FUNC(a) (a)->func
-#define SIS_PCI_TAG(a) pciTag((a)->bus, (a)->device, (a)->func);
-#else
-#define SIS_PCI_BUS(a) (a)->pciid.bus
-#define SIS_PCI_DEVICE(a) (a)->pciid.device
-#define SIS_PCI_FUNC(a) (a)->pciid.func
-#define SIS_PCI_TAG(a) pciTag(&((a)->pciid));
 #endif
 #endif
 
