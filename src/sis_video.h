@@ -369,9 +369,6 @@ static XF86AttributeRec SISAttributes_300[] =
    {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbribc2},
    {XvSettable | XvGettable, 0, 15,            sisxvsdpanelmode},
 #endif
-#ifdef SIS_CP
-   SIS_CP_VIDEO_ATTRIBUTES
-#endif
    {0                      , 0, 0,             NULL}
 };
 
@@ -458,9 +455,6 @@ static XF86AttributeRec SISAttributes_315[] =
    {XvSettable             , 0, -1,   	       sisxvsetreg},
 #endif
 #endif  /* XV_SD_DEPRECATED */
-#ifdef SIS_CP
-   SIS_CP_VIDEO_ATTRIBUTES
-#endif
    {XvSettable | XvGettable, 0, 1,             sisxvswitchcrt},
    {0                      , 0, 0,             NULL}
 };

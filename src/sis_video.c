@@ -401,9 +401,6 @@ SISSetPortDefaults(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
        pPriv->updatetvxpos = TRUE;
        pPriv->updatetvypos = TRUE;
     }
-#ifdef SIS_CP
-    SIS_CP_VIDEO_DEF
-#endif
     if(pPriv->dualHeadMode) {
 #ifdef SISDUALHEAD
        pPriv->crtnum =
@@ -1033,9 +1030,6 @@ SISSetupImageVideo(ScreenPtr pScreen)
     pSiS->xv_STR	      = MAKE_ATOM(sisxvsetreg);
 #endif
 #endif /* XV_SD_DEPRECATED */
-#ifdef SIS_CP
-    SIS_CP_VIDEO_ATOMS
-#endif
 
     pSiS->xv_sisdirectunlocked = 0;
 #ifdef XV_SD_DEPRECATED
@@ -1224,9 +1218,6 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
      if(value > 4) value = 4;
      pPriv->deinterlacemethod = value;
 #endif
-#ifdef SIS_CP
-  SIS_CP_VIDEO_SETATTRIBUTE
-#endif
   } else if(attribute == pSiS->xvHue) {
      if(pSiS->VGAEngine == SIS_315_VGA) {
         if((value < -8) || (value > 7)) return BadValue;
@@ -1321,9 +1312,6 @@ SISGetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 #ifdef SISDEINT
   } else if(attribute == pSiS->xvdeintmeth) {
      *value = pPriv->deinterlacemethod;
-#endif
-#ifdef SIS_CP
-  SIS_CP_VIDEO_GETATTRIBUTE
 #endif
   } else if(attribute == pSiS->xvHue) {
      if(pSiS->VGAEngine == SIS_315_VGA) {
@@ -2262,10 +2250,6 @@ set_disablegfxlr(SISPtr pSiS, Bool mybool, SISOverlayPtr pOverlay)
     if(mybool) pOverlay->keyOP = VI_ROP_Always;
 }
 
-#ifdef SIS_CP
-    SIS_CP_VIDEO_SUBS
-#endif
-
 /*********************************
  *   Set main overlay registers  *
  *********************************/
@@ -2562,11 +2546,6 @@ close_overlay(SISPtr pSiS, SISPortPrivPtr pPriv)
      while((!vblank_active_CRT2(pSiS, pPriv)) && --watchdog);
      watchdog = WATCHDOG_DELAY;
      while(vblank_active_CRT2(pSiS, pPriv) && --watchdog);
-
-#ifdef SIS_CP
-     SIS_CP_RESET_CP
-#endif
-
   }
 
   if(pPriv->displayMode & (DISPMODE_SINGLE1 | DISPMODE_MIRROR)) {
@@ -3215,10 +3194,6 @@ MIRROR:
      set_disablegfx(pSiS, FALSE, &overlay);
    }
    set_disablegfxlr(pSiS, pPriv->disablegfxlr, &overlay);
-
-#ifdef SIS_CP
-   SIS_CP_VIDEO_SET_CP
-#endif
 
    /* set remaining overlay parameters */
    set_overlay(pSiS, &overlay, pPriv, index, iscrt2);
