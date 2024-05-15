@@ -90,9 +90,7 @@
 #undef SISISXORG6899900
 #include "xorgVersion.h"
 #define SISMYSERVERNAME "X.org"
-#if XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,900,0) || XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(4,0,0,0,0)
 #define SISISXORG6899900
-#endif
 
 #define SIS_NAME                "SIS"
 #define SIS_DRIVER_NAME         "sis"
@@ -227,10 +225,7 @@
 #define SISCHECKOSSSE		/* Automatic check OS for SSE; requires SigIll facility */
 #endif
 
-#undef SISGAMMARAMP
-#if (XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(6,8,99,13,0)) || (XORG_VERSION_CURRENT >= XORG_VERSION_NUMERIC(1,0,0,0,0))
 #define SISGAMMARAMP		/* Driver can set gamma ramp; requires additional symbols in xf86sym.h */
-#endif
 
 #ifdef TWDEBUG
 #define SISVERBLEVEL 3

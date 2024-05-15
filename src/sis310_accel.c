@@ -90,10 +90,7 @@
 #  include "mipict.h"
 #  include "dixstruct.h"
 #  define SIS_NEED_ARRAY
-#  undef SISNEWRENDER
-#   if XORG_VERSION_CURRENT > XORG_VERSION_NUMERIC(6,7,0,0,0)
-#    define SISNEWRENDER
-#   endif
+#  define SISNEWRENDER
 # endif
 #endif
 

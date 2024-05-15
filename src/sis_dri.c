@@ -49,11 +49,8 @@
 #  include "xf86drmCompat.h"
 #endif
 
-#define SISHAVECREATEBUSID
-#if XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(6,7,99,1,0)
 #ifndef XSERVER_LIBPCIACCESS
 extern char *DRICreatePCIBusID(pciVideoPtr PciInfo);
-#endif
 #endif
 
 #include "sis_common.h"
@@ -156,17 +153,13 @@ SISDRIScreenInit(ScreenPtr pScreen)
      pDRIInfo->clientDriverName = SISClientDriverNameSiS315;
   }
 
-#ifdef SISHAVECREATEBUSID
   if(xf86LoaderCheckSymbol("DRICreatePCIBusID")) {
      pDRIInfo->busIdString = DRICreatePCIBusID(pSIS->PciInfo);
   } else {
-#endif
      pDRIInfo->busIdString = malloc(64);
      sprintf(pDRIInfo->busIdString, "PCI:%d:%d:%d",
 	     pSIS->PciBus, pSIS->PciDevice, pSIS->PciFunc);
-#ifdef SISHAVECREATEBUSID
   }
-#endif
 
   /* Hack to keep old DRI working -- checked for major==1 and
    * minor==1.
