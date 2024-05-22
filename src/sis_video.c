@@ -939,11 +939,7 @@ SISSetupImageVideo(ScreenPtr pScreen)
     adapt->QueryImageAttributes = SISQueryImageAttributes;
 
     /* gotta uninit this someplace */
-#if defined(REGION_NULL)
     REGION_NULL(pScreen, &pPriv->clip);
-#else
-    REGION_INIT(pScreen, &pPriv->clip, NullBox, 0);
-#endif
 
     pSiS->adaptor = adapt;
 
@@ -4012,11 +4008,7 @@ SISSetupBlitVideo(ScreenPtr pScreen)
 
    for(i = 0; i < NUM_BLIT_PORTS; i++) {
       adapt->pPortPrivates[i].uval = (ULong)(i);
-#if defined(REGION_NULL)
       REGION_NULL(pScreen, &pPriv->blitClip[i]);
-#else
-      REGION_INIT(pScreen, &pPriv->blitClip[i], NullBox, 0);
-#endif
       pPriv->videoStatus[i] = 0;
       pPriv->currentBuf[i]  = 0;
       pPriv->handle[i]      = NULL;

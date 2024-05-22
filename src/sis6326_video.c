@@ -574,11 +574,7 @@ SIS6326SetupImageVideo(ScreenPtr pScreen)
     SIS6326SetPortDefaults(pScrn, pPriv);
 
     /* gotta uninit this someplace */
-#if defined(REGION_NULL)
     REGION_NULL(pScreen, &pPriv->clip);
-#else
-    REGION_INIT(pScreen, &pPriv->clip, NullBox, 0);
-#endif
 
     pSiS->adaptor = adapt;
 
