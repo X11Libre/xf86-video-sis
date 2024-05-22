@@ -343,9 +343,6 @@ SiSInitPtr(struct SiS_Private *SiS_Pr)
 /*            HELPER: Get ModeID             */
 /*********************************************/
 
-#ifndef SIS_XORG_XF86
-static
-#endif
 unsigned short
 SiS_GetModeID(int VGAEngine, unsigned int VBFlags, int HDisplay, int VDisplay,
 		int Depth, BOOLEAN FSTN, int LCDwidth, int LCDheight)
@@ -2923,10 +2920,8 @@ SiS_SetCRT1Group(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned sho
    SiS_Pr->SiS_SelectCRT2Rate = 0;
    SiS_Pr->SiS_SetFlag &= (~ProgrammingCRT2);
 
-#ifdef SIS_XORG_XF86
    xf86DrvMsgVerb(0, X_PROBED, 4, "(init: VBType=0x%04x, VBInfo=0x%04x)\n",
                     SiS_Pr->SiS_VBType, SiS_Pr->SiS_VBInfo);
-#endif
 
    if(SiS_Pr->SiS_VBInfo & SetSimuScanMode) {
       if(SiS_Pr->SiS_VBInfo & SetInSlaveMode) {
@@ -3115,7 +3110,6 @@ SiS_Handle760(struct SiS_Private *SiS_Pr)
 /*      X.org/XFree86: SET SCREEN PITCH      */
 /*********************************************/
 
-#ifdef SIS_XORG_XF86
 static void
 SiS_SetPitchCRT1(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn)
 {
@@ -3165,20 +3159,14 @@ SiS_SetPitch(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn)
       SiS_SetPitchCRT2(SiS_Pr, pScrn);
    }
 }
-#endif
 
 /*********************************************/
 /*                 SiSSetMode()              */
 /*********************************************/
 
-#ifdef SIS_XORG_XF86
 /* We need pScrn for setting the pitch correctly */
 BOOLEAN
 SiSSetMode(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn, unsigned short ModeNo, BOOLEAN dosetpitch)
-#else
-BOOLEAN
-SiSSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo)
-#endif
 {
    SISIOADDRESS BaseAddr = SiS_Pr->IOAddress;
    unsigned short RealModeNo, ModeIdIndex;
@@ -3201,7 +3189,7 @@ SiSSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo)
    SiS_GetSysFlags(SiS_Pr);
 
    SiS_Pr->SiS_VGAINFO = 0x11;
-#if defined(SIS_XORG_XF86) && (defined(i386) || defined(__i386) || defined(__i386__) || defined(__AMD64__) || defined(__amd64__) || defined(__x86_64__))
+#if (defined(i386) || defined(__i386) || defined(__i386__) || defined(__AMD64__) || defined(__amd64__) || defined(__x86_64__))
    if(pScrn) SiS_Pr->SiS_VGAINFO = SiS_GetSetBIOSScratch(pScrn, 0x489, 0xff);
 #endif
 
@@ -3314,7 +3302,6 @@ SiSSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo)
       }
    }
 
-#ifdef SIS_XORG_XF86
    if(pScrn) {
       /* SetPitch: Adapt to virtual size & position */
       if((ModeNo > 0x13) && (dosetpitch)) {
@@ -3324,7 +3311,6 @@ SiSSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo)
       /* Backup/Set ModeNo in BIOS scratch area */
       SiS_GetSetModeID(pScrn, ModeNo);
    }
-#endif
 
    SiS_CloseCRTC(SiS_Pr);
 
@@ -3338,7 +3324,6 @@ SiSSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo)
 /*           for non-Dual-Head mode          */
 /*********************************************/
 
-#ifdef SIS_XORG_XF86
 BOOLEAN
 SiSBIOSSetMode(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
                DisplayModePtr mode, BOOLEAN IsCustom)
@@ -3725,7 +3710,6 @@ SiSBIOSSetModeCRT1(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
 
    return TRUE;
 }
-#endif /* Linux_XF86 */
 
 #ifndef GETBITSTR
 #define BITMASK(h,l)    	(((unsigned)(1U << ((h)-(l)+1))-1)<<(l))
@@ -3939,7 +3923,6 @@ SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
    if(modeflag & DoubleScanMode) tempax |= 0x80;
    SiS_SetRegANDOR(SiS_Pr->SiS_P3d4,0x09,0x5F,tempax);
 
-#ifdef SIS_XORG_XF86
 #ifdef TWDEBUG
    xf86DrvMsg(0, X_INFO, "%d %d %d %d  %d %d %d %d  (%d %d %d %d)\n",
 	SiS_Pr->CHDisplay, SiS_Pr->CHSyncStart, SiS_Pr->CHSyncEnd, SiS_Pr->CHTotal,
@@ -3957,15 +3940,12 @@ SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 	SiS_Pr->CCRT1CRTC[14], SiS_Pr->CCRT1CRTC[15]);
    xf86DrvMsg(0, X_INFO, "   0x%02x}},\n", SiS_Pr->CCRT1CRTC[16]);
 #endif
-#endif
 }
 
 void
 SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata,
 			int xres, int yres,
-#ifdef SIS_XORG_XF86
 			DisplayModePtr current
-#endif
 )
 {
    unsigned short HRE, HBE, HRS, HBS, HDE, HT;
@@ -4009,7 +3989,6 @@ SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata,
 
    D = B - F - C;
 
-#ifdef SIS_XORG_XF86
    current->HDisplay   = (E * 8);
    current->HSyncStart = (E * 8) + (F * 8);
    current->HSyncEnd   = (E * 8) + (F * 8) + (C * 8);
@@ -4020,7 +3999,6 @@ SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata,
 		A, B, C, D, E, F, HT, HDE, HRS, HBS, HBE, HRE);
 #else
    (void)VBS;  (void)HBS;  (void)A;
-#endif
 #endif
 
    /* Vertical */
@@ -4068,7 +4046,6 @@ SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata,
 
    D = B - F - C;
 
-#ifdef SIS_XORG_XF86
    current->VDisplay   = VDE + 1;
    current->VSyncStart = VRS + 1;
    current->VSyncEnd   = ((VRS & ~0x1f) | VRE) + 1;
@@ -4085,7 +4062,6 @@ SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata,
 	"V: A %d B %d C %d D %d E %d F %d  VT %d VDE %d VRS %d VBS %d VBE %d VRE %d\n",
 	A, B, C, D, E, F, VT, VDE, VRS, VBS, VBE, VRE);
 #endif
-#endif
 
    if((xres == 320) && ((yres == 200) || (yres == 240))) {
 	/* Terrible hack, but correct CRTC data for
@@ -4094,11 +4070,9 @@ SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata,
 	 * a negative D. The CRT controller does not
 	 * seem to like correcting HRE to 50)
 	 */
-#ifdef SIS_XORG_XF86
       current->HDisplay   = 320;
       current->HSyncStart = 328;
       current->HSyncEnd   = 376;
       current->HTotal     = 400;
-#endif
    }
 }

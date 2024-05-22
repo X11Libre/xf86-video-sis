@@ -236,10 +236,8 @@ struct SiS_Private
 {
 	unsigned char			ChipType;
 	unsigned char			ChipRevision;
-#ifdef SIS_XORG_XF86
 #ifndef XSERVER_LIBPCIACCESS
 	PCITAG				PciTag;
-#endif
 #endif
 	unsigned char 			*VirtualRomBase;
 	BOOLEAN				UseROM;
@@ -275,9 +273,7 @@ struct SiS_Private
 	unsigned short			SiS_IF_DEF_FSTN;
 	unsigned short			SiS_SysFlags;
 	unsigned char			SiS_VGAINFO;
-#ifdef SIS_XORG_XF86
 	unsigned short			SiS_CP1, SiS_CP2, SiS_CP3, SiS_CP4;
-#endif
 	BOOLEAN				SiS_UseROM;
 	BOOLEAN				SiS_ROMNew;
 	BOOLEAN				SiS_XGIROM;

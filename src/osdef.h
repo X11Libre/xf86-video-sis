@@ -52,9 +52,6 @@
 #ifndef _SIS_OSDEF_H_
 #define _SIS_OSDEF_H_
 
-/* The choices are: */
-#define SIS_XORG_XF86			/* XFree86/X.org */
-
 #ifdef OutPortByte
 #undef OutPortByte
 #endif
@@ -83,8 +80,6 @@
 /*  XFree86/X.org                                                     */
 /**********************************************************************/
 
-#ifdef SIS_XORG_XF86
-
 #define SIS300
 #define SIS315H
 
@@ -95,7 +90,5 @@
 #define InPortWord(p)    inSISREGW((unsigned long)(p))
 #define InPortLong(p)    inSISREGL((unsigned long)(p))
 #define SiS_SetMemory(MemoryAddress,MemorySize,value) memset(MemoryAddress, value, MemorySize)
-
-#endif /* XF86 */
 
 #endif  /* _OSDEF_H_ */
