@@ -764,8 +764,6 @@ SiSOptions(ScrnInfoPtr pScrn)
      * select emultation transparency threshold for 300 series
      *
      */
-#ifdef ARGB_CURSOR
-#ifdef SIS_ARGB_CURSOR
     if((pSiS->HWCursor) &&
        ((pSiS->VGAEngine == SIS_300_VGA) || (pSiS->VGAEngine == SIS_315_VGA)) &&
        (pSiS->Chipset != PCI_CHIP_XGIXG20)) {
@@ -807,8 +805,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 	  }
        }
     }
-#endif
-#endif
 
     /* OverruleFrequencyRanges
      * Enable/disable overruling bogus frequency ranges for TV and LCD(A)

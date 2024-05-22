@@ -156,8 +156,6 @@
 #define SIS_XINERAMA_MINOR_VERSION  1
 #endif
 
-#define SIS_ARGB_CURSOR		/* Include code for color hardware cursors */
-
 #define ENABLE_YPBPR		/* Include YPbPr support on SiS bridges (315 series and 661/741/760) */
 
 #define SISVRAMQ		/* Use VRAM queue mode on 315/330/340/XGI series */
