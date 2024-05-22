@@ -102,7 +102,6 @@ int 		sisdevport = 0;
 static int	SISEntityIndex = -1;
 #endif
 
-#ifdef SISMERGED
 #ifdef SISXINERAMA
 static Bool 		SiSnoPanoramiXExtension = TRUE;
 static int		SiSXineramaNumScreens = 0;
@@ -116,7 +115,6 @@ static int SiSProcXineramaGetScreenSize(ClientPtr client);
 static int SiSProcXineramaIsActive(ClientPtr client);
 static int SiSProcXineramaQueryScreens(ClientPtr client);
 static int SiSSProcXineramaDispatch(ClientPtr client);
-#endif
 #endif
 
 /*
@@ -305,7 +303,6 @@ SISFreeRec(ScrnInfoPtr pScrn)
 #ifdef SISDUALHEAD
     }
 #endif
-#ifdef SISMERGED
     free(pSiS->CRT2HSync);
     pSiS->CRT2HSync = NULL;
     free(pSiS->CRT2VRefresh);
@@ -345,7 +342,6 @@ SISFreeRec(ScrnInfoPtr pScrn)
 	  pSiS->CRT1Modes = NULL;
        }
     }
-#endif
     while(pSiS->SISVESAModeList) {
        sisModeInfoPtr mp = pSiS->SISVESAModeList->next;
        free(pSiS->SISVESAModeList);
@@ -901,12 +897,10 @@ SiSAllowSyncOverride(SISPtr pSiS, Bool fromDDC)
    }
 #endif
 
-#ifdef SISMERGED
    if(pSiS->MergedFB) {
       if((pSiS->VBFlags & CRT1_LCDA) && (!fromDDC)) return TRUE;
       return FALSE;
    }
-#endif
 
    if(!(pSiS->VBFlags & DISPTYPE_CRT1)) {
       if( (pSiS->VBFlags & CRT2_TV) ||
@@ -1021,8 +1015,6 @@ CheckAndOverruleV(ScrnInfoPtr pScrn, MonPtr monitor)
 }
 
 /* Some helper functions for MergedFB mode */
-
-#ifdef SISMERGED
 
 /* Helper function for CRT2 monitor vrefresh/hsync options
  * (Code base from mga driver)
@@ -2431,7 +2423,6 @@ SiSXineramaExtensionInit(ScrnInfoPtr pScrn)
     SiSUpdateXineramaScreenInfo(pScrn);
 
 }
-#endif  /* End of PseudoXinerama */
 
 static void
 SiSFreeCRT2Structs(SISPtr pSiS)
@@ -3051,12 +3042,8 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     xf86MonPtr pMonitor = NULL;
     Bool didddc2, fromDDC, crt1freqoverruled = FALSE;
     UChar CR5F, tempreg;
-#if defined(SISMERGED) || defined(SISDUALHEAD)
     DisplayModePtr first, p, n;
-#endif
-#ifdef SISMERGED
     Bool crt2freqoverruled = FALSE;
-#endif
 
     static const char * const ddcsstr = "CRT%d DDC monitor info: *******************************************\n";
     static const char * const ddcestr = "End of CRT%d DDC monitor info *************************************\n";
@@ -3064,17 +3051,13 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     static const char * const subsvstr = "Substituting missing CRT%d monitor VRefresh range by DDC data\n";
     static const char * const saneh = "Correcting %s CRT%d monitor HSync range\n";
     static const char * const sanev = "Correcting %s CRT%d monitor VRefresh range\n";
-#ifdef SISMERGED
     static const char * const mergednocrt1 = "CRT1 not detected or forced off. %s.\n";
     static const char * const mergednocrt2 = "No CRT2 output selected or no video bridge detected. %s.\n";
     static const char * const mergeddisstr = "MergedFB mode disabled";
     static const char * const modesforstr = "Modes for CRT%d: **************************************************\n";
     static const char * const crtsetupstr = "*************************** CRT%d setup ***************************\n";
     static const char * const crt2monname = "CRT2";
-#endif
-#if defined(SISDUALHEAD) || defined(SISMERGED)
     static const char * const notsuitablestr = "Not using mode \"%s\" (not suitable for %s mode)\n";
-#endif
 
     if(flags & PROBE_DETECT) {
 
@@ -4078,14 +4061,12 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     /* Evaluate options */
     SiSOptions(pScrn);
 
-#ifdef SISMERGED
     /* Due to palette & timing problems we don't support 8bpp in MFBM */
     if((pSiS->MergedFB) && (pScrn->bitsPerPixel <= 8)) {
        SISErrorLog(pScrn, "MergedFB: Color depth %d not supported, %s\n",
 			pScrn->bitsPerPixel, mergeddisstr);
        pSiS->MergedFB = pSiS->MergedFBAuto = FALSE;
     }
-#endif
 
     /* Probe CPU features */
 #ifdef SISDUALHEAD
@@ -4623,14 +4604,12 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	         pSiS->maxxfbmem = 4096 * 1024;
 	      else if(pScrn->videoRam <= 16384)		/* <= 16MB: Use 8MB for X */
 	         pSiS->maxxfbmem = 8192 * 1024;
-#ifdef SISMERGED					/* Otherwise: --- */
 	      else if(pSiS->MergedFB) {
 	         if(pScrn->videoRam <= 65536)
 	            pSiS->maxxfbmem = 16384 * 1024;	/* If MergedFB and <=64MB, use 16MB for X */
 		 else
 		    pSiS->maxxfbmem = 20 * 1024 * 1024;	/* If MergedFB and > 64MB, use 20MB for X */
 	      }
-#endif
 	        else if(pSiS->VGAEngine == SIS_315_VGA) {
 	         if(pScrn->videoRam <= 65536)
 	            pSiS->maxxfbmem = 16384 * 1024;	/* On >=315 series and <=64MB, use 16MB */
@@ -5068,10 +5047,8 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 #ifdef SISDUALHEAD
 	     if(pSiS->DualHeadMode) NeedCRT1VGA = TRUE;
 #endif
-#ifdef SISMERGED
 	     if(pSiS->MergedFB &&
 		(!pSiS->MergedFBAuto || pSiS->CRT1Detected)) NeedCRT1VGA = TRUE;
-#endif
 	     if(!NeedCRT1VGA) {
 		pSiS->ForceCRT1Type = CRT1_LCDA;
 	     }
@@ -5426,7 +5403,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     }
 
     /* Do some MergedFB mode initialisation */
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        pSiS->CRT2pScrn = malloc(sizeof(ScrnInfoRec));
        if(!pSiS->CRT2pScrn) {
@@ -5436,7 +5412,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
           memcpy(pSiS->CRT2pScrn, pScrn, sizeof(ScrnInfoRec));
        }
     }
-#endif
 
     /* Determine CRT1<>CRT2 mode
      *     Note: When using VESA or if the bridge is in slavemode, display
@@ -5454,7 +5429,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		goto my_error_1;
 	     }
 #endif
-#ifdef SISMERGED
 	     if(pSiS->MergedFB) {
 		if(pSiS->MergedFBAuto) {
 		   xf86DrvMsg(pScrn->scrnIndex, X_INFO, mergednocrt1, mergeddisstr);
@@ -5465,7 +5439,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		pSiS->CRT2pScrn = NULL;
 		pSiS->MergedFB = FALSE;
 	     }
-#endif
 	     pSiS->VBFlags |= VB_DISPMODE_SINGLE;
 	     /* No CRT1? Then we use the video overlay on CRT2 */
 	     pSiS->XvOnCRT2 = TRUE;
@@ -5481,7 +5454,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		pSiS->VESA = 0;
 	     } else
 #endif
-#ifdef SISMERGED
 		    if(pSiS->MergedFB) {
 		 pSiS->VBFlags |= (VB_DISPMODE_MIRROR | DISPTYPE_CRT1);
 		 if(pSiS->VESA != -1) {
@@ -5490,7 +5462,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		 }
 		 pSiS->VESA = 0;
 	     } else
-#endif
 		 pSiS->VBFlags |= (VB_DISPMODE_MIRROR | DISPTYPE_CRT1);
     } else {			/* CRT1 only ------------------------------- */
 #ifdef SISDUALHEAD
@@ -5501,7 +5472,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		goto my_error_1;
 	     }
 #endif
-#ifdef SISMERGED
 	     if(pSiS->MergedFB) {
 		if(pSiS->MergedFBAuto) {
 		   xf86DrvMsg(pScrn->scrnIndex, X_INFO, mergednocrt2, mergeddisstr);
@@ -5512,7 +5482,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		pSiS->CRT2pScrn = NULL;
 		pSiS->MergedFB = FALSE;
 	     }
-#endif
              pSiS->VBFlags |= (VB_DISPMODE_SINGLE | DISPTYPE_CRT1);
     }
 
@@ -5883,7 +5852,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        }
     }
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        pSiS->CRT2pScrn->monitor = malloc(sizeof(MonRec));
        if(pSiS->CRT2pScrn->monitor) {
@@ -5943,7 +5911,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  pSiS->MergedFB = FALSE;
        }
     }
-#endif
 
     /* Copy our detected monitor gammas, part 1. Note that device redetection
      * is not supported in DHM, so there is no need to do that anytime later.
@@ -5965,9 +5932,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
     /* From here, we mainly deal with clocks and modes */
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) xf86DrvMsg(pScrn->scrnIndex, X_INFO, crtsetupstr, 1);
-#endif
 
     /* Set the min pixel clock */
     pSiS->MinClock = 5000;
@@ -6068,7 +6033,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	     }
 	  } else
 #endif
-#ifdef SISMERGED  /* MergedFB mode is not static. Output devices may change. */
+          /* MergedFB mode is not static. Output devices may change. */
           if(pSiS->MergedFB) {
 	     if(pSiS->VBFlags & CRT1_LCDA) {
 	        if(!(pSiS->VBFlags2 & VB2_SISTMDSLCDABRIDGE)) {
@@ -6084,7 +6049,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	        includelcdmodes = FALSE;
 	     }
           } else
-#endif		 /* Mirror mode is not static. Output devices may change. */
+          /* Mirror mode is not static. Output devices may change. */
           if(pSiS->VBFlags2 & VB2_SISTMDSBRIDGE) {
 	     if(!(pSiS->VBFlags2 & VB2_30xBDH)) {
 		if(!(pSiS->VBFlags2 & VB2_SISTMDSLCDABRIDGE)) {
@@ -6305,9 +6270,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
           break;
        }
 
-#ifdef SISMERGED
        pSiS->CheckForCRT2 = FALSE;
-#endif
 
        /* Suppress bogus DDC warning */
        if(crt1freqoverruled) pScrn->monitor->DDC = NULL;
@@ -6404,11 +6367,9 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     pSiS->CurrentLayout.displayWidth = pScrn->displayWidth;
     pSiS->CurrentLayout.displayHeight = pScrn->virtualY;
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        xf86DrvMsg(pScrn->scrnIndex, X_INFO, modesforstr, 1);
     }
-#endif
 
     /* Print the list of modes being used */
     {
@@ -6423,11 +6384,9 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  }
        } else
 #endif
-#ifdef SISMERGED
        if(pSiS->MergedFB) {
 	  if(pSiS->VBFlags & CRT1_LCDA) usemyprint = TRUE;
        } else
-#endif
        {
 	  if( (pSiS->VBFlags & (CRT2_LCD | CRT2_TV)) &&
 	      (!(pSiS->VBFlags & DISPTYPE_DISP1)) )
@@ -6441,7 +6400,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        }
     }
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        Bool acceptcustommodes = TRUE;
        Bool includelcdmodes   = TRUE;
@@ -6658,14 +6616,11 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        pSiS->CurrentLayout.displayHeight = pScrn->virtualY;
 
     }
-#endif
 
     /* Set display resolution */
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        SiSMergedFBSetDpi(pScrn, pSiS->CRT2pScrn, pSiS->CRT2Position);
     } else
-#endif
        xf86SetDpi(pScrn, 0, 0);
 
     /* Load fb module */
@@ -6775,9 +6730,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     }
 #endif
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) pSiS->SiS_SD_Flags |= SiS_SD_ISMERGEDFB;
-#endif
 
     /* Try to determine if this is a laptop   */
     /* (only used for SiSCtrl visualisations) */
@@ -7354,7 +7307,6 @@ SISModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 
 	     pScrn->vtSema = TRUE;
 
-#ifdef SISMERGED
 	     if(pSiS->MergedFB) {
 
 		xf86DrvMsg(pScrn->scrnIndex, X_INFO, "Setting MergedFB mode %dx%d\n",
@@ -7379,8 +7331,6 @@ SISModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 		}
 
 	     } else {
-#endif
-
 		if((pSiS->VBFlags & CRT1_LCDA) || (!(mode->type & M_T_DEFAULT))) {
 
 		   SiSPreSetMode(pScrn, mode, SIS_MODE_CRT1);
@@ -7411,9 +7361,7 @@ SISModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 
 		}
 
-#ifdef SISMERGED
 	     }
-#endif
 
 	     SiSPostSetMode(pScrn, &pSiS->ModeReg);
 
@@ -8760,7 +8708,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
     /* Wrap some funcs, initialize pseudo-Xinerama and setup remaining SD flags */
 
     pSiS->SiS_SD_Flags &= ~(SiS_SD_PSEUDOXINERAMA);
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        pSiS->PointerMoved = pScrn->PointerMoved;
        pScrn->PointerMoved = SISMergedPointerMoved;
@@ -8790,7 +8737,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
        }
 #endif
     }
-#endif
 
     /* Wrap CloseScreen and set up SaveScreen */
     pSiS->CloseScreen = pScreen->CloseScreen;
@@ -8889,12 +8835,10 @@ SISSwitchMode(SWITCH_MODE_ARGS_DECL)
     /* Since RandR (indirectly) uses SwitchMode(), we need to
      * update our Xinerama info here, too, in case of resizing
      */
-#ifdef SISMERGED
 #ifdef SISXINERAMA
     if(pSiS->MergedFB) {
        SiSUpdateXineramaScreenInfo(pScrn);
     }
-#endif
 #endif
     return TRUE;
 }
@@ -8929,7 +8873,6 @@ SISSetStartAddressCRT2(SISPtr pSiS, ULong base)
     SiS_LockCRT2(pSiS->SiS_Pr);
 }
 
-#ifdef SISMERGED
 static Bool
 InRegion(int x, int y, region r)
 {
@@ -9327,7 +9270,6 @@ SISAdjustFrameMerged(ADJUST_FRAME_ARGS_DECL)
     SISAdjustFrameHW_CRT1(pScrn1, pSiS->CRT1frameX0, pSiS->CRT1frameY0);
     SISAdjustFrameHW_CRT2(pScrn1, pScrn2->frameX0, pScrn2->frameY0);
 }
-#endif
 
 /*
  * This function is used to initialize the Start Address - the first
@@ -9343,12 +9285,10 @@ SISAdjustFrame(ADJUST_FRAME_ARGS_DECL)
     ULong base;
     UChar temp, cr11backup;
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
         SISAdjustFrameMerged(ADJUST_FRAME_ARGS(pScrn, x, y));
 	return;
     }
-#endif
 
     if(pSiS->UseVESA) {
 	VBESetDisplayStart(pSiS->pVbe, x, y, TRUE);
@@ -9725,7 +9665,6 @@ SISValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode, Bool verbose, int flags)
 	  }
        } else
 #endif
-#ifdef SISMERGED
        if(pSiS->MergedFB) {
 	  if(!mode->Private) {
 	     if(!pSiS->CheckForCRT2) {
@@ -9745,7 +9684,6 @@ SISValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode, Bool verbose, int flags)
 	        return(MODE_BAD);
  	  }
        } else
-#endif
        {
 	  if(SiS_CheckModeCRT1(pScrn, mode, pSiS->VBFlags, pSiS->HaveCustomModes) < 0x14)
 	     return(MODE_BAD);
@@ -9930,7 +9868,6 @@ void SiSPreSetMode(ScrnInfoPtr pScrn, DisplayModePtr mode, int viewmode)
      * if mode->type is not M_T_DEFAULT!
      */
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        switch(viewmode) {
        case SIS_MODE_CRT1:
@@ -9941,7 +9878,6 @@ void SiSPreSetMode(ScrnInfoPtr pScrn, DisplayModePtr mode, int viewmode)
 	  hcm = pSiS->HaveCustomModes2;
        }
     }
-#endif
 
     switch(viewmode) {
     case SIS_MODE_CRT1:
