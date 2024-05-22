@@ -106,7 +106,6 @@ SISSetupDGAMode(
 
    while(pMode) {
 
-#ifdef SISMERGED
 	if(pSiS->MergedFB) {
 	   Bool nogood = FALSE;
 	   /* Filter out all meta modes that would require driver-side panning */
@@ -144,7 +143,6 @@ SISSetupDGAMode(
 	      goto mode_nogood;
 	   }
 	}
-#endif
 
 	otherPitch = secondPitch ? secondPitch : pMode->HDisplay;
 
@@ -232,9 +230,7 @@ SECOND_PASS:
 					     currentMode->viewportHeight);
 	}
 
-#ifdef SISMERGED
 mode_nogood:
-#endif
 
 	pMode = pMode->next;
 	if(pMode == firstMode)
@@ -259,17 +255,13 @@ SISDGAInit(ScreenPtr pScreen)
 #ifdef SISDUALHEAD
    if(!pSiS->DualHeadMode) {
 #endif
-#ifdef SISMERGED
       if(!(pSiS->MergedFB)) {
-#endif
          modes = SISSetupDGAMode(pScrn, modes, &num, 8, 8,
 				 (pScrn->bitsPerPixel == 8),
 				 ((pScrn->bitsPerPixel != 8)
 				     ? 0 : pScrn->displayWidth),
 				 0, 0, 0, PseudoColor);
-#ifdef SISMERGED
       }
-#endif
 #ifdef SISDUALHEAD
    }
 #endif

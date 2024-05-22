@@ -267,7 +267,6 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_ENABLEHOTKEY,		"EnableHotkey",	   		OPTV_BOOLEAN,	{0}, FALSE },
     { OPTION_FORCE1ASPECT,		"ForceCRT1VGAAspect",		OPTV_STRING,	{0}, FALSE },
     { OPTION_FORCE2ASPECT,		"ForceCRT2VGAAspect",		OPTV_STRING,	{0}, FALSE },
-#ifdef SISMERGED
     { OPTION_MERGEDFB,			"MergedFB",			OPTV_ANYSTR,	{0}, FALSE },
     { OPTION_MERGEDFB,			"TwinView",			OPTV_ANYSTR,	{0}, FALSE },	/* alias */
     { OPTION_MERGEDFBAUTO,		"MergedFBAuto",			OPTV_BOOLEAN,	{0}, FALSE },
@@ -285,7 +284,6 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_CRT2ISSCRN0,		"MergedXineramaCRT2IsScreen0",	OPTV_BOOLEAN,	{0}, FALSE },
     { OPTION_MERGEDFBNONRECT,		"MergedNonRectangular",		OPTV_BOOLEAN,	{0}, FALSE },
     { OPTION_MERGEDFBMOUSER,		"MergedMouseRestriction",	OPTV_BOOLEAN,	{0}, FALSE },
-#endif
 #endif
     { -1,				NULL,				OPTV_NONE,	{0}, FALSE }
 };
@@ -566,7 +564,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 #ifndef SISCHECKOSSSE
     pSiS->XvSSEMemcpy = FALSE;
 #endif
-#ifdef SISMERGED
     pSiS->MergedFB = pSiS->MergedFBAuto = FALSE;
     pSiS->CRT2Position = sisRightOf;
     pSiS->CRT2HSync = NULL;
@@ -580,7 +577,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 #ifdef SISXINERAMA
     pSiS->UseSiSXinerama = TRUE;
     pSiS->CRT2IsScrn0 = FALSE;
-#endif
 #endif
 
     /* Chipset dependent defaults */
@@ -789,7 +785,6 @@ SiSOptions(ScrnInfoPtr pScrn)
     /* MergedFB
      * Enable/disable and configure merged framebuffer mode
      */
-#ifdef SISMERGED
 #ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) {
        if(xf86IsOptionSet(pSiS->Options, OPTION_MERGEDFB)) {
@@ -924,7 +919,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 #endif
        }
     }
-#endif
 
     /* Some options can only be specified in the Master Head's Device
      * section. Here we give the user a hint in the log.
@@ -1859,13 +1853,11 @@ SiSOptions(ScrnInfoPtr pScrn)
     /* ShadowFB */
     from = X_DEFAULT;
     if(xf86GetOptValBool(pSiS->Options, OPTION_SHADOW_FB, &pSiS->ShadowFB)) {
-#ifdef SISMERGED
        if(pSiS->MergedFB) {
 	  pSiS->ShadowFB = FALSE;
 	  xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 	      "Shadow Framebuffer not supported in MergedFB mode\n");
        } else
-#endif
 	  from = X_CONFIG;
     }
     if(pSiS->ShadowFB) {
@@ -1876,12 +1868,10 @@ SiSOptions(ScrnInfoPtr pScrn)
 
     /* Rotate */
     if((strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_ROTATE))) {
-#ifdef SISMERGED
        if(pSiS->MergedFB) {
 	  xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 	      "Screen rotation not supported in MergedFB mode\n");
        } else
-#endif
        if(IsDHM) {
 	  xf86DrvMsg(pScrn->scrnIndex, X_WARNING, baddhm,
 	     pSiS->Options[SiS_FIFT(pSiS->Options, OPTION_ROTATE)].name);
@@ -1908,12 +1898,10 @@ SiSOptions(ScrnInfoPtr pScrn)
 
     /* Reflect */
     if((strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_REFLECT))) {
-#ifdef SISMERGED
        if(pSiS->MergedFB) {
 	  xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
 	      "Screen reflection not supported in MergedFB mode\n");
        } else
-#endif
        if(IsDHM) {
 	  xf86DrvMsg(pScrn->scrnIndex, X_WARNING, baddhm,
 	     pSiS->Options[SiS_FIFT(pSiS->Options, OPTION_REFLECT)].name);

@@ -851,11 +851,9 @@ SIS300Init(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	pScrn->virtualX, pSiS->CurrentLayout.bitsPerPixel,
 	pScrn->virtualX * pSiS->CurrentLayout.bitsPerPixel/8);
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        realmode = ((SiSMergedDisplayModePtr)mode->Private)->CRT1;
     }
-#endif
 
     /* Copy current register settings to structure */
     (*pSiS->SiSSave)(pScrn, pReg);

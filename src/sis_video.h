@@ -406,7 +406,6 @@ typedef struct {
 
     DisplayModePtr  currentmode;
 
-#ifdef SISMERGED
     CARD16  pitch2;
     CARD16  HUSF2;
     CARD16  VUSF2;
@@ -427,7 +426,6 @@ typedef struct {
     DisplayModePtr  currentmode2;
 
     Bool    DoFirst, DoSecond;
-#endif
 
     CARD8   bobEnable;
 
