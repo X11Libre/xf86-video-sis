@@ -67,21 +67,13 @@
 #include "compiler.h"
 #include "xf86Pci.h"
 #include "xf86_OSproc.h"
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 6
-#include "xf86Resources.h"
-#endif
 #include "xf86.h"
 #include "xf86Cursor.h"
 #include "xf86cmap.h"
 #include "vbe.h"
 
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-#define _swapl(x, n) swapl(x,n)
-#define _swaps(x, n) swaps(x,n)
-#else
 #define _swapl(x, n) swapl(x)
 #define _swaps(x, n) swaps(x)
-#endif
 
 #define SIS_HaveDriverFuncs 0
 
