@@ -1237,7 +1237,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 		   pSiS->ForceCRT2Type = CRT2_LCD;
 		   pSiS->FSTN = TRUE;
 		}
-#ifdef ENABLE_YPBPR
 	     } else if(!xf86NameCmp(strptr,"HIVISION")) {
 		pSiS->ForceCRT2Type = CRT2_TV;
 		pSiS->ForceTVType = TV_HIVISION;
@@ -1270,18 +1269,15 @@ SiSOptions(ScrnInfoPtr pScrn)
 		pSiS->ForceCRT2Type = CRT2_TV;
 		pSiS->ForceTVType = TV_YPBPR;
 		pSiS->ForceYPbPrType = TV_YPBPR750P;
-#endif
 	     } else {
 		SiS_PrintBadOpt(pScrn, strptr, OPTION_FORCE_CRT2TYPE);
 		xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 		    "%s \"LCD\" (=\"DVI-D\"), \"TV\", \"SVIDEO\", \"COMPOSITE\",\n"
 		    "\t\"SVIDEO+COMPOSITE\", \"SCART\", \"VGA\" (=\"DVI-A\") or \"NONE\"; on the SiS550\n"
 		    "\talso \"DSTN\" and \"FSTN\""
-#ifdef ENABLE_YPBPR
 		    				"; on SiS 301/301B bridges also \"HIVISION\", and on\n"
 		    "\tSiS315/330/340 series with 301C/30xLV bridge also \"YPBPR480I\", \"YPBPR480P\",\n"
 		    "\t\"YPBPR576I\", \"YPBPR576P\", \"YPBPR720P\" and \"YPBPR1080I\""
-#endif
 		    "\n", validparm);
 	     }
 

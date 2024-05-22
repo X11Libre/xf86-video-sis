@@ -4988,7 +4988,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        }
     }
 
-#ifdef ENABLE_YPBPR
     if((pSiS->VGAEngine == SIS_315_VGA) &&
        (pSiS->VBFlags2 & VB2_SISYPBPRBRIDGE)) {
        pSiS->SiS_SD_Flags |= SiS_SD_SUPPORTYPBPR;
@@ -5001,7 +5000,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     if(pSiS->VBFlags2 & VB2_SISHIVISIONBRIDGE) {
        pSiS->SiS_SD_Flags |= SiS_SD_SUPPORTHIVISION;
     }
-#endif
 
     if((pSiS->VGAEngine != SIS_300_VGA) || (!(pSiS->VBFlags2 & VB2_TRUMPION))) {
        pSiS->SiS_SD_Flags |= SiS_SD_SUPPORTSCALE;

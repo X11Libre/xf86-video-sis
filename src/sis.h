@@ -156,8 +156,6 @@
 #define SIS_XINERAMA_MINOR_VERSION  1
 #endif
 
-#define ENABLE_YPBPR		/* Include YPbPr support on SiS bridges (315 series and 661/741/760) */
-
 #ifdef HAVE_XAA_H
 #define SIS_USE_XAA		/* Include code for XAA */
 #endif
