@@ -59,18 +59,6 @@
 #include "config.h"
 #endif
 
-#if 1
-#define SET_EMI		/* 302LV/ELV: Set EMI values */
-#endif
-
-#if 1
-#define SET_PWD		/* 301/302LV: Set PWD */
-#endif
-
-#define COMPAL_HACK	/* Needed for Compal 1400x1050 (EMI) */
-#define COMPAQ_HACK	/* Needed for Inventec/Compaq 1280x1024 (EMI) */
-#define ASUS_HACK	/* Needed for Asus A2H 1024x768 (EMI) */
-
 #include "init301.h"
 #include "oem300.h"
 #include "oem310.h"
@@ -3740,8 +3728,8 @@ SiS_GetLVDSDesData(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned s
 static int
 SiS_HandlePWD(struct SiS_Private *SiS_Pr)
 {
+   /* 302LV/ELV: Set EMI values */
    int ret = 0;
-#ifdef SET_PWD
    unsigned char *ROMAddr = SiS_Pr->VirtualRomBase;
    unsigned short romptr = GetLCDStructPtr661_2(SiS_Pr);
    unsigned char  drivermode = SiS_GetReg(SiS_Pr->SiS_P3d4,0x31) & 0x40;
@@ -3765,7 +3753,6 @@ SiS_HandlePWD(struct SiS_Private *SiS_Pr)
       xf86DrvMsg(0, 0, "Setting PWD %x\n", temp);
 #endif
    }
-#endif
    return ret;
 }
 
@@ -3829,13 +3816,12 @@ SiS_DisableBridge(struct SiS_Private *SiS_Pr)
 
 	   if(SiS_Pr->SiS_VBType & VB_SISLVDS) {
 
-#ifdef SET_EMI
+	      /* 302LV/ELV: Set EMI values */
 	      if(SiS_Pr->SiS_VBType & VB_SISEMI) {
 		 if(SiS_Pr->SiS_CustomT != CUT_CLEVO1400) {
 		    SiS_SetRegAND(SiS_Pr->SiS_Part4Port,0x30,0x0c);
 		 }
 	      }
-#endif
 
 	      didpwd = SiS_HandlePWD(SiS_Pr);
 
@@ -4230,20 +4216,16 @@ SiS_EnableBridge(struct SiS_Private *SiS_Pr)
 
 	 }
       } else {
-
-#ifdef SET_EMI
 	 unsigned char   r30=0, r31=0, r32=0, r33=0, cr36=0;
 	 int didpwd = 0;
 	 /* unsigned short  emidelay=0; */
-#endif
 
 	 if(SiS_Pr->SiS_VBType & VB_SISLVDS) {
 	    SiS_SetRegAND(SiS_Pr->SiS_Part4Port,0x1f,0xef);
-#ifdef SET_EMI
+	    /* 302LV/ELV: Set EMI values */
 	    if(SiS_Pr->SiS_VBType & VB_SISEMI) {
 	       SiS_SetRegAND(SiS_Pr->SiS_Part4Port,0x30,0x0c);
 	    }
-#endif
 	 }
 
 	 if(!(SiS_IsNotM650orLater(SiS_Pr))) {
@@ -4347,16 +4329,15 @@ SiS_EnableBridge(struct SiS_Private *SiS_Pr)
 	    SiS_SetRegOR(SiS_Pr->SiS_Part1Port,0x2e,0x80);
 
 	    if(SiS_Pr->SiS_CustomT != CUT_CLEVO1400) {
-#ifdef SET_EMI
+		/* 302LV/ELV: Set EMI values */
 	       if(SiS_Pr->SiS_VBType & VB_SISEMI) {
 		  SiS_SetRegAND(SiS_Pr->SiS_Part4Port,0x30,0x0c);
 		  SiS_GenericDelay(SiS_Pr, 2048);
 	       }
-#endif
 	       SiS_SetRegOR(SiS_Pr->SiS_Part4Port,0x27,0x0c);
 
 	       if(SiS_Pr->SiS_VBType & VB_SISEMI) {
-#ifdef SET_EMI
+		  /* 302LV/ELV: Set EMI values */
 		  cr36 = SiS_GetReg(SiS_Pr->SiS_P3d4,0x36);
 
 		  if(SiS_Pr->SiS_ROMNew) {
@@ -4439,21 +4420,19 @@ SiS_EnableBridge(struct SiS_Private *SiS_Pr)
 
 		  /* BIOS values don't work so well sometimes */
 		  if(!SiS_Pr->OverruleEMI) {
-#ifdef COMPAL_HACK
+		     /* Needed for Compal 1400x1050 (EMI) */
 		     if(SiS_Pr->SiS_CustomT == CUT_COMPAL1400_2) {
 			if((cr36 & 0x0f) == 0x09) {
 			   r30 = 0x60; r31 = 0x05; r32 = 0x60; r33 = 0x00;
 			}
  		     }
-#endif
-#ifdef COMPAQ_HACK
+		     /* Needed for Inventec/Compaq 1280x1024 (EMI) */
 		     if(SiS_Pr->SiS_CustomT == CUT_COMPAQ1280) {
 			if((cr36 & 0x0f) == 0x03) {
 			   r30 = 0x20; r31 = 0x12; r32 = 0xd0; r33 = 0x6b;
 			}
 		     }
-#endif
-#ifdef ASUS_HACK
+		     /* Needed for Asus A2H 1024x768 (EMI) */
 		     if(SiS_Pr->SiS_CustomT == CUT_ASUSA2H_2) {
 			if((cr36 & 0x0f) == 0x02) {
 			   /* r30 = 0x60; r31 = 0x05; r32 = 0x60; r33 = 0x33;  */   /* rev 2 */
@@ -4462,7 +4441,6 @@ SiS_EnableBridge(struct SiS_Private *SiS_Pr)
 			   /* r30 = 0x20; r31 = 0x0d; r32 = 0x70; r33 = 0x40;  */   /* rev 5 */
 			}
 		     }
-#endif
 		  }
 
 		  if(!(SiS_Pr->OverruleEMI && (!r30) && (!r31) && (!r32) && (!r33))) {
@@ -4472,11 +4450,10 @@ SiS_EnableBridge(struct SiS_Private *SiS_Pr)
 		  SiS_SetReg(SiS_Pr->SiS_Part4Port,0x31,r31);
 		  SiS_SetReg(SiS_Pr->SiS_Part4Port,0x32,r32);
 		  SiS_SetReg(SiS_Pr->SiS_Part4Port,0x33,r33);
-#endif	/* SET_EMI */
 
 		  SiS_SetReg(SiS_Pr->SiS_Part4Port,0x34,0x10);
 
-#ifdef SET_EMI
+		  /* 302LV/ELV: Set EMI values */
 		  if( (SiS_LCDAEnabled(SiS_Pr)) ||
 		      (SiS_CRT2IsLCD(SiS_Pr)) ) {
 		     if(r30 & 0x40) {
@@ -4495,7 +4472,6 @@ SiS_EnableBridge(struct SiS_Private *SiS_Pr)
 			/*SiS_SetRegAND(SiS_Pr->SiS_Part4Port,0x2a,0x7f);*/
 		     }
 		  }
-#endif
 	       }
 	    }
 
@@ -7239,9 +7215,8 @@ SiS_SetDualLinkEtc(struct SiS_Private *SiS_Pr)
   }
   if(SiS_Pr->SiS_VBType & VB_SISEMI) {
      SiS_SetReg(SiS_Pr->SiS_Part4Port,0x2a,0x00);
-#ifdef SET_EMI
+     /* 302LV/ELV: Set EMI values */
      SiS_SetRegAND(SiS_Pr->SiS_Part4Port,0x30,0x0c);
-#endif
      SiS_SetReg(SiS_Pr->SiS_Part4Port,0x34,0x10);
   }
 }
@@ -10370,9 +10345,8 @@ SiS_FinalizeLCD(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned shor
      if(SiS_Pr->SiS_LCDResInfo == Panel_1024x768) {
 	if(SiS_Pr->SiS_VBType & VB_SISEMI) {
 	   SiS_SetReg(SiS_Pr->SiS_Part4Port,0x2a,0x00);
-#ifdef SET_EMI
+	   /* 302LV/ELV: Set EMI values */
 	   SiS_SetRegAND(SiS_Pr->SiS_Part4Port,0x30,0x0c);
-#endif
 	   SiS_SetReg(SiS_Pr->SiS_Part4Port,0x34,0x10);
 	}
      } else if(SiS_Pr->SiS_LCDResInfo == Panel_1280x1024) {
