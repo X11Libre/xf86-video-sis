@@ -252,9 +252,7 @@ SISDGAInit(ScreenPtr pScreen)
    /* We don't support 8bpp modes in dual head or MergedFB mode,
     * so don't offer them to DGA either.
     */
-#ifdef SISDUALHEAD
    if(!pSiS->DualHeadMode) {
-#endif
       if(!(pSiS->MergedFB)) {
          modes = SISSetupDGAMode(pScrn, modes, &num, 8, 8,
 				 (pScrn->bitsPerPixel == 8),
@@ -262,9 +260,7 @@ SISDGAInit(ScreenPtr pScreen)
 				     ? 0 : pScrn->displayWidth),
 				 0, 0, 0, PseudoColor);
       }
-#ifdef SISDUALHEAD
    }
-#endif
 
    /* 16 */
    modes = SISSetupDGAMode(pScrn, modes, &num, 16, 16,

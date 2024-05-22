@@ -240,13 +240,11 @@ void SISCRT1PreInit(ScrnInfoPtr pScrn)
        return;
     }
 
-#ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) {
        pSiS->CRT1Detected = TRUE;
        pSiS->CRT1off = 0;
        return;
     }
-#endif
 
     if((pSiS->MergedFB) && (!(pSiS->MergedFBAuto))) {
        pSiS->CRT1Detected = TRUE;
@@ -327,9 +325,7 @@ void SISLCDPreInit(ScrnInfoPtr pScrn, Bool quiet)
      * and buggy BIOS method.
      *
      */
-#ifdef SISDUALHEAD
     if((!pSiS->DualHeadMode) || (!pSiS->SecondHead)) {
-#endif
        if((pSiS->VGAEngine == SIS_315_VGA) &&
 	  (pSiS->VBFlags2 & VB2_SISTMDSBRIDGE) &&
 	  (!(pSiS->VBFlags2 & VB2_30xBDH)) &&
@@ -367,9 +363,7 @@ void SISLCDPreInit(ScrnInfoPtr pScrn, Bool quiet)
 	  }
 
        }
-#ifdef SISDUALHEAD
     }
-#endif
 
     if(pSiS->VBFlags & CRT2_LCD) {
        inSISIDXREG(SISCR, 0x36, CR36);
@@ -705,9 +699,7 @@ void SISCRT2PreInit(ScrnInfoPtr pScrn, Bool quiet)
     /* See the comment in initextx.c/SiS_SenseVGA2DDC() */
     if(pSiS->SiS_Pr->DDCPortMixup) return;
 
-#ifdef SISDUALHEAD
     if((!pSiS->DualHeadMode) || (!pSiS->SecondHead)) {
-#endif
 
        if(pSiS->forcecrt2redetection) {
           pSiS->VBFlags &= ~CRT2_VGA;
@@ -743,9 +735,7 @@ void SISCRT2PreInit(ScrnInfoPtr pScrn, Bool quiet)
 	     }
           }
        }
-#ifdef SISDUALHEAD
     }
-#endif
 }
 
 static int
@@ -1135,9 +1125,7 @@ Bool SISRedetectCRT2Type(ScrnInfoPtr pScrn)
     Bool   backup1 = pSiS->forcecrt2redetection;
     Bool   backup2 = pSiS->nocrt2ddcdetection;
 
-#ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) return FALSE;
-#endif
 
     pSiS->VBFlags &= ~(CRT2_DEFAULT   |
 		       CRT2_ENABLE    |
