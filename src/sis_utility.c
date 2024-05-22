@@ -1879,10 +1879,10 @@ SiSProcSiSCtrlQueryVersion(ClientPtr client)
     rep.majorVersion = SISCTRL_MAJOR_VERSION;
     rep.minorVersion = SISCTRL_MINOR_VERSION;
     if(client->swapped) {
-        _swaps(&rep.sequenceNumber, n);
-        _swapl(&rep.length, n);
-        _swaps(&rep.majorVersion, n);
-        _swaps(&rep.minorVersion, n);
+        swaps(&rep.sequenceNumber);
+        swapl(&rep.length);
+        swaps(&rep.majorVersion);
+        swaps(&rep.minorVersion);
     }
     WriteToClient(client, sizeof(xSiSCtrlQueryVersionReply), (char *)&rep);
     return (client->noClientException);
@@ -1922,16 +1922,16 @@ SiSProcSiSCtrlCommand(ClientPtr client)
     rep.sequenceNumber = client->sequence;
 
     if(client->swapped) {
-       _swaps(&rep.sequenceNumber, n);
-       _swapl(&rep.length, n);
-       _swapl(&rep.screen, n);
-       _swapl(&rep.sdc_id, n);
-       _swapl(&rep.sdc_command, n);
-       _swapl(&rep.sdc_result_header, n);
-       for(i = 0; i < SDC_NUM_PARM_RESULT; i++) {
-	  _swapl(&rep.sdc_parm[i], n);
-	  _swapl(&rep.sdc_result[i], n);
-       }
+        swaps(&rep.sequenceNumber);
+        swapl(&rep.length);
+        swapl(&rep.screen);
+        swapl(&rep.sdc_id);
+        swapl(&rep.sdc_command);
+        swapl(&rep.sdc_result_header);
+        for(i = 0; i < SDC_NUM_PARM_RESULT; i++) {
+            swapl(&rep.sdc_parm[i]);
+            swapl(&rep.sdc_result[i]);
+        }
     }
     WriteToClient(client, sizeof(xSiSCtrlCommandReply), (char *)&rep);
     return client->noClientException;
@@ -1956,7 +1956,7 @@ static int
 SiSSProcSiSCtrlQueryVersion(ClientPtr client)
 {
     REQUEST(xSiSCtrlQueryVersionReq);
-    _swaps(&stuff->length, n);
+    swaps(&stuff->length);
     REQUEST_SIZE_MATCH(xSiSCtrlQueryVersionReq);
     return SiSProcSiSCtrlQueryVersion(client);
 }
@@ -1966,14 +1966,14 @@ SiSSProcSiSCtrlCommand(ClientPtr client)
 {
     REQUEST(xSiSCtrlCommandReq);
     int i;
-    _swaps(&stuff->length, n);
-    _swapl(&stuff->screen, n);
-    _swapl(&stuff->sdc_id, n);
-    _swapl(&stuff->sdc_command, n);
-    _swapl(&stuff->sdc_result_header, n);
+    swaps(&stuff->length);
+    swapl(&stuff->screen);
+    swapl(&stuff->sdc_id);
+    swapl(&stuff->sdc_command);
+    swapl(&stuff->sdc_result_header);
     for(i = 0; i < SDC_NUM_PARM_RESULT; i++) {
-       _swapl(&stuff->sdc_parm[i], n);
-       _swapl(&stuff->sdc_result[i], n);
+        swapl(&stuff->sdc_parm[i]);
+        swapl(&stuff->sdc_result[i]);
     }
     REQUEST_SIZE_MATCH(xSiSCtrlCommandReq);
     return SiSProcSiSCtrlCommand(client);

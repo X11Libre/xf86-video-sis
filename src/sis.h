@@ -72,9 +72,6 @@
 #include "xf86cmap.h"
 #include "vbe.h"
 
-#define _swapl(x, n) swapl(x)
-#define _swaps(x, n) swaps(x)
-
 #define SIS_HaveDriverFuncs 0
 
 #undef SISISXORG6899900
