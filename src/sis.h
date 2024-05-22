@@ -697,8 +697,6 @@ typedef struct {
 /* For extended memcpy() */
 typedef void (*vidCopyFunc)(UChar *, const UChar *, int);
 
-#define SISAGPHTYPE drm_handle_t
-
 /* Dual head private entity structure */
 #ifdef SISDUALHEAD
 typedef struct {
@@ -707,7 +705,7 @@ typedef struct {
     UChar		*BIOS;
     struct SiS_Private	*SiS_Pr;
 #ifdef SISDRI
-    SISAGPHTYPE		agpHandle;
+    drm_handle_t	agpHandle;
     ULong		agpAddr;
     UChar		*agpBase;
     unsigned int	agpSize;
@@ -979,7 +977,7 @@ typedef struct {
     unsigned int	cmdQueueSize_div4;
     unsigned int	cmdQueueSize_4_3;
 #ifdef SISDRI
-    SISAGPHTYPE		agpHandle;
+    drm_handle_t	agpHandle;
     ULong		agpAddr;
     UChar 		*agpBase;
     unsigned int	agpSize;
