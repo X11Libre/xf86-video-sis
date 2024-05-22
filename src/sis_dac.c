@@ -67,13 +67,8 @@
 
 #include "sis.h"
 #define SIS_NEED_inSISREG
-#define SIS_NEED_inSISREGW
-#define SIS_NEED_inSISREGL
 #define SIS_NEED_outSISREG
-#define SIS_NEED_outSISREGW
-#define SIS_NEED_outSISREGL
 #define SIS_NEED_inSISIDXREG
-#define SIS_NEED_outSISIDXREG
 #define SIS_NEED_orSISIDXREG
 #define SIS_NEED_andSISIDXREG
 #define SIS_NEED_MYMMIO

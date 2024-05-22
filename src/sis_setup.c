@@ -36,12 +36,7 @@
 #endif
 
 #include "sis.h"
-#define SIS_NEED_inSISREGW
-#define SIS_NEED_inSISREGL
-#define SIS_NEED_outSISREGW
-#define SIS_NEED_outSISREGL
 #define SIS_NEED_inSISIDXREG
-#define SIS_NEED_outSISIDXREG
 #include "sis_regs.h"
 
 extern int SiSMclk(SISPtr pSiS);
