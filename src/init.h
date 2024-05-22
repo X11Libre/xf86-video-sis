@@ -65,25 +65,6 @@
 #include "sis_regs.h"
 #endif
 
-#ifdef SIS_LINUX_KERNEL
-#include "vgatypes.h"
-#include "vstruct.h"
-#include <linux/config.h>
-#include <linux/version.h>
-#include <linux/types.h>
-#include <asm/io.h>
-#include <linux/fb.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-#include <video/fbcon.h>
-#endif
-#include "sis.h"
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-#include <linux/sisfb.h>
-#else
-#include <video/sisfb.h>
-#endif
-#endif
-
 /* Mode numbers */
 static const unsigned short ModeIndex_320x200[]      = {0x59, 0x41, 0x00, 0x4f};
 static const unsigned short ModeIndex_320x240[]      = {0x50, 0x56, 0x00, 0x53};
@@ -1542,17 +1523,13 @@ void		SiS_SetRegOR(SISIOADDRESS Port,unsigned short Index, unsigned short DataOR
 void		SiS_DisplayOn(struct SiS_Private *SiS_Pr);
 void		SiS_DisplayOff(struct SiS_Private *SiS_Pr);
 void		SiSRegInit(struct SiS_Private *SiS_Pr, SISIOADDRESS BaseAddr);
-#ifndef SIS_LINUX_KERNEL
 void		SiSSetLVDSetc(struct SiS_Private *SiS_Pr);
-#endif
 void		SiS_SetEnableDstn(struct SiS_Private *SiS_Pr, int enable);
 void		SiS_SetEnableFstn(struct SiS_Private *SiS_Pr, int enable);
 unsigned short	SiS_GetModeFlag(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex);
 BOOLEAN		SiSDetermineROMLayout661(struct SiS_Private *SiS_Pr);
-#ifndef SIS_LINUX_KERNEL
 void		SiS_GetVBType(struct SiS_Private *SiS_Pr);
-#endif
 
 BOOLEAN		SiS_SearchModeID(struct SiS_Private *SiS_Pr, unsigned short *ModeNo,
 				unsigned short *ModeIdIndex);
@@ -1581,19 +1558,12 @@ BOOLEAN		SiSBIOSSetModeCRT2(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
 BOOLEAN		SiSBIOSSetModeCRT1(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
 				DisplayModePtr mode, BOOLEAN IsCustom);
 #endif
-#ifdef SIS_LINUX_KERNEL
-BOOLEAN		SiSSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo);
-#endif
 void		SiS_CalcCRRegisters(struct SiS_Private *SiS_Pr, int depth);
 void		SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex);
 #ifdef SIS_XORG_XF86
 void		SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata, int xres,
 				int yres, DisplayModePtr current);
-#endif
-#ifdef SIS_LINUX_KERNEL
-void		SiS_Generic_ConvertCRData(struct SiS_Private *SiS_Pr, unsigned char *crdata, int xres,
-				int yres, struct fb_var_screeninfo *var, BOOLEAN writeres);
 #endif
 
 /* From init301.c: */
@@ -1629,18 +1599,4 @@ extern unsigned short 	SiS_GetModeNumber(ScrnInfoPtr pScrn, DisplayModePtr mode,
 				unsigned int VBFlags);
 #endif
 
-#ifdef SIS_LINUX_KERNEL
-#ifdef SIS300
-extern unsigned int	sisfb_read_nbridge_pci_dword(struct SiS_Private *SiS_Pr, int reg);
-extern void		sisfb_write_nbridge_pci_dword(struct SiS_Private *SiS_Pr, int reg,
-				unsigned int val);
 #endif
-#ifdef SIS315H
-extern void		sisfb_write_nbridge_pci_byte(struct SiS_Private *SiS_Pr, int reg,
-				unsigned char val);
-extern unsigned int	sisfb_read_mio_pci_word(struct SiS_Private *SiS_Pr, int reg);
-#endif
-#endif
-
-#endif
-

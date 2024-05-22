@@ -85,9 +85,6 @@
 #define SiS_I2CDELAYSHORT  150
 
 static unsigned short	SiS_GetBIOSLCDResInfo(struct SiS_Private *SiS_Pr);
-#ifdef SIS_LINUX_KERNEL
-static void		SiS_SetCH70xx(struct SiS_Private *SiS_Pr, unsigned short reg, unsigned char val);
-#endif
 
 /*********************************************/
 /*         HELPER: Lock/Unlock CRT2          */
@@ -104,9 +101,6 @@ SiS_UnLockCRT2(struct SiS_Private *SiS_Pr)
       SiS_SetRegOR(SiS_Pr->SiS_Part1Port,0x24,0x01);
 }
 
-#ifdef SIS_LINUX_KERNEL
-static
-#endif
 void
 SiS_LockCRT2(struct SiS_Private *SiS_Pr)
 {
@@ -927,11 +921,7 @@ SiS_SetChrontelGPIO(struct SiS_Private *SiS_Pr, unsigned short myvbinfo)
 
    if(!(SiS_Pr->SiS_ChSW)) return;
 
-#ifdef SIS_LINUX_KERNEL
-   acpibase = sisfb_read_lpc_pci_dword(SiS_Pr, 0x74);
-#else
    acpibase = sis_pci_read_device_u32(1, 0x74);
-#endif
    acpibase &= 0xFFFF;
    if(!acpibase) return;
    temp = SiS_GetRegShort((acpibase + 0x3c));	/* ACPI register 0x3c: GP Event 1 I/O mode select */
@@ -1164,12 +1154,6 @@ SiS_GetVBInfo(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
    }
 #endif
 
-#ifdef SIS_LINUX_KERNEL
-#if 0
-   printk(KERN_DEBUG "sisfb: (init301: VBInfo= 0x%04x, SetFlag=0x%04x)\n",
-      SiS_Pr->SiS_VBInfo, SiS_Pr->SiS_SetFlag);
-#endif
-#endif
 #ifdef SIS_XORG_XF86
 #ifdef TWDEBUG
    xf86DrvMsg(0, X_PROBED, "(init301: VBInfo=0x%04x, SetFlag=0x%04x)\n",
@@ -2234,12 +2218,6 @@ SiS_GetLCDResInfo(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned sh
      SiS_Pr->SiS_SetFlag |= LCDVESATiming;
   }
 
-#ifdef SIS_LINUX_KERNEL
-#if 0
-  printk(KERN_DEBUG "sisfb: (LCDInfo=0x%04x LCDResInfo=0x%02x LCDTypeInfo=0x%02x)\n",
-	SiS_Pr->SiS_LCDInfo, SiS_Pr->SiS_LCDResInfo, SiS_Pr->SiS_LCDTypeInfo);
-#endif
-#endif
 #ifdef SIS_XORG_XF86
   xf86DrvMsgVerb(0, X_PROBED, 4,
 	"(init301: LCDInfo=0x%04x LCDResInfo=0x%02x LCDTypeInfo=0x%02x SetFlag=0x%04x)\n",
@@ -4362,9 +4340,6 @@ SiS_DisableBridge(struct SiS_Private *SiS_Pr)
  * from outside the context of a mode switch!
  * MUST call getVBType before calling this
  */
-#ifdef SIS_LINUX_KERNEL
-static
-#endif
 void
 SiS_EnableBridge(struct SiS_Private *SiS_Pr)
 {
@@ -5212,13 +5187,8 @@ SiS_SetCRT2FIFO_300(struct SiS_Private *SiS_Pr,unsigned short ModeNo)
 
      } else {
 
-#ifdef SIS_LINUX_KERNEL
-	pci50 = sisfb_read_nbridge_pci_dword(SiS_Pr, 0x50);
-	pciA0 = sisfb_read_nbridge_pci_dword(SiS_Pr, 0xa0);
-#else
 	pci50 = sis_pci_read_host_bridge_u32(0x50);
 	pciA0 = sis_pci_read_host_bridge_u32(0xA0);
-#endif
 
         if(SiS_Pr->ChipType == SIS_730) {
 
@@ -9020,9 +8990,6 @@ SiS_SetCH701x(struct SiS_Private *SiS_Pr, unsigned short reg, unsigned char val)
   SiS_SetChReg(SiS_Pr, reg, val, 0);
 }
 
-#ifdef SIS_LINUX_KERNEL
-static
-#endif
 void
 SiS_SetCH70xx(struct SiS_Private *SiS_Pr, unsigned short reg, unsigned char val)
 {
@@ -9109,9 +9076,6 @@ SiS_GetCH701x(struct SiS_Private *SiS_Pr, unsigned short tempbx)
 
 /* Read from Chrontel 70xx */
 /* Parameter is [Register no (S7-S0)] */
-#ifdef SIS_LINUX_KERNEL
-static
-#endif
 unsigned short
 SiS_GetCH70xx(struct SiS_Private *SiS_Pr, unsigned short tempbx)
 {

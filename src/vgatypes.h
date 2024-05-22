@@ -51,10 +51,6 @@
 #ifndef _VGATYPES_H_
 #define _VGATYPES_H_
 
-#ifdef SIS_LINUX_KERNEL
-#include <linux/version.h>
-#endif
-
 #ifndef FALSE
 #define FALSE   0
 #endif
@@ -70,14 +66,6 @@ typedef unsigned int BOOLEAN;
 #define SISIOMEMTYPE
 
 typedef unsigned long SISIOADDRESS;
-
-#ifdef SIS_LINUX_KERNEL
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,8)
-#include <linux/types.h>  /* Need __iomem */
-#undef SISIOMEMTYPE
-#define SISIOMEMTYPE __iomem
-#endif
-#endif
 
 typedef enum _SIS_CHIP_TYPE {
     SIS_VGALegacy = 0,

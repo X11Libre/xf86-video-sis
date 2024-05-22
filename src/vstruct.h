@@ -241,21 +241,11 @@ struct SiS_Private
 	PCITAG				PciTag;
 #endif
 #endif
-#ifdef SIS_LINUX_KERNEL
-	void				*ivideo;
-#endif
 	unsigned char 			*VirtualRomBase;
 	BOOLEAN				UseROM;
-#ifdef SIS_LINUX_KERNEL
-	unsigned char SISIOMEMTYPE	*VideoMemoryAddress;
-	unsigned int			VideoMemorySize;
-#endif
 	SISIOADDRESS			IOAddress;
 	SISIOADDRESS			IOAddress2;  /* For dual chip XGI volari */
 
-#ifdef SIS_LINUX_KERNEL
-	SISIOADDRESS			RelIO;
-#endif
 	SISIOADDRESS			SiS_P3c4;
 	SISIOADDRESS			SiS_P3d4;
 	SISIOADDRESS			SiS_P3c0;

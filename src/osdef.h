@@ -53,11 +53,7 @@
 #define _SIS_OSDEF_H_
 
 /* The choices are: */
-#undef  SIS_LINUX_KERNEL		/* Linux kernel framebuffer */
 #define SIS_XORG_XF86			/* XFree86/X.org */
-
-#undef SIS_LINUX_KERNEL_24
-#undef SIS_LINUX_KERNEL_26
 
 #ifdef OutPortByte
 #undef OutPortByte
@@ -82,43 +78,6 @@
 #ifdef InPortLong
 #undef InPortLong
 #endif
-
-/**********************************************************************/
-/*  LINUX KERNEL                                                      */
-/**********************************************************************/
-
-#ifdef SIS_LINUX_KERNEL
-#include <linux/config.h>
-#include <linux/version.h>
-
-#ifdef CONFIG_FB_SIS_300
-#define SIS300
-#endif
-
-#ifdef CONFIG_FB_SIS_315
-#define SIS315H
-#endif
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
-#define SIS_LINUX_KERNEL_26
-#else
-#define SIS_LINUX_KERNEL_24
-#endif
-
-#if !defined(SIS300) && !defined(SIS315H)
-#warning Neither CONFIG_FB_SIS_300 nor CONFIG_FB_SIS_315 is set
-#warning sisfb will not work!
-#endif
-
-#define OutPortByte(p,v) outb((u8)(v),(unsigned long)(p))
-#define OutPortWord(p,v) outw((u16)(v),(unsigned long)(p))
-#define OutPortLong(p,v) outl((u32)(v),(unsigned long)(p))
-#define InPortByte(p)    inb((unsigned long)(p))
-#define InPortWord(p)    inw((unsigned long)(p))
-#define InPortLong(p)    inl((unsigned long)(p))
-#define SiS_SetMemory(MemoryAddress,MemorySize,value) memset_io(MemoryAddress, value, MemorySize)
-
-#endif /* LINUX_KERNEL */
 
 /**********************************************************************/
 /*  XFree86/X.org                                                     */
