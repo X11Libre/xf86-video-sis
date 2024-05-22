@@ -269,9 +269,7 @@ extern UShort	SiS_CheckModeCRT2(ScrnInfoPtr pScrn, DisplayModePtr mode,
 extern void	SISAdjustFrame(ADJUST_FRAME_ARGS_DECL);
 extern float	SiSCalcVRate(DisplayModePtr mode);
 extern void	SiS_UpdateGammaCRT2(ScrnInfoPtr pScrn);
-#ifdef SISGAMMARAMP
 extern void	SISCalculateGammaRamp(ScreenPtr pScreen, ScrnInfoPtr pScrn);
-#endif
 
 extern void	SISSetPortDefaults(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv);
 extern void	SISUpdateVideoParms(SISPtr pSiS, SISPortPrivPtr pPriv);
@@ -1238,11 +1236,9 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 	       if(pSiS->CRT2SepGamma) {
 		  SiS_UpdateGammaCRT2(pScrn);
 	       }
-#ifdef SISGAMMARAMP
 	       else {
 		  SISCalculateGammaRamp(pScrn->pScreen, pScrn);
 	       }
-#endif
 	      /* ATTN: When disabling CRT2 sep gamma,
 	       * as long as SISGAMMARAMP is not defined,
 	       * application needs to reset palette using
@@ -2232,11 +2228,9 @@ SISSetPortUtilAttribute(ScrnInfoPtr pScrn, Atom attribute,
 	      if(pSiS->CRT2SepGamma) {
 		 SiS_UpdateGammaCRT2(pScrn);
 	      }
-#ifdef SISGAMMARAMP
 	      else {
 		 SISCalculateGammaRamp(pScrn->pScreen, pScrn);
 	      }
-#endif
 	      /* ATTN: When disabling CRT2 sep gamma,
 	       * as long as SISGAMMARAMP is not defined,
 	       * application needs to reset palette using

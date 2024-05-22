@@ -611,7 +611,6 @@ calcgammaval(int j, int nramp, float invgamma, float bri, float c)
     return (unsigned short)v;
 }
 
-#ifdef SISGAMMARAMP
 void
 SISCalculateGammaRamp(ScreenPtr pScreen, ScrnInfoPtr pScrn)
 {
@@ -700,7 +699,6 @@ SISCalculateGammaRamp(ScreenPtr pScreen, ScrnInfoPtr pScrn)
    free(ramp[2]);
    ramp[0] = ramp[1] = ramp[2] = NULL;
 }
-#endif
 
 void
 SISCalculateGammaRampCRT2(ScrnInfoPtr pScrn)
@@ -8664,7 +8662,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
     }
 
     /* Recalculate our gamma ramp for brightness feature */
-#ifdef SISGAMMARAMP
     if((pSiS->GammaBriR != 1000) ||
        (pSiS->GammaBriB != 1000) ||
        (pSiS->GammaBriG != 1000) ||
@@ -8676,7 +8673,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
        (pSiS->NewGammaConB != 0.0)) {
        SISCalculateGammaRamp(pScreen, pScrn);
     }
-#endif
 
     /* Initialize Shadow framebuffer and screen rotation/reflection */
     if(pSiS->ShadowFB) {
@@ -8908,11 +8904,7 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
        pSiS->SiS_SD_Flags &= ~SiS_SD_SUPPORTSGRCRT2;
     }
 
-#ifdef SISGAMMARAMP
     pSiS->SiS_SD_Flags |= SiS_SD_CANSETGAMMA;
-#else
-    pSiS->SiS_SD_Flags &= ~SiS_SD_CANSETGAMMA;
-#endif
 
     SiSCtrlExtInit(pScrn);
 

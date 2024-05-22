@@ -1620,9 +1620,7 @@ static void    SiSDumpModeInfo(ScrnInfoPtr pScrn, DisplayModePtr mode);
 #endif
 Bool           SISDetermineLCDACap(ScrnInfoPtr pScrn);
 void           SISSaveDetectedDevices(ScrnInfoPtr pScrn);
-#ifdef SISGAMMARAMP
 void	       SISCalculateGammaRamp(ScreenPtr pScreen, ScrnInfoPtr pScrn);
-#endif
 
 /* Our very own vgaHW functions (sis_vga.c) */
 extern void 	SiSVGASave(ScrnInfoPtr pScrn, SISRegPtr save, int flags);

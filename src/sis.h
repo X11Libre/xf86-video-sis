@@ -190,8 +190,6 @@
 #define SISCHECKOSSSE		/* Automatic check OS for SSE; requires SigIll facility */
 #endif
 
-#define SISGAMMARAMP		/* Driver can set gamma ramp; requires additional symbols in xf86sym.h */
-
 #ifdef TWDEBUG
 #define SISVERBLEVEL 3
 #else
