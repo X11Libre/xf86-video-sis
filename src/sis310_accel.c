@@ -100,20 +100,14 @@ static void
 SiSCalcRenderAccelArray(ScrnInfoPtr pScrn)
 {
 	SISPtr  pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
 	SISEntPtr pSiSEnt = pSiS->entityPrivate;;
-#endif
 
 	if(((pScrn->bitsPerPixel == 16) || (pScrn->bitsPerPixel == 32)) && pSiS->doRender) {
 	   int i, j;
-#ifdef SISDUALHEAD
 	   if(pSiSEnt) pSiS->RenderAccelArray = pSiSEnt->RenderAccelArray;
-#endif
 	   if(!pSiS->RenderAccelArray) {
 	      if((pSiS->RenderAccelArray = XNFcallocarray(65536, 1))) {
-#ifdef SISDUALHEAD
 	         if(pSiSEnt) pSiSEnt->RenderAccelArray = pSiS->RenderAccelArray;
-#endif
 		 for(i = 0; i < 256; i++) {
 		    for(j = 0; j < 256; j++) {
 		       pSiS->RenderAccelArray[(i << 8) + j] = (i * j) / 255;

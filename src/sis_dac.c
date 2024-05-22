@@ -1415,9 +1415,7 @@ SiSEstimateCRT2Clock(ScrnInfoPtr pScrn, Bool FakeForCRT2)
 int SiSMemBandWidth(ScrnInfoPtr pScrn, Bool IsForCRT2)
 {
 	SISPtr pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
 	SISEntPtr pSiSEnt = pSiS->entityPrivate;
-#endif
 	int          bus = pSiS->BusWidth;
 	int          mclk = pSiS->MemClock;
 	int          bpp = pSiS->CurrentLayout.bitsPerPixel;
@@ -1545,12 +1543,10 @@ int SiSMemBandWidth(ScrnInfoPtr pScrn, Bool IsForCRT2)
 		    DHM = FALSE;
 		    GetForCRT1 = FALSE;
 
-#ifdef SISDUALHEAD
 		    if((pSiS->DualHeadMode) && (pSiSEnt)) {
 		       DHM = TRUE;
 		       if(pSiS->SecondHead) GetForCRT1 = TRUE;
 		    }
-#endif
 		    if(pSiS->MergedFB && IsForCRT2) {
 		       DHM = TRUE;
 		       GetForCRT1 = FALSE;
@@ -1596,7 +1592,6 @@ int SiSMemBandWidth(ScrnInfoPtr pScrn, Bool IsForCRT2)
 				      crt2used/1000);
 
 			} else {
-#ifdef SISDUALHEAD
 			     /* Second head = CRT1 */
 
 			     /*     Now We know about the first head's depth,
@@ -1619,7 +1614,6 @@ int SiSMemBandWidth(ScrnInfoPtr pScrn, Bool IsForCRT2)
 
 			     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
 				 "Bandwidth available for CRT1 is %g MHz\n", total/1000);
-#endif
 			}
 
 		    } else {
@@ -1673,17 +1667,13 @@ SISLoadPalette(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
      UChar   backup = 0;
      Bool    dogamma1 = pSiS->CRT1gamma;
      Bool    resetxvgamma = FALSE;
-#ifdef SISDUALHEAD
      SISEntPtr pSiSEnt = pSiS->entityPrivate;
 
      if(pSiS->DualHeadMode) dogamma1 = pSiSEnt->CRT1gamma;
-#endif
 
      PDEBUG(xf86DrvMsg(pScrn->scrnIndex, X_INFO, "LoadPalette()\n"));
 
-#ifdef SISDUALHEAD
      if((!pSiS->DualHeadMode) || (pSiS->SecondHead)) {
-#endif
 
 	if(pSiS->VGAEngine == SIS_315_VGA) {
 	   inSISIDXREG(SISSR, 0x1f, backup);
@@ -1810,13 +1800,9 @@ SISLoadPalette(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
 	   }
 	}
 
-#ifdef SISDUALHEAD
     }
-#endif
 
-#ifdef SISDUALHEAD
     if((!pSiS->DualHeadMode) || (!pSiS->SecondHead)) {
-#endif
        switch(pSiS->VGAEngine) {
        case SIS_300_VGA:
        case SIS_315_VGA:
@@ -1831,10 +1817,7 @@ SISLoadPalette(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
 	     }
           }
        }
-#ifdef SISDUALHEAD
     }
-#endif
-
 }
 
 void
@@ -1844,9 +1827,7 @@ SiS_UpdateGammaCRT2(ScrnInfoPtr pScrn)
 
     if((!pSiS->CRT2SepGamma) || (!pSiS->crt2cindices) || (!pSiS->crt2gcolortable)) return;
 
-#ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) return;
-#endif
 
     SISCalculateGammaRampCRT2(pScrn);
     SiS301LoadPalette(pScrn, pSiS->CRT2ColNum, pSiS->crt2cindices, pSiS->crt2colors, (8 - pScrn->rgbBits));
@@ -1858,11 +1839,9 @@ SiS301LoadPalette(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors, 
 	SISPtr  pSiS = SISPTR(pScrn);
 	int     i, j, index;
 	Bool    dogamma2 = pSiS->CRT2gamma;
-#ifdef SISDUALHEAD
 	SISEntPtr pSiSEnt = pSiS->entityPrivate;
 
 	if(pSiS->DualHeadMode) dogamma2 = pSiSEnt->CRT2gamma;
-#endif
 
 	/* 301B-DH does not support a color palette for LCD */
 	if((pSiS->VBFlags2 & VB2_30xBDH) && (pSiS->VBFlags & CRT2_LCD)) return;
@@ -1938,10 +1917,8 @@ SISDACPreInit(ScrnInfoPtr pScrn)
     SISPtr pSiS = SISPTR(pScrn);
     Bool IsForCRT2 = FALSE;
 
-#ifdef SISDUALHEAD
     if((pSiS->DualHeadMode) && (!pSiS->SecondHead))
        IsForCRT2 = TRUE;
-#endif
 
     pSiS->MaxClock = SiSMemBandWidth(pScrn, IsForCRT2);
 
