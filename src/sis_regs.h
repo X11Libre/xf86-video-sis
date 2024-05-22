@@ -32,15 +32,10 @@
 
 /*
 #define SIS_NEED_inSISREG
-#define SIS_NEED_inSISREGW
-#define SIS_NEED_inSISREGL
 #define SIS_NEED_outSISREG
-#define SIS_NEED_outSISREGW
-#define SIS_NEED_outSISREGL
 #define SIS_NEED_orSISREG
 #define SIS_NEED_andSISREG
 #define SIS_NEED_inSISIDXREG
-#define SIS_NEED_outSISIDXREG
 #define SIS_NEED_orSISIDXREG
 #define SIS_NEED_andSISIDXREG
 #define SIS_NEED_setSISIDXREG
@@ -164,7 +159,6 @@ static UChar inSISREG(ULong base)
 }
 #endif
 
-#ifdef SIS_NEED_inSISREGW
 static __inline UShort inSISREGW(ULong base)
 {
     UShort tmp;
@@ -172,9 +166,7 @@ static __inline UShort inSISREGW(ULong base)
     read(sisdevport, &tmp, 2);
     return tmp;
 }
-#endif
 
-#ifdef SIS_NEED_inSISREGL
 static __inline unsigned int inSISREGL(ULong base)
 {
     ULong tmp;
@@ -182,7 +174,6 @@ static __inline unsigned int inSISREGL(ULong base)
     read(sisdevport, &tmp, 4);
     return tmp;
 }
-#endif
 
 #ifdef SIS_NEED_outSISREG
 static void outSISREG(ULong base, UChar val)
@@ -192,21 +183,17 @@ static void outSISREG(ULong base, UChar val)
 }
 #endif
 
-#ifdef SIS_NEED_outSISREGW
 static __inline void outSISREGW(ULong base, UShort val)
 {
     lseek(sisdevport, base, SEEK_SET);
     write(sisdevport, &val, 2);
 }
-#endif
 
-#ifdef SIS_NEED_outSISREGL
 static __inline void outSISREGL(ULong base, unsigned int val)
 {
     lseek(sisdevport, base, SEEK_SET);
     write(sisdevport, &val, 4);
 }
-#endif
 
 #ifdef SIS_NEED_orSISREG
 static void orSISREG(ULong base, UChar val)
@@ -232,7 +219,6 @@ static void andSISREG(ULong base, UChar val)
 }
 #endif
 
-#ifdef SIS_NEED_outSISIDXREG
 static void outSISIDXREG(ULong base, UChar idx, UChar val)
 {
     UChar value[2];
@@ -241,7 +227,6 @@ static void outSISIDXREG(ULong base, UChar idx, UChar val)
     lseek(sisdevport, base, SEEK_SET);
     write(sisdevport, &value[0], 2);
 }
-#endif
 
 #ifdef SIS_NEED_inSISIDXREG
 static UChar __inSISIDXREG(ULong base, UChar idx)

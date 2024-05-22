@@ -56,11 +56,7 @@
 
 #include "sis.h"
 #define SIS_NEED_inSISREG
-#define SIS_NEED_inSISREGW
-#define SIS_NEED_inSISREGL
 #define SIS_NEED_outSISREG
-#define SIS_NEED_outSISREGW
-#define SIS_NEED_outSISREGL
 #include "sis_regs.h"
 
 /* Mode numbers */
