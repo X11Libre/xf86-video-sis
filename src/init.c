@@ -60,10 +60,7 @@
 
 #include "init.h"
 #include "sis_dac.h"
-
-#ifdef SIS300
 #include "300vtbl.h"
-#endif
 
 #ifdef SIS315H
 #include "310vtbl.h"
@@ -77,7 +74,6 @@
 /*         POINTER INITIALIZATION            */
 /*********************************************/
 
-#if defined(SIS300) || defined(SIS315H)
 static void
 InitCommonPointer(struct SiS_Private *SiS_Pr)
 {
@@ -161,9 +157,7 @@ InitCommonPointer(struct SiS_Private *SiS_Pr)
    SiS_Pr->SiS_PanelMinLVDS   = Panel_800x600;    /* lowest value LVDS/LCDA */
    SiS_Pr->SiS_PanelMin301    = Panel_1024x768;   /* lowest value 301 */
 }
-#endif
 
-#ifdef SIS300
 static void
 InitTo300Pointer(struct SiS_Private *SiS_Pr)
 {
@@ -238,7 +232,6 @@ InitTo300Pointer(struct SiS_Private *SiS_Pr)
    SiS_Pr->SiS_CHTVVCLKOPALN = SiS300_CHTVVCLKOPAL;   /* not supported on 300 series */
    SiS_Pr->SiS_CHTVVCLKSOPAL = SiS300_CHTVVCLKSOPAL;
 }
-#endif
 
 #ifdef SIS315H
 static void
@@ -324,11 +317,7 @@ BOOLEAN
 SiSInitPtr(struct SiS_Private *SiS_Pr)
 {
    if(SiS_Pr->ChipType < SIS_315H) {
-#ifdef SIS300
       InitTo300Pointer(SiS_Pr);
-#else
-      return FALSE;
-#endif
    } else {
 #ifdef SIS315H
       InitTo310Pointer(SiS_Pr);
@@ -1081,7 +1070,6 @@ static void
 SiSInitPCIetc(struct SiS_Private *SiS_Pr)
 {
    switch(SiS_Pr->ChipType) {
-#ifdef SIS300
    case SIS_300:
    case SIS_540:
    case SIS_630:
@@ -1099,7 +1087,6 @@ SiSInitPCIetc(struct SiS_Private *SiS_Pr)
        */
       SiS_SetRegOR(SiS_Pr->SiS_P3c4,0x1E,0x5A);
       break;
-#endif
 #ifdef SIS315H
    case SIS_315H:
    case SIS_315:
@@ -1163,7 +1150,6 @@ SiSSetLVDSetc(struct SiS_Private *SiS_Pr)
    if((temp == 1) || (temp == 2)) return;
 
    switch(SiS_Pr->ChipType) {
-#ifdef SIS300
    case SIS_540:
    case SIS_630:
    case SIS_730:
@@ -1176,7 +1162,6 @@ SiSSetLVDSetc(struct SiS_Private *SiS_Pr)
 		SiS_Pr->SiS_IF_DEF_CH70xx = 1;
 	}
 	break;
-#endif
 #ifdef SIS315H
    case SIS_550:
    case SIS_650:
@@ -2171,7 +2156,6 @@ SiS_SetCRT1VCLK(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 /*                  FIFO                     */
 /*********************************************/
 
-#ifdef SIS300
 void
 SiS_GetFIFOThresholdIndex300(struct SiS_Private *SiS_Pr, unsigned short *idx1,
 		unsigned short *idx2)
@@ -2480,7 +2464,6 @@ SiS_SetCRT1FIFO_630(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 
    sis_pci_write_host_bridge_u32(0xA0, templ);
 }
-#endif /* SIS300 */
 
 #ifdef SIS315H
 static void
@@ -2534,14 +2517,12 @@ SiS_SetVCLKState(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
    }
 
    if(SiS_Pr->ChipType < SIS_315H) {
-#ifdef SIS300
       if(VCLK > 150) data |= 0x80;
       SiS_SetRegANDOR(SiS_Pr->SiS_P3c4,0x07,0x7B,data);
 
       data = 0x00;
       if(VCLK >= 150) data |= 0x08;
       SiS_SetRegANDOR(SiS_Pr->SiS_P3c4,0x32,0xF7,data);
-#endif
    } else if(SiS_Pr->ChipType < XGI_20) {
 #ifdef SIS315H
       if(VCLK >= 166) data |= 0x0c;
@@ -2947,7 +2928,6 @@ SiS_SetCRT1Group(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned sho
    }
 
    switch(SiS_Pr->ChipType) {
-#ifdef SIS300
    case SIS_300:
       SiS_SetCRT1FIFO_300(SiS_Pr, ModeNo, RefreshRateTableIndex);
       break;
@@ -2956,7 +2936,6 @@ SiS_SetCRT1Group(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned sho
    case SIS_730:
       SiS_SetCRT1FIFO_630(SiS_Pr, ModeNo, RefreshRateTableIndex);
       break;
-#endif
    default:
 #ifdef SIS315H
       if(SiS_Pr->ChipType == XGI_20) {
@@ -3796,14 +3775,12 @@ SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
    SiS_Pr->CVBlankStart = SiS_Pr->SiS_VGAVDE;
 
    if(SiS_Pr->ChipType < SIS_315H) {
-#ifdef SIS300
       tempbx = SiS_Pr->SiS_VGAHT;
       if(SiS_Pr->SiS_LCDInfo & DontExpandLCD) {
          tempbx = SiS_Pr->PanelHT;
       }
       if(modeflag & HalfDCLK) tempbx >>= 1;
       remaining = tempbx % 8;
-#endif
    } else {
 #ifdef SIS315H
       /* OK for LCDA, LVDS */
@@ -3819,7 +3796,6 @@ SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
    SiS_Pr->CHTotal = SiS_Pr->CHBlankEnd = tempbx;
 
    if(SiS_Pr->ChipType < SIS_315H) {
-#ifdef SIS300
       if(SiS_Pr->SiS_VGAHDE == SiS_Pr->PanelXRes) {
 	 SiS_Pr->CHSyncStart = SiS_Pr->SiS_VGAHDE + ((SiS_Pr->PanelHRS + 1) & ~1);
 	 SiS_Pr->CHSyncEnd = SiS_Pr->CHSyncStart + SiS_Pr->PanelHRE;
@@ -3849,7 +3825,6 @@ SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 	    SiS_Pr->CHSyncStart += 8;
 	 }
       }
-#endif
    } else {
 #ifdef SIS315H
       tempax = VGAHDE;
@@ -3870,7 +3845,6 @@ SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
    if(SiS_Pr->SiS_LCDInfo & DontExpandLCD) {
       tempax = SiS_Pr->PanelYRes;
    } else if(SiS_Pr->ChipType < SIS_315H) {
-#ifdef SIS300
       /* Stupid hack for 640x400/320x200 */
       if(SiS_Pr->SiS_LCDResInfo == Panel_1024x768) {
 	 if((tempax + tempbx) == 438) tempbx += 16;
@@ -3879,7 +3853,6 @@ SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 	 tempax = 0;
 	 tempbx = SiS_Pr->SiS_VGAVT;
       }
-#endif
    }
    SiS_Pr->CVTotal = SiS_Pr->CVBlankEnd = tempbx + tempax;
 

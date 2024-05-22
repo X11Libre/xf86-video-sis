@@ -269,7 +269,6 @@ static const struct SiS_ModeResInfo_S SiS_ModeResInfo[] =
 	{ 1280, 854, 8,16}    /* 0x22 */
 };
 
-#if defined(SIS300) || defined(SIS315H)
 static const struct SiS_StandTable_S SiS_StandTable[]=
 {
 /* 0x00: MD_0_200 */
@@ -708,7 +707,6 @@ static const struct SiS_StandTable_S SiS_StandTable[]=
    0xff}
  }
 };
-#endif
 
 /**************************************************************/
 /* SIS VIDEO BRIDGE ----------------------------------------- */
@@ -1537,12 +1535,10 @@ unsigned short	SiS_GetColorDepth(struct SiS_Private *SiS_Pr, unsigned short Mode
 				unsigned short ModeIdIndex);
 unsigned short	SiS_GetOffset(struct SiS_Private *SiS_Pr,unsigned short ModeNo,
 				unsigned short ModeIdIndex, unsigned short RRTI);
-#ifdef SIS300
 void		SiS_GetFIFOThresholdIndex300(struct SiS_Private *SiS_Pr, unsigned short *idx1,
 				unsigned short *idx2);
 unsigned short	SiS_GetFIFOThresholdB300(unsigned short idx1, unsigned short idx2);
 unsigned short	SiS_GetLatencyFactor630(struct SiS_Private *SiS_Pr, unsigned short index);
-#endif
 void		SiS_LoadDAC(struct SiS_Private *SiS_Pr, unsigned short ModeNo, unsigned short ModeIdIndex);
 BOOLEAN		SiSSetMode(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn, unsigned short ModeNo,
 				BOOLEAN dosetpitch);

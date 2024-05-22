@@ -206,7 +206,6 @@ static const unsigned char SiS_LCDStruct661[] = {
 };
 #endif
 
-#ifdef SIS300
 static unsigned char SiS300_TrumpionData[14][80] = {
   { 0x02,0x0A,0x0A,0x01,0x04,0x01,0x00,0x03,0x0D,0x00,0x0D,0x10,0x7F,0x00,0x80,0x02,
     0x20,0x03,0x0B,0x00,0x90,0x01,0xC1,0x01,0x60,0x0C,0x30,0x10,0x00,0x00,0x04,0x23,
@@ -280,7 +279,6 @@ static unsigned char SiS300_TrumpionData[14][80] = {
     0x03,0x11,0x60,0x40,0x05,0xFF,0x0F,0xF4,0x18,0x01,0x00,0x08,0x01,0x00,0x08,0x01,
     0x00,0x08,0x01,0x01,0x02,0xB0,0x00,0x00,0x02,0xBA,0xEA,0x58,0x01,0xBE,0x01,0x00 }
 };
-#endif
 
 void		SiS_UnLockCRT2(struct SiS_Private *SiS_Pr);
 void		SiS_LockCRT2(struct SiS_Private *SiS_Pr);
@@ -322,10 +320,8 @@ void		SiS_Chrontel701xBLOn(struct SiS_Private *SiS_Pr);
 void		SiS_Chrontel701xBLOff(struct SiS_Private *SiS_Pr);
 #endif /* 315 */
 
-#ifdef SIS300
 static  BOOLEAN	SiS_SetTrumpionBlock(struct SiS_Private *SiS_Pr, unsigned char *dataptr);
 void		SiS_SetChrontelGPIO(struct SiS_Private *SiS_Pr, unsigned short myvbinfo);
-#endif
 
 void		SiS_DDC2Delay(struct SiS_Private *SiS_Pr, unsigned int delaytime);
 unsigned short	SiS_ReadDDC1Bit(struct SiS_Private *SiS_Pr);
@@ -353,12 +349,10 @@ static unsigned short	SiS_PrepareDDC(struct SiS_Private *SiS_Pr);
 static void		SiS_SendACK(struct SiS_Private *SiS_Pr, unsigned short yesno);
 static unsigned short	SiS_DoProbeDDC(struct SiS_Private *SiS_Pr);
 
-#ifdef SIS300
 static void		SiS_OEM300Setting(struct SiS_Private *SiS_Pr,
 				unsigned short ModeNo, unsigned short ModeIdIndex, unsigned short RefTabindex);
 static void		SetOEMLCDData2(struct SiS_Private *SiS_Pr,
 				unsigned short ModeNo, unsigned short ModeIdIndex,unsigned short RefTableIndex);
-#endif
 #ifdef SIS315H
 static void		SiS_OEM310Setting(struct SiS_Private *SiS_Pr,
 				unsigned short ModeNo,unsigned short ModeIdIndex, unsigned short RRTI);
@@ -394,12 +388,10 @@ extern void		SiS_CalcLCDACRT1Timing(struct SiS_Private *SiS_Pr, unsigned short M
 extern void		SiS_CalcCRRegisters(struct SiS_Private *SiS_Pr, int depth);
 extern unsigned short	SiS_GetRefCRTVCLK(struct SiS_Private *SiS_Pr, unsigned short Index, int UseWide);
 extern unsigned short	SiS_GetRefCRT1CRTC(struct SiS_Private *SiS_Pr, unsigned short Index, int UseWide);
-#ifdef SIS300
 extern void		SiS_GetFIFOThresholdIndex300(struct SiS_Private *SiS_Pr, unsigned short *tempbx,
 				unsigned short *tempcl);
 extern unsigned short	SiS_GetFIFOThresholdB300(unsigned short tempbx, unsigned short tempcl);
 extern unsigned short	SiS_GetLatencyFactor630(struct SiS_Private *SiS_Pr, unsigned short index);
-#endif
 #ifdef SIS315H
 extern void		SiS_SetGroup2_C_ELV(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex, unsigned short RefreshRateTableIndex);

@@ -80,7 +80,6 @@
 /*  XFree86/X.org                                                     */
 /**********************************************************************/
 
-#define SIS300
 #define SIS315H
 
 #define OutPortByte(p,v) outSISREG((unsigned long)(p),(CARD8)(v))
