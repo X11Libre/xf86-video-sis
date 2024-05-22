@@ -127,9 +127,7 @@ void SiSScratchSave(ScreenPtr pScreen, ExaOffscreenArea *area);
 Bool SiSUploadToScratch(PixmapPtr pSrc, PixmapPtr pDst);
 #endif /* EXA */
 
-#ifdef INCL_YUV_BLIT_ADAPTOR
 void SISWriteBlitPacket(SISPtr pSiS, CARD32 *packet);
-#endif
 
 extern unsigned char SiSGetCopyROP(int rop);
 extern unsigned char SiSGetPatternROP(int rop);
@@ -1618,7 +1616,6 @@ SiSUploadToScratch(PixmapPtr pSrc, PixmapPtr pDst)
 
 /* Helper for xv video blitter */
 
-#ifdef INCL_YUV_BLIT_ADAPTOR
 void
 SISWriteBlitPacket(SISPtr pSiS, CARD32 *packet)
 {
@@ -1629,7 +1626,6 @@ SISWriteBlitPacket(SISPtr pSiS, CARD32 *packet)
 	SiSWritePacketPart(packet[16], packet[17], packet[18], packet[19]);
 	SiSSyncWP;
 }
-#endif
 
 /* For DGA usage */
 
