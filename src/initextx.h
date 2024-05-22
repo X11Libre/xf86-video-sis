@@ -38,7 +38,6 @@
 #include "sis.h"
 #include "sis_regs.h"
 
-#ifdef SIS315H
 static const struct {
 	unsigned char  Ext_ModeID;     /* ModeID in new ROM */
 	unsigned char  Ext_MyModeID;   /* corresponding ModeID in my tables (0 = identical) */
@@ -105,7 +104,6 @@ static const struct {
 	{ 0x7d, 0x7e, 0x0138 },
 	{ 0xff, 0xff, 0xffff }
 };
-#endif
 
 #define SIS_PL_HSYNCP 0x01
 #define SIS_PL_HSYNCN 0x02

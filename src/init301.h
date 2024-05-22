@@ -164,7 +164,6 @@ static const unsigned char SiS_HiTVGroup3_2[] = {
 	0x18, 0x1d, 0x23, 0x28, 0x4c, 0xaa, 0x01
 };
 
-#ifdef SIS315H
 /* 661 et al LCD data structure (2.03.00) */
 static const unsigned char SiS_LCDStruct661[] = {
     /* 1024x768 */
@@ -204,7 +203,6 @@ static const unsigned char SiS_LCDStruct661[] = {
     0x08,0xE0,0x00,0x05,0x56,0x03,0x80,0x06,0x5d,0x03,0x10,0x00,0x70,
     0x00,0x01,0x00,0x03,0x00,0x54,0x75,0x13,0x00,0x00,0x00,0x00,0x08
 };
-#endif
 
 static unsigned char SiS300_TrumpionData[14][80] = {
   { 0x02,0x0A,0x0A,0x01,0x04,0x01,0x00,0x03,0x0D,0x00,0x0D,0x10,0x7F,0x00,0x80,0x02,
@@ -311,14 +309,12 @@ void		SiS_SetCH70xx(struct SiS_Private *SiS_Pr, unsigned short reg, unsigned cha
 unsigned short	SiS_GetCH70xx(struct SiS_Private *SiS_Pr, unsigned short tempax);
 void		SiS_SetCH70xxANDOR(struct SiS_Private *SiS_Pr, unsigned short reg,
 			unsigned char orval,unsigned short andval);
-#ifdef SIS315H
 static void	SiS_Chrontel701xOn(struct SiS_Private *SiS_Pr);
 static void	SiS_Chrontel701xOff(struct SiS_Private *SiS_Pr);
 static void	SiS_ChrontelInitTVVSync(struct SiS_Private *SiS_Pr);
 static void	SiS_ChrontelDoSomething1(struct SiS_Private *SiS_Pr);
 void		SiS_Chrontel701xBLOn(struct SiS_Private *SiS_Pr);
 void		SiS_Chrontel701xBLOff(struct SiS_Private *SiS_Pr);
-#endif /* 315 */
 
 static  BOOLEAN	SiS_SetTrumpionBlock(struct SiS_Private *SiS_Pr, unsigned char *dataptr);
 void		SiS_SetChrontelGPIO(struct SiS_Private *SiS_Pr, unsigned short myvbinfo);
@@ -353,13 +349,11 @@ static void		SiS_OEM300Setting(struct SiS_Private *SiS_Pr,
 				unsigned short ModeNo, unsigned short ModeIdIndex, unsigned short RefTabindex);
 static void		SetOEMLCDData2(struct SiS_Private *SiS_Pr,
 				unsigned short ModeNo, unsigned short ModeIdIndex,unsigned short RefTableIndex);
-#ifdef SIS315H
 static void		SiS_OEM310Setting(struct SiS_Private *SiS_Pr,
 				unsigned short ModeNo,unsigned short ModeIdIndex, unsigned short RRTI);
 static void		SiS_OEM661Setting(struct SiS_Private *SiS_Pr,
 				unsigned short ModeNo,unsigned short ModeIdIndex, unsigned short RRTI);
 static void		SiS_FinalizeLCD(struct SiS_Private *, unsigned short, unsigned short);
-#endif
 
 extern void		SiS_SetReg(SISIOADDRESS, unsigned short, unsigned short);
 extern void		SiS_SetRegByte(SISIOADDRESS, unsigned short);
@@ -392,9 +386,7 @@ extern void		SiS_GetFIFOThresholdIndex300(struct SiS_Private *SiS_Pr, unsigned s
 				unsigned short *tempcl);
 extern unsigned short	SiS_GetFIFOThresholdB300(unsigned short tempbx, unsigned short tempcl);
 extern unsigned short	SiS_GetLatencyFactor630(struct SiS_Private *SiS_Pr, unsigned short index);
-#ifdef SIS315H
 extern void		SiS_SetGroup2_C_ELV(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex, unsigned short RefreshRateTableIndex);
-#endif
 
 #endif

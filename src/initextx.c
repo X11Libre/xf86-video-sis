@@ -554,7 +554,6 @@ SiSTranslateToVESA(ScrnInfoPtr pScrn, int modenumber)
 
    if(modenumber <= 0x13) return modenumber;
 
-#ifdef SIS315H
    if(pSiS->ROM661New) { /* Not XGI! */
       while(SiS_EModeIDTable661[i].Ext_ModeID != 0xff) {
 	 if(SiS_EModeIDTable661[i].Ext_ModeID == modenumber) {
@@ -563,16 +562,13 @@ SiSTranslateToVESA(ScrnInfoPtr pScrn, int modenumber)
 	 i++;
       }
    } else {
-#endif
       while(pSiS->SiS_Pr->SiS_EModeIDTable[i].Ext_ModeID != 0xff) {
 	 if(pSiS->SiS_Pr->SiS_EModeIDTable[i].Ext_ModeID == modenumber) {
 	    return (int)pSiS->SiS_Pr->SiS_EModeIDTable[i].Ext_VESAID;
 	 }
 	 i++;
       }
-#ifdef SIS315H
    }
-#endif
    return -1;
 }
 
@@ -580,7 +576,6 @@ SiSTranslateToVESA(ScrnInfoPtr pScrn, int modenumber)
 int
 SiSTranslateToOldMode(int modenumber)
 {
-#ifdef SIS315H
    int    i = 0;
 
    while(SiS_EModeIDTable661[i].Ext_ModeID != 0xff) {
@@ -592,7 +587,6 @@ SiSTranslateToOldMode(int modenumber)
       }
       i++;
    }
-#endif
    return modenumber;
 }
 
