@@ -63,8 +63,6 @@
 typedef unsigned int BOOLEAN;
 #endif
 
-#define SISIOMEMTYPE
-
 typedef unsigned long SISIOADDRESS;
 
 typedef enum _SIS_CHIP_TYPE {
