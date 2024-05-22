@@ -3206,38 +3206,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 			  PCI_DEV_FUNC(pSiS->PciInfo));
 #endif
 
-#ifdef SIS_NEED_MAP_IOP
-    /********************************************/
-    /*     THIS IS BROKEN AND WON'T WORK        */
-    /* Reasons:                                 */
-    /* 1) MIPS and ARM have no i/o ports but    */
-    /* use memory mapped i/o only. The inX/outX */
-    /* macros in compiler.h are smart enough to */
-    /* add "IOPortBase" to the port number, but */
-    /* "IOPortBase" is never initialized.       */
-    /* 2) IOPortBase is declared in compiler.h  */
-    /* itself. So until somebody fixes all      */
-    /* modules that #include compiler.h to set  */
-    /* IOPortBase, vga support for MIPS and ARM */
-    /* is unusable.                             */
-    /* (In this driver this is solvable because */
-    /* we have our own vgaHW routines. However, */
-    /* we use /dev/port for now instead.)       */
-    /********************************************/
-    pSiS->IOPAddress = pSiS->PciInfo->ioBase[2];
-    if(!SISMapIOPMem(pScrn)) {
-       SISErrorLog(pScrn, "Could not map I/O port area at 0x%x\n", pSiS->IOPAddress);
-       goto my_error_0;
-    } else {
-       xf86DrvMsg(pScrn->scrnIndex, X_INFO, "I/O port area mapped to %p, size 128\n", pSiS->IOPBase);
-#if defined(__mips__) || defined(__arm32__)
-       /* inX/outX macros on these use IOPortBase as offset */
-       /* This is entirely skrewed. */
-       IOPortBase = (unsigned int)pSiS->IOPBase;
-#endif
-    }
-#endif
-
     /* Set up i/o port access (for non-x86) */
 #ifdef SISUSEDEVPORT
     if((sisdevport = open("/dev/port", O_RDWR, 0)) == -1) {
@@ -6918,105 +6886,6 @@ my_error_0:
 }
 
 /*
- * Map I/O port area for non-PC platforms
- */
-#ifdef SIS_NEED_MAP_IOP
-static Bool
-SISMapIOPMem(ScrnInfoPtr pScrn)
-{
-    SISPtr pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
-    SISEntPtr pSiSEnt = pSiS->entityPrivate;
-
-    if(pSiS->DualHeadMode) {
-        pSiSEnt->MapCountIOPBase++;
-        if(!(pSiSEnt->IOPBase)) {
-	     /* Only map if not mapped previously */
-#ifndef XSERVER_LIBPCIACCESS
-	     pSiSEnt->IOPBase = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_MMIO,
-			pSiS->PciTag, pSiS->IOPAddress, 128);
-#else
-	     {
-	       void **result = (void **)&pSiSEnt->IOPBase;
-	       int err = pci_device_map_range(pSiS->PciInfo,
-					      pSiS->IOPAddress,
-					      128,
-					      PCI_DEV_MAP_FLAG_WRITABLE,
-					      result);
-
-	       if (err) {
-                 xf86DrvMsg (pScrn->scrnIndex, X_ERROR,
-                             "Unable to map IO aperture. %s (%d)\n",
-                             strerror (err), err);
-	       }
-	     }
-#endif
-        }
-        pSiS->IOPBase = pSiSEnt->IOPBase;
-    } else
-#endif
-#ifndef XSERVER_LIBPCIACCESS
-	     pSiS->IOPBase = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_MMIO,
-					   pSiS->PciTag, pSiS->IOPAddress, 128);
-#else
-	     {
-	       void **result = (void **)&pSiS->IOPBase;
-	       int err = pci_device_map_range(pSiS->PciInfo,
-					      pSiS->IOPAddress,
-					      128,
-					      PCI_DEV_MAP_FLAG_WRITABLE,
-					      result);
-
-	       if (err) {
-                 xf86DrvMsg (pScrn->scrnIndex, X_ERROR,
-                             "Unable to map IO aperture. %s (%d)\n",
-                             strerror (err), err);
-	       }
-	     }
-#endif
-    if(pSiS->IOPBase == NULL) {
-	SISErrorLog(pScrn, "Could not map I/O port area\n");
-	return FALSE;
-    }
-
-    return TRUE;
-}
-
-static Bool
-SISUnmapIOPMem(ScrnInfoPtr pScrn)
-{
-    SISPtr pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
-    SISEntPtr pSiSEnt = pSiS->entityPrivate;;
-#endif
-
-/* In dual head mode, we must not unmap if the other head still
- * assumes memory as mapped
- */
-#ifdef SISDUALHEAD
-    if(pSiS->DualHeadMode) {
-        if(pSiSEnt->MapCountIOPBase) {
-	    pSiSEnt->MapCountIOPBase--;
-	    if((pSiSEnt->MapCountIOPBase == 0) || (pSiSEnt->forceUnmapIOPBase)) {
-		xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pSiSEnt->IOPBase, 2048);
-		pSiSEnt->IOPBase = NULL;
-		pSiSEnt->MapCountIOPBase = 0;
-		pSiSEnt->forceUnmapIOPBase = FALSE;
-	    }
-	    pSiS->IOPBase = NULL;
-	}
-    } else {
-#endif
-	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pSiS->IOPBase, 2048);
-	pSiS->IOPBase = NULL;
-#ifdef SISDUALHEAD
-    }
-#endif
-    return TRUE;
-}
-#endif
-
-/*
  * Map the framebuffer and MMIO memory
  */
 
@@ -9945,20 +9814,6 @@ static void
 SISFreeScreen(FREE_SCREEN_ARGS_DECL)
 {
     SCRN_INFO_PTR(arg);
-#ifdef SIS_NEED_MAP_IOP
-    SISPtr pSiS = SISPTR(pScrn);
-
-    if(pSiS) {
-#ifdef SISDUALHEAD
-       SISEntPtr pSiSEnt = pSiS->entityPrivate;
-       if(pSiSEnt) {
-          pSiSEnt->forceUnmapIOPBase = TRUE;
-       }
-#endif
-       SISUnmapIOPMem(pScrn);
-    }
-#endif
-
     SISFreeRec(pScrn);
 }
 

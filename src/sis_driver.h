@@ -1584,10 +1584,6 @@ static ModeStatus SISValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode,
 /* Internally used functions */
 static Bool    SISMapMem(ScrnInfoPtr pScrn);
 static Bool    SISUnmapMem(ScrnInfoPtr pScrn);
-#ifdef SIS_NEED_MAP_IOP
-static Bool    SISMapIOPMem(ScrnInfoPtr pScrn);
-static Bool    SISUnmapIOPMem(ScrnInfoPtr pScrn);
-#endif
 static void    SISSave(ScrnInfoPtr pScrn);
 static void    SISRestore(ScrnInfoPtr pScrn);
 static Bool    SISModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode);
