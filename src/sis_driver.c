@@ -99,7 +99,6 @@ int 		sisdevport = 0;
 
 static int	SISEntityIndex = -1;
 
-#ifdef SISXINERAMA
 static Bool 		SiSnoPanoramiXExtension = TRUE;
 static int		SiSXineramaNumScreens = 0;
 static SiSXineramaData	*SiSXineramadataPtr = NULL;
@@ -112,7 +111,6 @@ static int SiSProcXineramaGetScreenSize(ClientPtr client);
 static int SiSProcXineramaIsActive(ClientPtr client);
 static int SiSProcXineramaQueryScreens(ClientPtr client);
 static int SiSSProcXineramaDispatch(ClientPtr client);
-#endif
 
 /*
  * This is intentionally screen-independent.  It indicates the binding
@@ -1167,11 +1165,9 @@ SiSCopyModeNLink(ScrnInfoPtr pScrn, DisplayModePtr dest,
        return dest;
     }
 
-#ifdef SISXINERAMA
     if(srel != sisClone) {
        pSiS->AtLeastOneNonClone = TRUE;
     }
-#endif
 
     /* Now see if the resulting mode would be discarded as a "size" by the
      * RandR extension, and increase its clock by 1000 in case it does.
@@ -1298,18 +1294,14 @@ SiSGenerateModeListFromLargestModes(ScrnInfoPtr pScrn,
 		    DisplayModePtr i, DisplayModePtr j,
 		    SiSScrn2Rel srel)
 {
-#ifdef SISXINERAMA
     SISPtr pSiS = SISPTR(pScrn);
-#endif
     DisplayModePtr mode1 = NULL;
     DisplayModePtr mode2 = NULL;
     DisplayModePtr mode3 = NULL;
     DisplayModePtr mode4 = NULL;
     DisplayModePtr result = NULL;
 
-#ifdef SISXINERAMA
     pSiS->AtLeastOneNonClone = FALSE;
-#endif
 
     /* Now build a default list of MetaModes.
      * - Non-clone: If the user enabled NonRectangular, we use the
@@ -1374,9 +1366,7 @@ SiSGenerateModeListFromMetaModes(ScrnInfoPtr pScrn, char* str,
 		    DisplayModePtr i, DisplayModePtr j,
 		    SiSScrn2Rel srel)
 {
-#ifdef SISXINERAMA
     SISPtr pSiS = SISPTR(pScrn);
-#endif
     char* strmode = str;
     char modename[256];
     Bool gotdash = FALSE;
@@ -1387,9 +1377,7 @@ SiSGenerateModeListFromMetaModes(ScrnInfoPtr pScrn, char* str,
     DisplayModePtr result = NULL;
     int myslen;
 
-#ifdef SISXINERAMA
     pSiS->AtLeastOneNonClone = FALSE;
-#endif
 
     do {
         switch(*str) {
@@ -1685,8 +1673,6 @@ SiSMergedFBSetDpi(ScrnInfoPtr pScrn1, ScrnInfoPtr pScrn2, SiSScrn2Rel srel)
 }
 
 /* Pseudo-Xinerama extension for MergedFB mode */
-#ifdef SISXINERAMA
-
 static void
 SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 {
@@ -2426,8 +2412,6 @@ SiSFreeCRT2Structs(SISPtr pSiS)
        pSiS->CRT2pScrn = NULL;
    }
 }
-
-#endif	/* End of MergedFB helpers */
 
 static xf86MonPtr
 SiSInternalDDC(ScrnInfoPtr pScrn, int crtno)
@@ -8545,7 +8529,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
 		"MergedFB: CRT2Position offset used, disabling RandR\n");
        }
 #endif
-#ifdef SISXINERAMA
        if(pSiS->UseSiSXinerama) {
 	  SiSnoPanoramiXExtension = FALSE;
 	  SiSXineramaExtensionInit(pScrn);
@@ -8559,7 +8542,6 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
        } else {
 	  pSiS->MouseRestrictions = FALSE;
        }
-#endif
     }
 
     /* Wrap CloseScreen and set up SaveScreen */
@@ -8649,11 +8631,9 @@ SISSwitchMode(SWITCH_MODE_ARGS_DECL)
     /* Since RandR (indirectly) uses SwitchMode(), we need to
      * update our Xinerama info here, too, in case of resizing
      */
-#ifdef SISXINERAMA
     if(pSiS->MergedFB) {
        SiSUpdateXineramaScreenInfo(pScrn);
     }
-#endif
     return TRUE;
 }
 

@@ -136,7 +136,6 @@
 
 /* Configurable stuff: ------------------------------------- */
 
-#define SISXINERAMA		/* Include SiS Pseudo-Xinerama for MergedFB mode */
 #define SIS_XINERAMA_MAJOR_VERSION  1
 #define SIS_XINERAMA_MINOR_VERSION  1
 
@@ -1232,13 +1231,11 @@ typedef struct {
     int			MBXNR1XMAX, MBXNR1YMAX, MBXNR2XMAX, MBXNR2YMAX;
     Bool		NonRect, HaveNonRect, HaveOffsRegions, MouseRestrictions;
     region		NonRectDead, OffDead1, OffDead2;
-#ifdef SISXINERAMA
     Bool		UseSiSXinerama;
     Bool		CRT2IsScrn0;
     ExtensionEntry	*XineramaExtEntry;
     int			SiSXineramaVX, SiSXineramaVY;
     Bool		AtLeastOneNonClone;
-#endif
 } SISRec, *SISPtr;
 
 typedef struct _ModeInfoData {
@@ -1316,14 +1313,12 @@ typedef struct _customttable {
     const char   *optionName;
 } customttable;
 
-#ifdef SISXINERAMA
 typedef struct _SiSXineramaData {
     int x;
     int y;
     int width;
     int height;
 } SiSXineramaData;
-#endif
 
 extern const customttable SiS_customttable[];
 

@@ -278,13 +278,11 @@ static const OptionInfoRec SISOptions[] = {
     { OPTION_CRT2POS,			"TwinViewOrientation",		OPTV_STRING,	{0}, FALSE },   /* alias */
     { OPTION_METAMODES,			"MetaModes",  			OPTV_STRING,	{0}, FALSE },
     { OPTION_MERGEDDPI,			"MergedDPI", 			OPTV_STRING,	{0}, FALSE },
-#ifdef SISXINERAMA
     { OPTION_SISXINERAMA,		"MergedXinerama",		OPTV_BOOLEAN,	{0}, FALSE },
     { OPTION_SISXINERAMA,		"TwinviewXineramaInfo",		OPTV_BOOLEAN,	{0}, FALSE },   /* alias */
     { OPTION_CRT2ISSCRN0,		"MergedXineramaCRT2IsScreen0",	OPTV_BOOLEAN,	{0}, FALSE },
     { OPTION_MERGEDFBNONRECT,		"MergedNonRectangular",		OPTV_BOOLEAN,	{0}, FALSE },
     { OPTION_MERGEDFBMOUSER,		"MergedMouseRestriction",	OPTV_BOOLEAN,	{0}, FALSE },
-#endif
     { -1,				NULL,				OPTV_NONE,	{0}, FALSE }
 };
 
@@ -572,10 +570,8 @@ SiSOptions(ScrnInfoPtr pScrn)
     pSiS->NonRect = pSiS->HaveNonRect = pSiS->HaveOffsRegions = FALSE;
     pSiS->MBXNR1XMAX = pSiS->MBXNR1YMAX = pSiS->MBXNR2XMAX = pSiS->MBXNR2YMAX = 65536;
     pSiS->MouseRestrictions = TRUE;
-#ifdef SISXINERAMA
     pSiS->UseSiSXinerama = TRUE;
     pSiS->CRT2IsScrn0 = FALSE;
-#endif
 
     /* Chipset dependent defaults */
 
@@ -824,9 +820,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 		      if(ival < 0) pSiS->CRT1YOffs = -ival;
 		      else pSiS->CRT2YOffs = ival;
 		   }
-#ifdef SISXINERAMA
 		   pSiS->CRT2IsScrn0 = TRUE;
-#endif
 		} else if(!xf86NameCmp(tempstr,"RightOf")) {
 		   pSiS->CRT2Position = sisRightOf;
 		   valid = TRUE;
@@ -834,9 +828,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 		      if(ival < 0) pSiS->CRT1YOffs = -ival;
 		      else pSiS->CRT2YOffs = ival;
 		   }
-#ifdef SISXINERAMA
 		   pSiS->CRT2IsScrn0 = FALSE;
-#endif
 		} else if(!xf86NameCmp(tempstr,"Above")) {
 		   pSiS->CRT2Position = sisAbove;
 		   valid = TRUE;
@@ -844,9 +836,7 @@ SiSOptions(ScrnInfoPtr pScrn)
 		      if(ival < 0) pSiS->CRT1XOffs = -ival;
 		      else pSiS->CRT2XOffs = ival;
 		   }
-#ifdef SISXINERAMA
 		   pSiS->CRT2IsScrn0 = FALSE;
-#endif
 		} else if(!xf86NameCmp(tempstr,"Below")) {
 		   pSiS->CRT2Position = sisBelow;
 		   valid = TRUE;
@@ -854,15 +844,11 @@ SiSOptions(ScrnInfoPtr pScrn)
 		      if(ival < 0) pSiS->CRT1XOffs = -ival;
 		      else pSiS->CRT2XOffs = ival;
 		   }
-#ifdef SISXINERAMA
 		   pSiS->CRT2IsScrn0 = TRUE;
-#endif
 		} else if(!xf86NameCmp(tempstr,"Clone")) {
 		   pSiS->CRT2Position = sisClone;
 		   if(result == 1) valid = TRUE;
-#ifdef SISXINERAMA
 		   pSiS->CRT2IsScrn0 = TRUE;
-#endif
 		}
 	     }
 	     if(!valid) {
@@ -893,7 +879,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 		SiS_PrintBadOpt(pScrn, strptr, OPTION_MERGEDDPI);
 	     }
 	  }
-#ifdef SISXINERAMA
 	  if(pSiS->MergedFB) {
 	     if(xf86GetOptValBool(pSiS->Options, OPTION_SISXINERAMA, &val)) {
 		if(!val) pSiS->UseSiSXinerama = FALSE;
@@ -910,7 +895,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 		}
 	     }
 	  }
-#endif
        }
     }
 
