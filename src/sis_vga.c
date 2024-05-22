@@ -914,12 +914,6 @@ SIS300Init(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	  }	/* line above new for saving D2&3 of status register */
 	  break;
 	case SIS_315_VGA:
-#ifndef SISVRAMQ
-	  /* See comments in sis_driver.c */
-	  pReg->sisRegs3C4[0x27] = 0x1F;
-	  pReg->sisRegs3C4[0x26] = 0x22;
-	  pReg->sisMMIO85C0 = (pScrn->videoRam - 512) * 1024;
-#endif
 	  break;
 	}
     }

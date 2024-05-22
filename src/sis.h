@@ -158,21 +158,15 @@
 
 #define ENABLE_YPBPR		/* Include YPbPr support on SiS bridges (315 series and 661/741/760) */
 
-#define SISVRAMQ		/* Use VRAM queue mode on 315/330/340/XGI series */
-
 #undef INCL_YUV_BLIT_ADAPTOR
-#ifdef SISVRAMQ
 #define INCL_YUV_BLIT_ADAPTOR	/* Include support for YUV->RGB blit adaptors (VRAM queue mode only) */
-#endif
 
 #ifdef HAVE_XAA_H
 #define SIS_USE_XAA		/* Include code for XAA */
 #endif
 
-#ifdef SISVRAMQ
 #if defined(SIS_HAVE_EXA) || (defined(USE_EXA) && (USE_EXA != 0))
 #define SIS_USE_EXA		/* Include code for EXA */
-#endif
 #endif
 
 /* End of configurable stuff --------------------------------- */

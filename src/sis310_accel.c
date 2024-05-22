@@ -237,23 +237,11 @@ SiSInitializeAccelerator(ScrnInfoPtr pScrn)
 	pSiS->alphaBlitBusy = FALSE;
 
 	if(!pSiS->NoAccel) {
-
-#ifndef SISVRAMQ
-	   if(pSiS->ChipFlags & SiSCF_Integrated) {
-	      CmdQueLen = 0;
-	   } else {
-	      CmdQueLen = ((128 * 1024) / 4) - 64;
-	   }
-#endif
-
-#ifdef SISVRAMQ
 	   if(pSiS->ChipType == XGI_40) {
 	      SiSSync(pScrn);
 	      SiSDualPipe(1);	/* 1 = disable, 0 = enable */
 	      SiSSync(pScrn);
 	   }
-#endif
-
 	}
 }
 
@@ -264,15 +252,9 @@ SiSSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 {
 	SISPtr  pSiS = SISPTR(pScrn);
 
-#ifdef SISVRAMQ
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	SiSCheckQueue(16 * 2);
 	SiSSetupSRCPitchDSTRect(pSiS->scrnOffset, pSiS->scrnOffset, DEV_HEIGHT)
-#else
-	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupSRCPitch(pSiS->scrnOffset)
-	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT)
-#endif
 
 	if(trans_color != -1) {
 	   SiSSetupROP(0x0A)
@@ -284,13 +266,7 @@ SiSSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 	   /* SiSSetupCMDFlag(BITBLT | SRCVIDEO) */
 	}
 
-#ifndef SISVRAMQ
-	SiSSetupCMDFlag(pSiS->SiS310_AccelDepth)
-#endif
-
-#ifdef SISVRAMQ
 	SiSSyncWP
-#endif
 
 	/* The chip is smart enough to know the direction */
 }
@@ -339,19 +315,10 @@ SiSSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn,
 	srcbase += FBOFFSET;
 	dstbase += FBOFFSET;
 
-#ifdef SISVRAMQ
 	SiSCheckQueue(16 * 3);
 	SiSSetupSRCDSTBase(srcbase, dstbase)
 	SiSSetupSRCDSTXY(src_x, src_y, dst_x, dst_y)
 	SiSSetRectDoCMD(width,height)
-#else
-	SiSSetupSRCBase(srcbase);
-	SiSSetupDSTBase(dstbase);
-	SiSSetupRect(width, height)
-	SiSSetupSRCXY(src_x, src_y)
-	SiSSetupDSTXY(dst_x, dst_y)
-	SiSDoCMD
-#endif
 }
 
 static void
@@ -366,20 +333,12 @@ SiSSetupForSolidFill(ScrnInfoPtr pScrn, int color,
 	   }
 	}
 
-#ifdef SISVRAMQ
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	SiSCheckQueue(16 * 1);
 	SiSSetupPATFGDSTRect(color, pSiS->scrnOffset, DEV_HEIGHT)
 	SiSSetupROP(SiSGetPatternROP(rop))
 	SiSSetupCMDFlag(PATFG)
 	SiSSyncWP
-#else
-	SiSSetupPATFG(color)
-	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT)
-	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupROP(SiSGetPatternROP(rop))
-	SiSSetupCMDFlag(PATFG | pSiS->SiS310_AccelDepth)
-#endif
 }
 
 static void
@@ -403,16 +362,9 @@ SiSSubsequentSolidFillRect(ScrnInfoPtr pScrn,
 
 	/* SiSSetupCMDFlag(BITBLT)  - BITBLT = 0 */
 
-#ifdef SISVRAMQ
 	SiSCheckQueue(16 * 2)
 	SiSSetupDSTXYRect(x, y, w, h)
 	SiSSetupDSTBaseDoCMD(dstbase)
-#else
-	SiSSetupDSTBase(dstbase)
-	SiSSetupDSTXY(x, y)
-	SiSSetupRect(w, h)
-	SiSDoCMD
-#endif
 }
 
 #ifdef SIS_USE_XAA  /* ---------------------------- XAA -------------------------- */
@@ -439,11 +391,7 @@ SiSSubsequentSolidFillTrap(ScrnInfoPtr pScrn, int y, int h,
 
 	dstbase += FBOFFSET;
 
-#ifdef SISVRAMQ	/* Not optimized yet */
 	SiSCheckQueue(16 * 10)
-#else
-	SiSSetupDSTBase(dstbase)
-#endif
 
 #if 1
 	SiSSetupPATFG(0xff0000) /* FOR TESTING */
@@ -476,23 +424,10 @@ SiSSubsequentSolidFillTrap(ScrnInfoPtr pScrn, int y, int h,
 
 	SiSSetupCMDFlag(TRAPAZOID_FILL);
 
-#ifdef SISVRAMQ
 	SiSSetupYHLR(y, h, left, right)
 	SiSSetupdLdR(dxL, dyL, dxR, dyR)
 	SiSSetupELER(eL, eR)
 	SiSSetupDSTBaseDoCMD(dstbase)
-#else
-	/* Set up deltas */
-	SiSSetupdL(dxL, dyL)
-	SiSSetupdR(dxR, dyR)
-	/* Set up y, h, left, right */
-	SiSSetupYH(y, h)
-	SiSSetupLR(left, right)
-	/* Set up initial error term */
-	SiSSetupEL(eL)
-	SiSSetupER(eR)
-	SiSDoCMD
-#endif
 }
 #endif
 
@@ -502,7 +437,6 @@ SiSSetupForSolidLine(ScrnInfoPtr pScrn, int color, int rop,
 {
 	SISPtr pSiS = SISPTR(pScrn);
 
-#ifdef SISVRAMQ
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	SiSCheckQueue(16 * 3);
 	SiSSetupLineCountPeriod(1, 1)
@@ -510,14 +444,6 @@ SiSSetupForSolidLine(ScrnInfoPtr pScrn, int color, int rop,
 	SiSSetupROP(SiSGetPatternROP(rop))
 	SiSSetupCMDFlag(PATFG | LINE)
 	SiSSyncWP
-#else
-	SiSSetupLineCount(1)
-	SiSSetupPATFG(color)
-	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT)
-	SiSSetupDSTColorDepth(pSiS->DstColor)
-	SiSSetupROP(SiSGetPatternROP(rop))
-	SiSSetupCMDFlag(PATFG | LINE | pSiS->SiS310_AccelDepth)
-#endif
 }
 
 static void
@@ -544,16 +470,9 @@ SiSSubsequentSolidTwoPointLine(ScrnInfoPtr pScrn,
 	   pSiS->CommandReg &= ~(NO_LAST_PIXEL);
 	}
 
-#ifdef SISVRAMQ
 	SiSCheckQueue(16 * 2);
 	SiSSetupX0Y0X1Y1(x1, y1, x2, y2)
 	SiSSetupDSTBaseDoCMD(dstbase)
-#else
-	SiSSetupDSTBase(dstbase)
-	SiSSetupX0Y0(x1, y1)
-	SiSSetupX1Y1(x2, y2)
-	SiSDoCMD
-#endif
 }
 
 static void
@@ -572,7 +491,6 @@ SiSSubsequentSolidHorzVertLine(ScrnInfoPtr pScrn,
 
 	dstbase += FBOFFSET;
 
-#ifdef SISVRAMQ
 	SiSCheckQueue(16 * 2);
 	if(dir == DEGREES_0) {
 	   SiSSetupX0Y0X1Y1(x, y, (x + len), y)
@@ -580,16 +498,6 @@ SiSSubsequentSolidHorzVertLine(ScrnInfoPtr pScrn,
 	   SiSSetupX0Y0X1Y1(x, y, x, (y + len))
 	}
 	SiSSetupDSTBaseDoCMD(dstbase)
-#else
-	SiSSetupDSTBase(dstbase)
-	SiSSetupX0Y0(x,y)
-	if(dir == DEGREES_0) {
-	   SiSSetupX1Y1(x + len, y);
-	} else {
-	   SiSSetupX1Y1(x, y + len);
-	}
-	SiSDoCMD
-#endif
 }
 
 static void
@@ -599,21 +507,11 @@ SiSSetupForDashedLine(ScrnInfoPtr pScrn,
 {
 	SISPtr pSiS = SISPTR(pScrn);
 
-#ifdef SISVRAMQ
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	SiSCheckQueue(16 * 3);
 	SiSSetupLineCountPeriod(1, (length - 1))
 	SiSSetupStyle(*pattern,*(pattern + 4))
 	SiSSetupPATFGDSTRect(fg, pSiS->scrnOffset, DEV_HEIGHT)
-#else
-	SiSSetupLineCount(1)
-	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT)
-	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupStyleLow(*pattern)
-	SiSSetupStyleHigh(*(pattern + 4))
-	SiSSetupStylePeriod(length - 1);
-	SiSSetupPATFG(fg)
-#endif
 
 	SiSSetupROP(SiSGetPatternROP(rop))
 
@@ -624,13 +522,8 @@ SiSSetupForDashedLine(ScrnInfoPtr pScrn,
 	} else {
 	   SiSSetupCMDFlag(TRANSPARENT)
 	}
-#ifndef SISVRAMQ
-	SiSSetupCMDFlag(pSiS->SiS310_AccelDepth)
-#endif
 
-#ifdef SISVRAMQ
         SiSSyncWP
-#endif
 }
 
 static void
@@ -658,16 +551,9 @@ SiSSubsequentDashedTwoPointLine(ScrnInfoPtr pScrn,
 	   pSiS->CommandReg &= ~(NO_LAST_PIXEL);
 	}
 
-#ifdef SISVRAMQ
 	SiSCheckQueue(16 * 2);
 	SiSSetupX0Y0X1Y1(x1, y1, x2, y2)
 	SiSSetupDSTBaseDoCMD(dstbase)
-#else
-	SiSSetupDSTBase(dstbase)
-	SiSSetupX0Y0(x1, y1)
-	SiSSetupX1Y1(x2, y2)
-	SiSDoCMD
-#endif
 }
 
 static void
@@ -677,25 +563,15 @@ SiSSetupForMonoPatternFill(ScrnInfoPtr pScrn,
 {
 	SISPtr pSiS = SISPTR(pScrn);
 
-#ifdef SISVRAMQ
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	SiSCheckQueue(16 * 3);
 	SiSSetupPATFGDSTRect(fg, pSiS->scrnOffset, DEV_HEIGHT)
-#else
-	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT)
-	SiSSetupDSTColorDepth(pSiS->DstColor);
-#endif
 
 	SiSSetupMONOPAT(patx,paty)
 
 	SiSSetupROP(SiSGetPatternROP(rop))
 
-#ifdef SISVRAMQ
 	SiSSetupCMDFlag(PATMONO)
-#else
-	SiSSetupPATFG(fg)
-	SiSSetupCMDFlag(PATMONO | pSiS->SiS310_AccelDepth)
-#endif
 
 	if(bg != -1) {
 	   SiSSetupPATBG(bg)
@@ -703,9 +579,7 @@ SiSSetupForMonoPatternFill(ScrnInfoPtr pScrn,
 	   SiSSetupCMDFlag(TRANSPARENT)
 	}
 
-#ifdef SISVRAMQ
 	SiSSyncWP
-#endif
 }
 
 static void
@@ -729,16 +603,9 @@ SiSSubsequentMonoPatternFill(ScrnInfoPtr pScrn,
 			      T_R_X_INC | T_R_Y_INC |
 			      TRAPAZOID_FILL);
 
-#ifdef SISVRAMQ
 	SiSCheckQueue(16 * 2);
 	SiSSetupDSTXYRect(x,y,w,h)
 	SiSSetupDSTBaseDoCMD(dstbase)
-#else
-	SiSSetupDSTBase(dstbase)
-	SiSSetupDSTXY(x,y)
-	SiSSetupRect(w,h)
-	SiSDoCMD
-#endif
 }
 
 /* --- Trapezoid --- */
@@ -763,11 +630,7 @@ SiSSubsequentMonoPatternFillTrap(ScrnInfoPtr pScrn,
 
 	dstbase += FBOFFSET;
 
-#ifdef SISVRAMQ
 	SiSCheckQueue(16 * 4);
-#else
-	SiSSetupDSTBase(dstbase)
-#endif
 
 	/* Clear CommandReg because SetUp can be used for Rect and Trap */
 	pSiS->CommandReg &= ~(T_XISMAJORL | T_XISMAJORR |
@@ -791,26 +654,15 @@ SiSSubsequentMonoPatternFillTrap(ScrnInfoPtr pScrn,
 
 	SiSSetupCMDFlag(TRAPAZOID_FILL);
 
-#ifdef SISVRAMQ
 	SiSSetupYHLR(y, h, left, right)
 	SiSSetupdLdR(dxL, dyL, dxR, dyR)
 	SiSSetupELER(eL, eR)
 	SiSSetupDSTBaseDoCMD(dstbase)
-#else
-	SiSSetupYH(y, h)
-	SiSSetupLR(left, right)
-	SiSSetupdL(dxL, dyL)
-	SiSSetupdR(dxR, dyR)
-	SiSSetupEL(eL)
-	SiSSetupER(eR)
-	SiSDoCMD
-#endif
 }
 #endif
 
 /* Color 8x8 pattern */
 
-#ifdef SISVRAMQ
 static void
 SiSSetupForColor8x8PatternFill(ScrnInfoPtr pScrn, int patternx, int patterny,
 			int rop, unsigned int planemask, int trans_col)
@@ -860,7 +712,6 @@ SiSSubsequentColor8x8PatternFillRect(ScrnInfoPtr pScrn, int patternx,
 	SiSSetupDSTXYRect(x, y, w, h)
 	SiSSetupDSTBaseDoCMD(dstbase)
 }
-#endif
 
 /* ---- CPUToScreen Color Expand --- */
 
@@ -884,7 +735,6 @@ SiSSetupForCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
 {
 	SISPtr pSiS=SISPTR(pScrn);
 
-#ifdef SISVRAMQ
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	SiSSetupROP(SiSGetCopyROP(rop));
 	SiSSetupSRCFGDSTRect(fg, pSiS->scrnOffset, DEV_HEIGHT)
@@ -895,20 +745,6 @@ SiSSetupForCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
 	   SiSSetupCMDFlag(ENCOLOREXP | SRCVIDEO);
 	}
 	SiSSyncWP
-#else
-	SiSSetupSRCXY(0,0);
-	SiSSetupROP(SiSGetCopyROP(rop));
-	SiSSetupSRCFG(fg);
-	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT);
-	SiSSetupDSTColorDepth(pSiS->DstColor);
-	if(bg == -1) {
-	   SiSSetupCMDFlag(TRANSPARENT | ENCOLOREXP | SRCVIDEO
-				       | pSiS->SiS310_AccelDepth);
-	} else {
-	   SiSSetupSRCBG(bg);
-	   SiSSetupCMDFlag(ENCOLOREXP | SRCVIDEO | pSiS->SiS310_AccelDepth);
-	}
-#endif
 }
 
 static void
@@ -931,37 +767,21 @@ SiSSubsequentCPUToScreenColorExpandFill(
 	srcbase += FBOFFSET;
 	dstbase += FBOFFSET;
 
-#ifdef SISVRAMQ
 	SiSSetupSRCDSTBase(srcbase,dstbase);
-#else
-	SiSSetupSRCBase(srcbase);
-	SiSSetupDSTBase(dstbase)
-#endif
 
 	if(skipleft > 0) {
 	   _x0 = x + skipleft;
 	   _y0 = y;
 	   _x1 = x + w;
 	   _y1 = y + h;
-#ifdef SISVRAMQ
 	   SiSSetupClip(_x0, _y0, _x1, _y1);
-#else
-	   SiSSetupClipLT(_x0, _y0);
-	   SiSSetupClipRB(_x1, _y1);
-#endif
 	   SiSSetupCMDFlag(CLIPENABLE);
 	} else {
 	   pSiS->CommandReg &= (~CLIPENABLE);
 	}
 
-#ifdef SISVRAMQ
 	SiSSetupRectSRCPitch(w, h, ((((w + 7) >> 3) + 3) >> 2) << 2);
 	SiSSetupSRCDSTXY(0, 0, x, y);
-#else
-	SiSSetupRect(w, h);
-	SiSSetupSRCPitch(((((w+7)/8)+3) >> 2) * 4);
-	SiSSetupDSTXY(x, y);
-#endif
 
 	if(pSiS->ColorExpandBusy) {
 	   pSiS->ColorExpandBusy = FALSE;
@@ -984,38 +804,21 @@ SiSSetupForScanlineCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
 {
 	SISPtr pSiS=SISPTR(pScrn);
 
-#ifdef SISVRAMQ
         SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
-#endif
 
 	/* !!! DOES NOT WORK IN VRAM QUEUE MODE !!! */
 
 	/* (hence this is not optimized for VRAM mode) */
-#ifndef SISVRAMQ
-	SiSIdle
-#endif
 	SiSSetupSRCXY(0,0);
 
 	SiSSetupROP(SiSGetCopyROP(rop));
 	SiSSetupSRCFG(fg);
 	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT);
-#ifndef SISVRAMQ
-	SiSSetupDSTColorDepth(pSiS->DstColor);
-#endif
 	if(bg == -1) {
-#ifdef SISVRAMQ
 	   SiSSetupCMDFlag(TRANSPARENT | ENCOLOREXP | SRCVIDEO);
-#else
-	   SiSSetupCMDFlag(TRANSPARENT | ENCOLOREXP | SRCCPUBLITBUF
-				       | pSiS->SiS310_AccelDepth);
-#endif
 	} else {
 	   SiSSetupSRCBG(bg);
-#ifdef SISVRAMQ
 	   SiSSetupCMDFlag(ENCOLOREXP | SRCCPUBLITBUF);
-#else
-	   SiSSetupCMDFlag(ENCOLOREXP | SRCCPUBLITBUF | pSiS->SiS310_AccelDepth);
-#endif
 	};
 
 }
@@ -1036,12 +839,6 @@ SiSSubsequentScanlineCPUToScreenColorExpandFill(
 
 	dstbase += FBOFFSET;
 
-#ifndef SISVRAMQ
-        if((SIS_MMIO_IN16(pSiS->IOBase, Q_STATUS+2) & 0x8000) != 0x8000) {
-	   SiSIdle;
-        }
-#endif
-
 	SiSSetupDSTBase(dstbase)
 
 	if(skipleft > 0) {
@@ -1049,12 +846,7 @@ SiSSubsequentScanlineCPUToScreenColorExpandFill(
 	   _y0 = y;
 	   _x1 = x+w;
 	   _y1 = y+h;
-#ifdef SISVRAMQ
            SiSSetupClip(_x0, _y0, _x1, _y1);
-#else
-	   SiSSetupClipLT(_x0, _y0);
-	   SiSSetupClipRB(_x1, _y1);
-#endif
 	   SiSSetupCMDFlag(CLIPENABLE);
 	} else {
 	   pSiS->CommandReg &= (~CLIPENABLE);
@@ -1075,12 +867,6 @@ SiSSubsequentColorExpandScanline(ScrnInfoPtr pScrn, int bufno)
 	cbo = pSiS->ColorExpandBufferScreenOffset[bufno];
 	cbo += FBOFFSET;
 
-#ifndef SISVRAMQ
-	if((SIS_MMIO_IN16(pSiS->IOBase, Q_STATUS+2) & 0x8000) != 0x8000) {
-	   SiSIdle;
-        }
-#endif
-
 	SiSSetupSRCBase(cbo);
 
 	SiSSetupDSTXY(pSiS->xcurrent, pSiS->ycurrent);
@@ -1088,9 +874,6 @@ SiSSubsequentColorExpandScanline(ScrnInfoPtr pScrn, int bufno)
 	SiSDoCMD
 
 	pSiS->ycurrent++;
-#ifndef SISVRAMQ
-	SiSIdle
-#endif
 }
 #endif
 #endif
@@ -1114,11 +897,7 @@ SiSSetupForScreenToScreenColorExpand(ScrnInfoPtr pScrn,
 {
 	SISPtr          pSiS = SISPTR(pScrn);
 
-#ifdef SISVRAMQ
         SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
-#else
-	SiSSetupDSTColorDepth(pSiS->DstColor)
-#endif
 	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT)
 	SiSSetupROP(SiSGetCopyROP(rop))
 	SiSSetupSRCFG(fg)
@@ -1131,9 +910,7 @@ SiSSetupForScreenToScreenColorExpand(ScrnInfoPtr pScrn,
 	   SiSSetupCMDFlag(ENCOLOREXP | SRCVIDEO);
 	};
 
-#ifdef SISVRAMQ
         SiSSyncWP
-#endif
 }
 
 /* For testing, these are the methods: (use only one at a time!) */
@@ -1269,10 +1046,8 @@ SiSSubsequentScreenToScreenColorExpand(ScrnInfoPtr pScrn,
 	SiSSetupDSTXY(x,y)
 
 	SiSDoCMD
-#ifdef SISVRAMQ
 	/* We MUST sync here, there must not be 2 or more color expansion commands in the queue */
 	SiSIdle
-#endif
 }
 #endif
 
@@ -1369,12 +1144,8 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
 
 	if((width > 2048) || (height > 2048)) return FALSE;
 
-#ifdef SISVRAMQ
 	if(op > SiSRenderOpsMAX) return FALSE;
 	if(!SiSRenderOps[op])    return FALSE;
-#else
-	if(op != PictOpOver) return FALSE;
-#endif
 
 	if(!((renderaccelarray = pSiS->RenderAccelArray)))
 	   return FALSE;
@@ -1394,7 +1165,6 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
 	green &= 0xff00;
 	blue &= 0xff00;
 
-#ifdef SISVRAMQ
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	switch(op) {
 	case PictOpClear:
@@ -1426,13 +1196,6 @@ SiSSetupForCPUToScreenAlphaTexture(ScrnInfoPtr pScrn,
 	   break;
 	}
         SiSSyncWP
-#else
-	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupSRCPitch((pitch << 2));
-	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT)
-	SiSSetupROP(0)
-	SiSSetupCMDFlag(ALPHA_BLEND | SRCVIDEO | A_PERPIXELALPHA | pSiS->SiS310_AccelDepth)
-#endif
 
 	/* Don't need source for clear and dest */
 	if(!docopy) return TRUE;
@@ -1504,12 +1267,8 @@ SiSSetupForCPUToScreenTexture(ScrnInfoPtr pScrn,
 		texType, op, width, height, texPitch);
 #endif
 
-#ifdef SISVRAMQ
 	if(op > SiSRenderOpsMAX) return FALSE;
 	if(!SiSRenderOps[op])    return FALSE;
-#else
-	if(op != PictOpOver) return FALSE;
-#endif
 
 	if((width > 2048) || (height > 2048)) return FALSE;
 
@@ -1527,7 +1286,6 @@ SiSSetupForCPUToScreenTexture(ScrnInfoPtr pScrn,
 	width <<= bppshift;  /* -> bytes (for engine and memcpy) */
 	pitch <<= bppshift;  /* -> bytes */
 
-#ifdef SISVRAMQ
 	SiSSetupDSTColorDepth(pSiS->SiS310_AccelDepth);
 	switch(op) {
 	case PictOpClear:
@@ -1562,13 +1320,6 @@ SiSSetupForCPUToScreenTexture(ScrnInfoPtr pScrn,
 	   return FALSE;
  	}
         SiSSyncWP
-#else
-	SiSSetupDSTColorDepth(pSiS->DstColor);
-	SiSSetupSRCPitch(pitch);
-	SiSSetupDSTRect(pSiS->scrnOffset, DEV_HEIGHT)
-	SiSSetupAlpha(0x00)
-	SiSSetupCMDFlag(ALPHA_BLEND | SRCVIDEO | A_PERPIXELALPHA | pSiS->SiS310_AccelDepth)
-#endif
 
 	/* Don't need source for clear and dest */
 	if(!docopy) return TRUE;
@@ -1615,19 +1366,10 @@ SiSSubsequentCPUToScreenTexture(ScrnInfoPtr pScrn,
 	srcbase += FBOFFSET;
 	dstbase += FBOFFSET;
 
-#ifdef SISVRAMQ
 	SiSCheckQueue(16 * 3)
 	SiSSetupSRCDSTBase(srcbase,dstbase);
 	SiSSetupSRCDSTXY(src_x, src_y, dst_x, dst_y)
 	SiSSetRectDoCMD(width,height)
-#else
-	SiSSetupSRCBase(srcbase);
-	SiSSetupDSTBase(dstbase);
-	SiSSetupRect(width, height)
-	SiSSetupSRCXY(src_x, src_y)
-	SiSSetupDSTXY(dst_x, dst_y)
-	SiSDoCMD
-#endif
 	pSiS->alphaBlitBusy = TRUE;
 }
 #endif
@@ -2027,14 +1769,12 @@ SiS315AccelInit(ScreenPtr pScreen)
 						 HARDWARE_PATTERN_PROGRAMMED_BITS |
 						 BIT_ORDER_IN_BYTE_MSBFIRST;
 
-#ifdef SISVRAMQ
 	      /* 8x8 color pattern fill (MMIO support not implemented) */
 	      infoPtr->SetupForColor8x8PatternFill = SiSSetupForColor8x8PatternFill;
 	      infoPtr->SubsequentColor8x8PatternFillRect = SiSSubsequentColor8x8PatternFillRect;
 	      infoPtr->Color8x8PatternFillFlags = NO_PLANEMASK |
 						  HARDWARE_PATTERN_SCREEN_ORIGIN |
 						  NO_TRANSPARENCY;
-#endif
 
 #ifdef STSCE
 	      /* Screen To Screen Color Expand */
@@ -2078,37 +1818,6 @@ SiS315AccelInit(ScreenPtr pScreen)
 			BIT_ORDER_IN_BYTE_MSBFIRST |
 			LEFT_EDGE_CLIPPING |
 			SYNC_AFTER_COLOR_EXPAND;
-#else
-              /* CPU color expansion - per-scanline / indirect method
-	       *
-	       * SLOW! SLOWER! SLOWEST!
-	       *
-	       * Does not work on 330 series, hangs the engine (both VRAM and MMIO).
-	       * Does not work in VRAM queue mode.
-	       */
-#ifndef SISVRAMQ
-	      if((pSiS->Chipset != PCI_CHIP_SIS650) &&
-	         (pSiS->Chipset != PCI_CHIP_SIS660) &&
-	         (pSiS->Chipset != PCI_CHIP_SIS330) &&
-	         (pSiS->Chipset != PCI_CHIP_SIS340) &&
-		 (pSiS->Chipset != PCI_CHIP_XGIXG20) &&
-		 (pSiS->Chipset != PCI_CHIP_XGIXG40)) {
-		 pSiS->ColorExpandBufferNumber = 16;
-		 pSiS->ColorExpandBufferCountMask = 0x0F;
-		 pSiS->PerColorExpandBufferSize = ((pScrn->virtualX + 31)/32) * 4;
-		 infoPtr->NumScanlineColorExpandBuffers = pSiS->ColorExpandBufferNumber;
-		 infoPtr->ScanlineColorExpandBuffers = (unsigned char **)&pSiS->ColorExpandBufferAddr[0];
-		 infoPtr->SetupForScanlineCPUToScreenColorExpandFill = SiSSetupForScanlineCPUToScreenColorExpandFill;
-		 infoPtr->SubsequentScanlineCPUToScreenColorExpandFill = SiSSubsequentScanlineCPUToScreenColorExpandFill;
-		 infoPtr->SubsequentColorExpandScanline = SiSSubsequentColorExpandScanline;
-		 infoPtr->ScanlineCPUToScreenColorExpandFillFlags =
-				NO_PLANEMASK |
-				CPU_TRANSFER_PAD_DWORD |
-				SCANLINE_PAD_DWORD |
-				BIT_ORDER_IN_BYTE_MSBFIRST |
-				LEFT_EDGE_CLIPPING;
-	      }
-#endif
 #endif
 #endif
 

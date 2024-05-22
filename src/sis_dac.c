@@ -893,10 +893,6 @@ SiS315Restore(ScrnInfoPtr pScrn, SISRegPtr sisReg)
        outSISIDXREG(SISSR,0x2d,0x01);
     }
 
-#ifndef SISVRAMQ
-    /* Initialize read/write pointer for command queue */
-    SIS_MMIO_OUT32(pSiS->IOBase, 0x85C4, SIS_MMIO_IN32(pSiS->IOBase, 0x85C8));
-#endif
     /* Restore queue location */
     SIS_MMIO_OUT32(pSiS->IOBase, 0x85C0, sisReg->sisMMIO85C0);
 
