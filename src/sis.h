@@ -1163,19 +1163,6 @@ typedef struct {
     Atom		xvdeintmeth;
 #endif
     Atom		xvGammaRed, xvGammaGreen, xvGammaBlue;
-#ifdef XV_SD_DEPRECATED
-    Atom		xv_QVF, xv_QVV, xv_USD, xv_SVF, xv_QDD, xv_TAF, xv_TSA, xv_TEE, xv_GSF;
-    Atom		xv_TTE, xv_TCO, xv_TCC, xv_TCF, xv_TLF, xv_CMD, xv_CMDR, xv_CT1, xv_SGA;
-    Atom		xv_GDV, xv_GHI, xv_OVR, xv_GBI, xv_TXS, xv_TYS, xv_CFI, xv_COC, xv_COF;
-    Atom		xv_YFI, xv_GSS, xv_BRR, xv_BRG, xv_BRB, xv_PBR, xv_PBG, xv_PBB, xv_SHC;
-    Atom		xv_BRR2, xv_BRG2, xv_BRB2, xv_PBR2, xv_PBG2, xv_PBB2, xv_PMD, xv_RDT;
-    Atom		xv_GARC2,xv_GAGC2,xv_GABC2, xv_GSF2;
-    Atom		xv_BRRC2, xv_BRGC2, xv_BRBC2, xv_PBRC2, xv_PBGC2, xv_PBBC2;
-#ifdef TWDEBUG
-    Atom		xv_STR;
-#endif
-    unsigned int	xv_sd_result;
-#endif /* XV_SD_DEPRECATED */
     int			xv_sisdirectunlocked;
     int			SiS76xLFBSize;
     int			SiS76xUMASize;

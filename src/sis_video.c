@@ -958,70 +958,8 @@ SISSetupImageVideo(ScreenPtr pScreen)
 #ifdef SISDEINT
     pSiS->xvdeintmeth	      = MAKE_ATOM(sisxvdeinterlace);
 #endif
-#ifdef XV_SD_DEPRECATED
-    pSiS->xv_QVF              = MAKE_ATOM(sisxvqueryvbflags);
-    pSiS->xv_GDV	      = MAKE_ATOM(sisxvsdgetdriverversion);
-    pSiS->xv_GHI	      = MAKE_ATOM(sisxvsdgethardwareinfo);
-    pSiS->xv_GBI	      = MAKE_ATOM(sisxvsdgetbusid);
-    pSiS->xv_QVV              = MAKE_ATOM(sisxvsdqueryvbflagsversion);
-    pSiS->xv_GSF              = MAKE_ATOM(sisxvsdgetsdflags);
-    pSiS->xv_GSF2             = MAKE_ATOM(sisxvsdgetsdflags2);
-    pSiS->xv_USD              = MAKE_ATOM(sisxvsdunlocksisdirect);
-    pSiS->xv_SVF              = MAKE_ATOM(sisxvsdsetvbflags);
-    pSiS->xv_QDD	      = MAKE_ATOM(sisxvsdquerydetecteddevices);
-    pSiS->xv_CT1	      = MAKE_ATOM(sisxvsdcrt1status);
-    pSiS->xv_CMD	      = MAKE_ATOM(sisxvsdcheckmodeindexforcrt2);
-    pSiS->xv_CMDR	      = MAKE_ATOM(sisxvsdresultcheckmodeindexforcrt2);
-    pSiS->xv_RDT	      = MAKE_ATOM(sisxvsdredetectcrt2);
-    pSiS->xv_TAF	      = MAKE_ATOM(sisxvsdsisantiflicker);
-    pSiS->xv_TSA	      = MAKE_ATOM(sisxvsdsissaturation);
-    pSiS->xv_TEE	      = MAKE_ATOM(sisxvsdsisedgeenhance);
-    pSiS->xv_COC	      = MAKE_ATOM(sisxvsdsiscolcalibc);
-    pSiS->xv_COF	      = MAKE_ATOM(sisxvsdsiscolcalibf);
-    pSiS->xv_CFI	      = MAKE_ATOM(sisxvsdsiscfilter);
-    pSiS->xv_YFI	      = MAKE_ATOM(sisxvsdsisyfilter);
-    pSiS->xv_TCO	      = MAKE_ATOM(sisxvsdchcontrast);
-    pSiS->xv_TTE	      = MAKE_ATOM(sisxvsdchtextenhance);
-    pSiS->xv_TCF	      = MAKE_ATOM(sisxvsdchchromaflickerfilter);
-    pSiS->xv_TLF	      = MAKE_ATOM(sisxvsdchlumaflickerfilter);
-    pSiS->xv_TCC	      = MAKE_ATOM(sisxvsdchcvbscolor);
-    pSiS->xv_OVR	      = MAKE_ATOM(sisxvsdchoverscan);
-    pSiS->xv_SGA	      = MAKE_ATOM(sisxvsdenablegamma);
-    pSiS->xv_TXS	      = MAKE_ATOM(sisxvsdtvxscale);
-    pSiS->xv_TYS	      = MAKE_ATOM(sisxvsdtvyscale);
-    pSiS->xv_GSS	      = MAKE_ATOM(sisxvsdgetscreensize);
-    pSiS->xv_BRR	      = MAKE_ATOM(sisxvsdstorebrir);
-    pSiS->xv_BRG	      = MAKE_ATOM(sisxvsdstorebrig);
-    pSiS->xv_BRB	      = MAKE_ATOM(sisxvsdstorebrib);
-    pSiS->xv_PBR	      = MAKE_ATOM(sisxvsdstorepbrir);
-    pSiS->xv_PBG	      = MAKE_ATOM(sisxvsdstorepbrig);
-    pSiS->xv_PBB	      = MAKE_ATOM(sisxvsdstorepbrib);
-    pSiS->xv_BRR2	      = MAKE_ATOM(sisxvsdstorebrir2);
-    pSiS->xv_BRG2	      = MAKE_ATOM(sisxvsdstorebrig2);
-    pSiS->xv_BRB2	      = MAKE_ATOM(sisxvsdstorebrib2);
-    pSiS->xv_PBR2	      = MAKE_ATOM(sisxvsdstorepbrir2);
-    pSiS->xv_PBG2	      = MAKE_ATOM(sisxvsdstorepbrig2);
-    pSiS->xv_PBB2	      = MAKE_ATOM(sisxvsdstorepbrib2);
-    pSiS->xv_GARC2	      = MAKE_ATOM(sisxvsdstoregarc2);
-    pSiS->xv_GAGC2	      = MAKE_ATOM(sisxvsdstoregagc2);
-    pSiS->xv_GABC2	      = MAKE_ATOM(sisxvsdstoregabc2);
-    pSiS->xv_BRRC2	      = MAKE_ATOM(sisxvsdstorebrirc2);
-    pSiS->xv_BRGC2	      = MAKE_ATOM(sisxvsdstorebrigc2);
-    pSiS->xv_BRBC2	      = MAKE_ATOM(sisxvsdstorebribc2);
-    pSiS->xv_PBRC2	      = MAKE_ATOM(sisxvsdstorepbrirc2);
-    pSiS->xv_PBGC2	      = MAKE_ATOM(sisxvsdstorepbrigc2);
-    pSiS->xv_PBBC2	      = MAKE_ATOM(sisxvsdstorepbribc2);
-    pSiS->xv_SHC	      = MAKE_ATOM(sisxvsdhidehwcursor);
-    pSiS->xv_PMD	      = MAKE_ATOM(sisxvsdpanelmode);
-#ifdef TWDEBUG
-    pSiS->xv_STR	      = MAKE_ATOM(sisxvsetreg);
-#endif
-#endif /* XV_SD_DEPRECATED */
 
     pSiS->xv_sisdirectunlocked = 0;
-#ifdef XV_SD_DEPRECATED
-    pSiS->xv_sd_result = 0;
-#endif
 
     /* 300 series require double words for addresses and pitches,
      * 315/330 series require word.
@@ -1245,11 +1183,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
         }
      } else return BadMatch;
   } else {
-#ifdef XV_SD_DEPRECATED
-     return(SISSetPortUtilAttribute(pScrn, attribute, value, pPriv));
-#else
      return BadMatch;
-#endif
   }
   return Success;
 }
@@ -1330,11 +1264,7 @@ SISGetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
            *value = pPriv->crtnum;
      } else return BadMatch;
   } else {
-#ifdef XV_SD_DEPRECATED
-     return(SISGetPortUtilAttribute(pScrn, attribute, value, pPriv));
-#else
      return BadMatch;
-#endif
   }
   return Success;
 }

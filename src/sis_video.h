@@ -133,13 +133,6 @@ static int 	SISQueryImageAttributesBlit(ScrnInfoPtr,
 			int, UShort *, UShort *, int *, int *);
 extern void     SISWriteBlitPacket(SISPtr pSiS, CARD32 *packet);
 
-#ifdef XV_SD_DEPRECATED
-extern int	SISSetPortUtilAttribute(ScrnInfoPtr pScrn, Atom attribute,
-					INT32 value, SISPortPrivPtr pPriv);
-extern int	SISGetPortUtilAttribute(ScrnInfoPtr pScrn,  Atom attribute,
-					INT32 *value, SISPortPrivPtr pPriv);
-#endif
-
 #define OFF_DELAY   	200    /* milliseconds */
 #define FREE_DELAY  	30000
 #define OFF_TIMER   	0x01
@@ -215,65 +208,6 @@ static char sisxvchromamax[] 				= "XV_CHROMAMAX";
 #ifdef SISDEINT
 static char sisxvdeinterlace[]				= "XV_OVERLAY_DEINTERLACING_METHOD";
 #endif
-#ifdef XV_SD_DEPRECATED
-static char sisxvqueryvbflags[] 			= "XV_QUERYVBFLAGS";
-static char sisxvsdgetdriverversion[] 			= "XV_SD_GETDRIVERVERSION";
-static char sisxvsdgethardwareinfo[]			= "XV_SD_GETHARDWAREINFO";
-static char sisxvsdgetbusid[] 				= "XV_SD_GETBUSID";
-static char sisxvsdqueryvbflagsversion[] 		= "XV_SD_QUERYVBFLAGSVERSION";
-static char sisxvsdgetsdflags[] 			= "XV_SD_GETSDFLAGS";
-static char sisxvsdgetsdflags2[] 			= "XV_SD_GETSDFLAGS2";
-static char sisxvsdunlocksisdirect[] 			= "XV_SD_UNLOCKSISDIRECT";
-static char sisxvsdsetvbflags[] 			= "XV_SD_SETVBFLAGS";
-static char sisxvsdquerydetecteddevices[] 		= "XV_SD_QUERYDETECTEDDEVICES";
-static char sisxvsdcrt1status[] 			= "XV_SD_CRT1STATUS";
-static char sisxvsdcheckmodeindexforcrt2[] 		= "XV_SD_CHECKMODEINDEXFORCRT2";
-static char sisxvsdresultcheckmodeindexforcrt2[] 	= "XV_SD_RESULTCHECKMODEINDEXFORCRT2";
-static char sisxvsdredetectcrt2[]			= "XV_SD_REDETECTCRT2DEVICES";
-static char sisxvsdsisantiflicker[] 			= "XV_SD_SISANTIFLICKER";
-static char sisxvsdsissaturation[] 			= "XV_SD_SISSATURATION";
-static char sisxvsdsisedgeenhance[] 			= "XV_SD_SISEDGEENHANCE";
-static char sisxvsdsiscolcalibf[] 			= "XV_SD_SISCOLCALIBF";
-static char sisxvsdsiscolcalibc[] 			= "XV_SD_SISCOLCALIBC";
-static char sisxvsdsiscfilter[] 			= "XV_SD_SISCFILTER";
-static char sisxvsdsisyfilter[] 			= "XV_SD_SISYFILTER";
-static char sisxvsdchcontrast[] 			= "XV_SD_CHCONTRAST";
-static char sisxvsdchtextenhance[] 			= "XV_SD_CHTEXTENHANCE";
-static char sisxvsdchchromaflickerfilter[] 		= "XV_SD_CHCHROMAFLICKERFILTER";
-static char sisxvsdchlumaflickerfilter[] 		= "XV_SD_CHLUMAFLICKERFILTER";
-static char sisxvsdchcvbscolor[] 			= "XV_SD_CHCVBSCOLOR";
-static char sisxvsdchoverscan[]				= "XV_SD_CHOVERSCAN";
-static char sisxvsdenablegamma[]			= "XV_SD_ENABLEGAMMA";
-static char sisxvsdtvxscale[] 				= "XV_SD_TVXSCALE";
-static char sisxvsdtvyscale[] 				= "XV_SD_TVYSCALE";
-static char sisxvsdgetscreensize[] 			= "XV_SD_GETSCREENSIZE";
-static char sisxvsdstorebrir[] 				= "XV_SD_STOREDGAMMABRIR";
-static char sisxvsdstorebrig[] 				= "XV_SD_STOREDGAMMABRIG";
-static char sisxvsdstorebrib[] 				= "XV_SD_STOREDGAMMABRIB";
-static char sisxvsdstorepbrir[] 			= "XV_SD_STOREDGAMMAPBRIR";
-static char sisxvsdstorepbrig[] 			= "XV_SD_STOREDGAMMAPBRIG";
-static char sisxvsdstorepbrib[] 			= "XV_SD_STOREDGAMMAPBRIB";
-static char sisxvsdstorebrir2[]				= "XV_SD_STOREDGAMMABRIR2";
-static char sisxvsdstorebrig2[]				= "XV_SD_STOREDGAMMABRIG2";
-static char sisxvsdstorebrib2[]				= "XV_SD_STOREDGAMMABRIB2";
-static char sisxvsdstorepbrir2[] 			= "XV_SD_STOREDGAMMAPBRIR2";
-static char sisxvsdstorepbrig2[] 			= "XV_SD_STOREDGAMMAPBRIG2";
-static char sisxvsdstorepbrib2[] 			= "XV_SD_STOREDGAMMAPBRIB2";
-static char sisxvsdstoregarc2[]				= "XV_SD_GAMMACRT2R";
-static char sisxvsdstoregagc2[]				= "XV_SD_GAMMACRT2G";
-static char sisxvsdstoregabc2[]				= "XV_SD_GAMMACRT2B";
-static char sisxvsdstorebrirc2[]			= "XV_SD_STOREDGAMMABRIRC2";
-static char sisxvsdstorebrigc2[]			= "XV_SD_STOREDGAMMABRIGC2";
-static char sisxvsdstorebribc2[]			= "XV_SD_STOREDGAMMABRIBC2";
-static char sisxvsdstorepbrirc2[] 			= "XV_SD_STOREDGAMMAPBRIRC2";
-static char sisxvsdstorepbrigc2[] 			= "XV_SD_STOREDGAMMAPBRIGC2";
-static char sisxvsdstorepbribc2[] 			= "XV_SD_STOREDGAMMAPBRIBC2";
-static char sisxvsdhidehwcursor[] 			= "XV_SD_HIDEHWCURSOR";
-static char sisxvsdpanelmode[] 				= "XV_SD_PANELMODE";
-#ifdef TWDEBUG
-static char sisxvsetreg[]				= "XV_SD_SETREG";
-#endif
-#endif /* XV_SD_DEPRECATED */
 
 static char sisxvvsync[]				= "XV_SYNC_TO_VBLANK";
 
@@ -310,61 +244,6 @@ static XF86AttributeRec SISAttributes_300[] =
 #ifdef SISDEINT
    {XvSettable | XvGettable, 0, 4,             sisxvdeinterlace},
 #endif
-#ifdef XV_SD_DEPRECATED
-   {             XvGettable, 0, -1,    	       sisxvqueryvbflags},
-   {             XvGettable, 0, -1,	       sisxvsdgetdriverversion},
-   {             XvGettable, 0, -1,    	       sisxvsdgethardwareinfo},
-   {             XvGettable, 0, -1,    	       sisxvsdgetbusid},
-   {             XvGettable, 0, -1,    	       sisxvsdqueryvbflagsversion},
-   {             XvGettable, 0, -1,    	       sisxvsdgetsdflags},
-   {             XvGettable, 0, -1,    	       sisxvsdgetsdflags2},
-   {XvSettable | XvGettable, 0, -1,    	       sisxvsdunlocksisdirect},
-   {XvSettable             , 0, -1,    	       sisxvsdsetvbflags},
-   {             XvGettable, 0, -1,    	       sisxvsdquerydetecteddevices},
-   {XvSettable | XvGettable, 0, 1,    	       sisxvsdcrt1status},
-   {XvSettable             , 0, -1,    	       sisxvsdcheckmodeindexforcrt2},
-   {             XvGettable, 0, -1,    	       sisxvsdresultcheckmodeindexforcrt2},
-   {XvSettable             , 0, 0,             sisxvsdredetectcrt2},
-   {XvSettable | XvGettable, 0, 4,             sisxvsdsisantiflicker},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdsissaturation},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdsisedgeenhance},
-   {XvSettable | XvGettable, -128, 127,        sisxvsdsiscolcalibf},
-   {XvSettable | XvGettable, -120, 120,        sisxvsdsiscolcalibc},
-   {XvSettable | XvGettable, 0, 1,             sisxvsdsiscfilter},
-   {XvSettable | XvGettable, 0, 8,             sisxvsdsisyfilter},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdchcontrast},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdchtextenhance},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdchchromaflickerfilter},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdchlumaflickerfilter},
-   {XvSettable | XvGettable, 0, 1,             sisxvsdchcvbscolor},
-   {XvSettable | XvGettable, 0, 3,             sisxvsdchoverscan},
-   {XvSettable | XvGettable, 0, 3,             sisxvsdenablegamma},
-   {XvSettable | XvGettable, -16, 16,          sisxvsdtvxscale},
-   {XvSettable | XvGettable, -4, 3,            sisxvsdtvyscale},
-   {             XvGettable, 0, -1,    	       sisxvsdgetscreensize},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrir},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrig},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrib},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrir},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrig},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrib},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrir2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrig2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrib2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrir2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrig2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrib2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstoregarc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstoregagc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstoregabc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrirc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrigc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebribc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrirc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrigc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbribc2},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdpanelmode},
-#endif
    {0                      , 0, 0,             NULL}
 };
 
@@ -392,65 +271,6 @@ static XF86AttributeRec SISAttributes_315[] =
 #ifdef SISDEINT
    {XvSettable | XvGettable, 0, 4,             sisxvdeinterlace},
 #endif
-#ifdef XV_SD_DEPRECATED
-   {             XvGettable, 0, -1,    	       sisxvqueryvbflags},
-   {             XvGettable, 0, -1,    	       sisxvsdgetdriverversion},
-   {             XvGettable, 0, -1,    	       sisxvsdgethardwareinfo},
-   {             XvGettable, 0, -1,    	       sisxvsdgetbusid},
-   {             XvGettable, 0, -1,    	       sisxvsdqueryvbflagsversion},
-   {             XvGettable, 0, -1,   	       sisxvsdgetsdflags},
-   {             XvGettable, 0, -1,   	       sisxvsdgetsdflags2},
-   {XvSettable | XvGettable, 0, -1,   	       sisxvsdunlocksisdirect},
-   {XvSettable             , 0, -1,   	       sisxvsdsetvbflags},
-   {             XvGettable, 0, -1,    	       sisxvsdquerydetecteddevices},
-   {XvSettable | XvGettable, 0, 1,    	       sisxvsdcrt1status},
-   {XvSettable             , 0, -1,    	       sisxvsdcheckmodeindexforcrt2},
-   {             XvGettable, 0, -1,   	       sisxvsdresultcheckmodeindexforcrt2},
-   {XvSettable             , 0, 0,             sisxvsdredetectcrt2},
-   {XvSettable | XvGettable, 0, 4,             sisxvsdsisantiflicker},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdsissaturation},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdsisedgeenhance},
-   {XvSettable | XvGettable, -128, 127,        sisxvsdsiscolcalibf},
-   {XvSettable | XvGettable, -120, 120,        sisxvsdsiscolcalibc},
-   {XvSettable | XvGettable, 0, 1,             sisxvsdsiscfilter},
-   {XvSettable | XvGettable, 0, 8,             sisxvsdsisyfilter},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdchcontrast},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdchtextenhance},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdchchromaflickerfilter},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdchlumaflickerfilter},
-   {XvSettable | XvGettable, 0, 1,             sisxvsdchcvbscolor},
-   {XvSettable | XvGettable, 0, 3,             sisxvsdchoverscan},
-   {XvSettable | XvGettable, 0, 7,             sisxvsdenablegamma},
-   {XvSettable | XvGettable, -16, 16,          sisxvsdtvxscale},
-   {XvSettable | XvGettable, -4, 3,            sisxvsdtvyscale},
-   {             XvGettable, 0, -1,   	       sisxvsdgetscreensize},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrir},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrig},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrib},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrir},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrig},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrib},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrir2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrig2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrib2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrir2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrig2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrib2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstoregarc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstoregagc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstoregabc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrirc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebrigc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorebribc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrirc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbrigc2},
-   {XvSettable | XvGettable, 100, 10000,       sisxvsdstorepbribc2},
-   {XvSettable | XvGettable, 0, 1,             sisxvsdhidehwcursor},
-   {XvSettable | XvGettable, 0, 15,            sisxvsdpanelmode},
-#ifdef TWDEBUG
-   {XvSettable             , 0, -1,   	       sisxvsetreg},
-#endif
-#endif  /* XV_SD_DEPRECATED */
    {XvSettable | XvGettable, 0, 1,             sisxvswitchcrt},
    {0                      , 0, 0,             NULL}
 };
