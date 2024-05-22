@@ -140,10 +140,6 @@ _X_EXPORT DriverRec SIS = {
     SISAvailableOptions,
     NULL,
     0
-#ifdef SIS_HAVE_DRIVER_FUNC
-     ,
-    SISDriverFunc
-#endif
 };
 
 static SymTabRec SISChipsets[] = {
@@ -238,24 +234,6 @@ SISIdentify(int flags)
     xf86PrintChipsets(SIS_NAME, "driver for SiS chipsets", SISChipsets);
     xf86PrintChipsets(SIS_NAME, "driver for XGI chipsets", XGIChipsets);
 }
-
-#ifdef SIS_HAVE_DRIVER_FUNC
-static Bool
-SISDriverFunc(ScrnInfoPtr pScrn, xorgDriverFuncOp op, pointer ptr)
-{
-    CARD32 *flag;
-
-    switch(op) {
-    case RR_GET_INFO:
-	break;
-    case RR_SET_CONFIG:
-	break;
-    case GET_REQUIRED_HW_INTERFACES:
-	break;
-    }
-    return TRUE;
-}
-#endif
 
 static Bool
 SISGetRec(ScrnInfoPtr pScrn)
