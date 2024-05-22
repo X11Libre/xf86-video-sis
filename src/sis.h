@@ -72,8 +72,6 @@
 #include "xf86cmap.h"
 #include "vbe.h"
 
-#define SIS_HaveDriverFuncs 0
-
 #include "xorgVersion.h"
 #define SISMYSERVERNAME "X.org"
 

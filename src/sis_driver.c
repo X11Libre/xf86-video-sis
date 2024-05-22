@@ -221,7 +221,7 @@ sisSetup(pointer module, pointer opts, int *errmaj, int *errmin)
 
     if(!setupDone) {
        setupDone = TRUE;
-       xf86AddDriver(&SIS, module, SIS_HaveDriverFuncs);
+       xf86AddDriver(&SIS, module, 0);
        return (pointer)TRUE;
     }
 
