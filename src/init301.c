@@ -6301,7 +6301,6 @@ SiS_SetTVSpecial(struct SiS_Private *SiS_Pr, unsigned short ModeNo)
 	SiS_SetRegANDOR(SiS_Pr->SiS_Part2Port,0x46,0xf8,0x03);
      }
   } else if(SiS_Pr->SiS_TVMode & TVSetYPbPr750p) {
-#ifndef OLD1280720P
      if(ModeNo == 0x79 || ModeNo == 0x75 || ModeNo == 0x78) {
         SiS_SetReg(SiS_Pr->SiS_Part2Port,0x01,0x19);
 	SiS_SetReg(SiS_Pr->SiS_Part2Port,0x02,0x23);
@@ -6314,7 +6313,6 @@ SiS_SetTVSpecial(struct SiS_Private *SiS_Pr, unsigned short ModeNo)
 	SiS_SetRegANDOR(SiS_Pr->SiS_Part2Port,0x45,0xc0,0x01);
 	SiS_SetRegANDOR(SiS_Pr->SiS_Part2Port,0x46,0xf8,0x05);
      }
-#endif
   } else if(SiS_Pr->SiS_TVMode & TVSetYPbPr525p) {
      if(SiS_Pr->SiS_TVMode & TVSet525p1024) {
         SiS_SetReg(SiS_Pr->SiS_Part2Port,0x1f,0x77);
