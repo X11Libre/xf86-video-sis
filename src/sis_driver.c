@@ -3173,9 +3173,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
     pSiS->pInt = NULL;
 
-    /* Save PCI Domain Base */
-    pSiS->IODBase = 0;
-
     /* Get the entity, and make sure it is PCI. */
     pSiS->pEnt = xf86GetEntityInfo(pScrn->entityList[0]);
     if(pSiS->pEnt->location.type != BUS_PCI) {
@@ -3227,7 +3224,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     /* we have our own vgaHW routines. However, */
     /* we use /dev/port for now instead.)       */
     /********************************************/
-    pSiS->IOPAddress = pSiS->IODBase + pSiS->PciInfo->ioBase[2];
+    pSiS->IOPAddress = pSiS->PciInfo->ioBase[2];
     if(!SISMapIOPMem(pScrn)) {
        SISErrorLog(pScrn, "Could not map I/O port area at 0x%x\n", pSiS->IOPAddress);
        goto my_error_0;
@@ -3471,7 +3468,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
      * by the BIOS. So we can pretty much rely on that these
      * are enabled.
      */
-    pSiS->RelIO = (SISIOADDRESS)(PCI_REGION_BASE(pSiS->PciInfo, 2, REGION_IO) + pSiS->IODBase);
+    pSiS->RelIO = (SISIOADDRESS)(PCI_REGION_BASE(pSiS->PciInfo, 2, REGION_IO));
     xf86DrvMsg(pScrn->scrnIndex, X_PROBED, "Relocated I/O registers at 0x%lX\n",
            (ULong)pSiS->RelIO);
 

@@ -906,7 +906,6 @@ typedef struct {
     void 		*RealFbBase;	/* Real VRAM virtual linear address (for DHM and SiS76x UMA skipping) */
     CARD32		IOAddress;	/* MMIO physical address */
     void		*IOBase;	/* MMIO linear address */
-    unsigned long	IODBase;	/* Base of PIO memory area */
 #ifdef __alpha__
     void		*IOBaseDense;	/* MMIO for Alpha platform */
 #endif
