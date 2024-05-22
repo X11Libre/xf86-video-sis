@@ -81,10 +81,7 @@
 #include <X11/extensions/dpms.h>
 #endif
 
-#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 5
 #include <inputstr.h> /* for inputInfo */
-#endif
-
 
 #ifdef SISDRI
 #include "dri.h"
@@ -9212,9 +9209,6 @@ SISMergedPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
   int		CRT1XOffs = 0, CRT1YOffs = 0, CRT2XOffs = 0, CRT2YOffs = 0;
   int		HVirt = pScrn1->virtualX;
   int		VVirt = pScrn1->virtualY;
-#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) < 20
-  int		sigstate;
-#endif
   Bool		doit = FALSE, HaveNonRect = FALSE, HaveOffsRegions = FALSE;
   SiSScrn2Rel   srel = ((SiSMergedDisplayModePtr)pSiS->CurrentLayout.mode->Private)->CRT2Position;
 
@@ -9277,25 +9271,6 @@ SISMergedPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
 	}
      }
      if(doit) {
-#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) < 20 /* screw it */
-	sigstate = xf86BlockSIGIO();
-#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 15
-        {
-            double dx = x, dy = y;
-            miPointerSetPosition(inputInfo.pointer, Absolute, &dx, &dy);
-            x = (int)dx;
-            y = (int)dy;
-        }
-#elif GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 13
-	miPointerSetPosition(inputInfo.pointer, Absolute, &x, &y);
-#elif GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 5
-	miPointerSetPosition(inputInfo.pointer, &x, &y);
-#else
-	UpdateCurrentTime();
-	miPointerAbsoluteCursor(x, y, currentTime.milliseconds);
-#endif
-	xf86UnblockSIGIO(sigstate);
-#endif
 	return;
      }
   }
