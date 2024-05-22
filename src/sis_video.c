@@ -422,9 +422,7 @@ SISResetVideo(ScrnInfoPtr pScrn)
     SISPortPrivPtr pPriv = GET_PORT_PRIVATE(pScrn);
 
     /* Unlock registers */
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
     if(getvideoreg (pSiS, Index_VI_Passwd) != 0xa1) {
        setvideoreg (pSiS, Index_VI_Passwd, 0x86);
        if(getvideoreg (pSiS, Index_VI_Passwd) != 0xa1)
@@ -688,9 +686,7 @@ set_disptype_regs(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
      * to TRUE (CRT2) or FALSE (CRT1). The driver does this auto-
      * matically if only CRT1 or only CRT2 is used.
      */
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     switch (pPriv->displayMode)
     {

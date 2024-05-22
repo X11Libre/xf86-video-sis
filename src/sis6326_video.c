@@ -404,9 +404,7 @@ SIS6326ResetVideo(ScrnInfoPtr pScrn)
     SISPtr pSiS = SISPTR(pScrn);
 
     /* Unlock registers */
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
     if(getvideoreg(pSiS, Index_VI6326_Passwd) != 0xa1) {
        setvideoreg(pSiS, Index_VI6326_Passwd, 0x86);
        if(getvideoreg(pSiS, Index_VI6326_Passwd) != 0xa1)

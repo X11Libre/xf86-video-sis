@@ -228,9 +228,7 @@ SISInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
        }
     }
 
-#ifdef UNLOCK_ALWAYS
     outSISIDXREG(SISSR, 0x05, 0x86);
-#endif
 
     if(!pSiS->UseVESA) {
        pReg->sisRegs3C4[0x06] &= 0x01;
@@ -872,9 +870,7 @@ SIS300Init(ScrnInfoPtr pScrn, DisplayModePtr mode)
     }
     /* CRT2 mode can never be interlaced */
 
-#ifdef UNLOCK_ALWAYS
     outSISIDXREG(SISSR, 0x05, 0x86);
-#endif
 
     switch(pSiS->CurrentLayout.bitsPerPixel) {
 	case 8:

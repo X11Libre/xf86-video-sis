@@ -106,9 +106,7 @@ SiSHideCursor(ScrnInfoPtr pScrn)
 
     sridx = inSISREG(SISSR); cridx = inSISREG(SISCR);
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     andSISIDXREG(SISSR, 0x06, 0xBF);
 
@@ -186,9 +184,7 @@ SiSShowCursor(ScrnInfoPtr pScrn)
      */
     sridx = inSISREG(SISSR); cridx = inSISREG(SISCR);
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     orSISIDXREG(SISSR, 0x06, 0x40);
 
@@ -310,9 +306,7 @@ SiSSetCursorPosition(ScrnInfoPtr pScrn, int x, int y)
 
     sridx = inSISREG(SISSR); cridx = inSISREG(SISCR);
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     if(x < 0) {
        x_preset = (-x);
@@ -538,9 +532,7 @@ SiSSetCursorColors(ScrnInfoPtr pScrn, int bg, int fg)
 
     sridx = inSISREG(SISSR); cridx = inSISREG(SISCR);
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     f_red   = (fg & 0x00FF0000) >> (16+2);
     f_green = (fg & 0x0000FF00) >> (8+2);
@@ -649,9 +641,7 @@ SiSLoadCursorImage(ScrnInfoPtr pScrn, UChar *src)
 
     sridx = inSISREG(SISSR); cridx = inSISREG(SISCR);
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     cursor_addr = pScrn->videoRam - 1;
     if(mode->Flags & V_DBLSCAN) {

@@ -4350,7 +4350,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 #ifdef SISDUALHEAD
        if(pSiSEnt) pSiSEnt->ErrorAfterFirst = TRUE;
 #endif
-       sisRestoreExtRegisterLock(pSiS,srlockReg,crlockReg);
        if(pSiS->pInt) xf86FreeInt10(pSiS->pInt);
        SISFreeRec(pScrn);
        return FALSE;
@@ -6796,8 +6795,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     xf86SetPrimInitDone(pScrn->entityList[0]);
 #endif
 
-    sisRestoreExtRegisterLock(pSiS,srlockReg,crlockReg);
-
     if(pSiS->pInt) xf86FreeInt10(pSiS->pInt);
     pSiS->pInt = NULL;
 
@@ -6866,7 +6863,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     /* ---- */
 
 my_error_1:
-    sisRestoreExtRegisterLock(pSiS, srlockReg, crlockReg);
 my_error_0:
 #ifdef SISDUALHEAD
     if(pSiSEnt) pSiSEnt->ErrorAfterFirst = TRUE;
@@ -7576,9 +7572,7 @@ SISSpecialRestore(ScrnInfoPtr pScrn)
     temp &= 0x7f;
     if(temp > 0x13) return;
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     SiS_UnLockCRT2(pSiS->SiS_Pr);
 
@@ -7623,9 +7617,7 @@ SiSFixupSR11(ScrnInfoPtr pScrn)
     SISPtr pSiS = SISPTR(pScrn);
     CARD8  tmpreg;
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     if(pSiS->ChipType >= SIS_661) {
        inSISIDXREG(SISSR,0x11,tmpreg);
@@ -7696,9 +7688,7 @@ SISRestore(ScrnInfoPtr pScrn)
        if(pSiS->DualHeadMode && pSiS->SecondHead) return;
 #endif
 
-#ifdef UNLOCK_ALWAYS
        sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
        /* We must not disable the sequencer if the bridge is in SlaveMode! */
        if(!(SiSBridgeIsInSlaveMode(pScrn))) {
@@ -7901,16 +7891,11 @@ SISRestore(ScrnInfoPtr pScrn)
 	  (*pSiS->SiSSave)(pScrn, pReg);
 	}
 #endif
-
-	sisRestoreExtRegisterLock(pSiS,sisReg->sisRegs3C4[0x05],sisReg->sisRegs3D4[0x80]);
-
     } else {	/* All other chipsets */
 
         SiSVGAProtect(pScrn, TRUE);
 
-#ifdef UNLOCK_ALWAYS
         sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
         (*pSiS->SiSRestore)(pScrn, sisReg);
 
@@ -7949,8 +7934,6 @@ SISRestore(ScrnInfoPtr pScrn)
               andSISIDXREG(SISSR, 0x01, ~0x20);
 	   }
         }
-
-        sisRestoreExtRegisterLock(pSiS,sisReg->sisRegs3C4[5],sisReg->sisRegs3D4[0x80]);
 
         SiSVGAProtect(pScrn, FALSE);
     }
@@ -8081,9 +8064,7 @@ SISSaveScreen(ScreenPtr pScreen, int mode)
 
     pSiS = SISPTR(pScrn);
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     if(pSiS->VBFlags & (CRT2_LCD | CRT1_LCDA)) {
        SiSHandleBackLight(pSiS, IsUnblank);
@@ -8124,9 +8105,7 @@ SISSaveScreenDH(ScreenPtr pScreen, int mode)
        /* We can only blank LCD, not other CRT2 devices */
        if(pSiS->VBFlags & (CRT2_LCD|CRT1_LCDA)) {
 
-#ifdef UNLOCK_ALWAYS
 	  sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 	  SiSHandleBackLight(pSiS, IsUnblank);
 
        }
@@ -8166,9 +8145,7 @@ SISDisplayPowerManagementSet(ScrnInfoPtr pScrn, int PowerManagementMode, int fla
     inSISIDXREG(SISSR,0x05,pmreg);
     if(pmreg != 0xa1) return;
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     switch(PowerManagementMode) {
 
@@ -8333,9 +8310,7 @@ SISScreenInit(SCREEN_INIT_ARGS_DECL)
 
     SiS_SiSFB_Lock(pScrn, TRUE);
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     /* Enable TurboQueue so that SISSave() saves it in enabled
      * state. If we don't do this, X will hang after a restart!
@@ -9454,9 +9429,7 @@ SISAdjustFrame(ADJUST_FRAME_ARGS_DECL)
        }
     }
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     base += (pSiS->dhmOffset/4);
 
@@ -10066,9 +10039,7 @@ void SiSPreSetMode(ScrnInfoPtr pScrn, DisplayModePtr mode, int viewmode)
        }
     }
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);    /* Unlock Registers */
-#endif
 
     inSISIDXREG(SISCR, 0x30, CR30);
     inSISIDXREG(SISCR, 0x31, CR31);
@@ -10426,9 +10397,7 @@ void SiS_SetCHTVlumabandwidthcvbs(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags & CRT2_TV)) return;
    if(!(pSiS->VBFlags2 & VB2_CHRONTEL)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    switch(pSiS->ChrontelType) {
        case CHRONTEL_700x:
@@ -10461,9 +10430,7 @@ int SiS_GetCHTVlumabandwidthcvbs(ScrnInfoPtr pScrn)
 #endif
            return (int)pSiS->chtvlumabandwidthcvbs;
    } else {
-#ifdef UNLOCK_ALWAYS
       sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
       switch(pSiS->ChrontelType) {
       case CHRONTEL_700x:
            return (int)((SiS_GetCH70xx(pSiS->SiS_Pr, 0x03) & 0x01) * 8);
@@ -10490,9 +10457,7 @@ void SiS_SetCHTVlumabandwidthsvideo(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags & CRT2_TV)) return;
    if(!(pSiS->VBFlags2 & VB2_CHRONTEL)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    switch(pSiS->ChrontelType) {
        case CHRONTEL_700x:
@@ -10525,9 +10490,7 @@ int SiS_GetCHTVlumabandwidthsvideo(ScrnInfoPtr pScrn)
 #endif
            return (int)pSiS->chtvlumabandwidthsvideo;
    } else {
-#ifdef UNLOCK_ALWAYS
       sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
       switch(pSiS->ChrontelType) {
       case CHRONTEL_700x:
            return (int)(((SiS_GetCH70xx(pSiS->SiS_Pr, 0x03) & 0x06) >> 1) * 6);
@@ -10554,9 +10517,7 @@ void SiS_SetCHTVlumaflickerfilter(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags & CRT2_TV)) return;
    if(!(pSiS->VBFlags2 & VB2_CHRONTEL)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    switch(pSiS->ChrontelType) {
        case CHRONTEL_700x:
@@ -10592,9 +10553,7 @@ int SiS_GetCHTVlumaflickerfilter(ScrnInfoPtr pScrn)
 #endif
           return (int)pSiS->chtvlumaflickerfilter;
    } else {
-#ifdef UNLOCK_ALWAYS
       sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
       switch(pSiS->ChrontelType) {
       case CHRONTEL_700x:
            return (int)((SiS_GetCH70xx(pSiS->SiS_Pr, 0x01) & 0x03) * 6);
@@ -10621,9 +10580,7 @@ void SiS_SetCHTVchromabandwidth(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags & CRT2_TV)) return;
    if(!(pSiS->VBFlags2 & VB2_CHRONTEL)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    switch(pSiS->ChrontelType) {
        case CHRONTEL_700x:
@@ -10656,9 +10613,7 @@ int SiS_GetCHTVchromabandwidth(ScrnInfoPtr pScrn)
 #endif
            return (int)pSiS->chtvchromabandwidth;
    } else {
-#ifdef UNLOCK_ALWAYS
       sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
       switch(pSiS->ChrontelType) {
       case CHRONTEL_700x:
            return (int)(((SiS_GetCH70xx(pSiS->SiS_Pr, 0x03) & 0x30) >> 4) * 4);
@@ -10685,9 +10640,7 @@ void SiS_SetCHTVchromaflickerfilter(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags & CRT2_TV)) return;
    if(!(pSiS->VBFlags2 & VB2_CHRONTEL)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    switch(pSiS->ChrontelType) {
        case CHRONTEL_700x:
@@ -10723,9 +10676,7 @@ int SiS_GetCHTVchromaflickerfilter(ScrnInfoPtr pScrn)
 #endif
            return (int)pSiS->chtvchromaflickerfilter;
    } else {
-#ifdef UNLOCK_ALWAYS
       sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
       switch(pSiS->ChrontelType) {
       case CHRONTEL_700x:
            return (int)(((SiS_GetCH70xx(pSiS->SiS_Pr, 0x01) & 0x30) >> 4) * 6);
@@ -10752,9 +10703,7 @@ void SiS_SetCHTVcvbscolor(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags & CRT2_TV)) return;
    if(!(pSiS->VBFlags2 & VB2_CHRONTEL)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    switch(pSiS->ChrontelType) {
        case CHRONTEL_700x:
@@ -10783,9 +10732,7 @@ int SiS_GetCHTVcvbscolor(ScrnInfoPtr pScrn)
 #endif
            return (int)pSiS->chtvcvbscolor;
    } else {
-#ifdef UNLOCK_ALWAYS
       sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
       switch(pSiS->ChrontelType) {
       case CHRONTEL_700x:
            return (int)(((SiS_GetCH70xx(pSiS->SiS_Pr, 0x03) & 0x40) >> 6) ^ 0x01);
@@ -10812,9 +10759,7 @@ void SiS_SetCHTVtextenhance(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags & CRT2_TV)) return;
    if(!(pSiS->VBFlags2 & VB2_CHRONTEL)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    switch(pSiS->ChrontelType) {
        case CHRONTEL_700x:
@@ -10850,9 +10795,7 @@ int SiS_GetCHTVtextenhance(ScrnInfoPtr pScrn)
 #endif
            return (int)pSiS->chtvtextenhance;
    } else {
-#ifdef UNLOCK_ALWAYS
       sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
       switch(pSiS->ChrontelType) {
       case CHRONTEL_700x:
 	   return (int)(((SiS_GetCH70xx(pSiS->SiS_Pr, 0x01) & 0x0c) >> 2) * 6);
@@ -10879,9 +10822,7 @@ void SiS_SetCHTVcontrast(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags & CRT2_TV)) return;
    if(!(pSiS->VBFlags2 & VB2_CHRONTEL)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    val /= 2;
    if((val >= 0) && (val <= 7)) {
@@ -10912,9 +10853,7 @@ int SiS_GetCHTVcontrast(ScrnInfoPtr pScrn)
 #endif
            return (int)pSiS->chtvcontrast;
    } else {
-#ifdef UNLOCK_ALWAYS
       sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
       switch(pSiS->ChrontelType) {
       case CHRONTEL_700x:
            return (int)((SiS_GetCH70xx(pSiS->SiS_Pr, 0x11) & 0x07) * 2);
@@ -10941,9 +10880,7 @@ void SiS_SetSISTVedgeenhance(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags2 & VB2_301))  return;
    if(!(pSiS->VBFlags & CRT2_TV))   return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    val /= 2;
    if((val >= 0) && (val <= 7)) {
@@ -10965,9 +10902,7 @@ int SiS_GetSISTVedgeenhance(ScrnInfoPtr pScrn)
    if(!(pSiS->VBFlags2 & VB2_301))  return result;
    if(!(pSiS->VBFlags & CRT2_TV))   return result;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
    inSISIDXREG(SISPART2, 0x3a, temp);
    return(int)(((temp & 0xe0) >> 5) * 2);
 }
@@ -10990,9 +10925,7 @@ void SiS_SetSISTVantiflicker(ScrnInfoPtr pScrn, int val)
    if((pSiS->VBFlags & TV_YPBPR) &&
       (pSiS->VBFlags & (TV_YPBPR525P | TV_YPBPR625P | TV_YPBPR750P | TV_YPBPR1080I))) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    /* Valid values: 0=off, 1=low, 2=med, 3=high, 4=adaptive */
    if((val >= 0) && (val <= 4)) {
@@ -11017,9 +10950,7 @@ int SiS_GetSISTVantiflicker(ScrnInfoPtr pScrn)
    if((pSiS->VBFlags & TV_YPBPR) &&
       (pSiS->VBFlags & (TV_YPBPR525P | TV_YPBPR625P | TV_YPBPR750P | TV_YPBPR1080I))) return result;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
    inSISIDXREG(SISPART2, 0x0a, temp);
    return(int)((temp & 0x70) >> 4);
 }
@@ -11040,9 +10971,7 @@ void SiS_SetSISTVsaturation(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags2 & VB2_SISBRIDGE)) return;
    if(pSiS->VBFlags2 & VB2_301) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    val /= 2;
    if((val >= 0) && (val <= 7)) {
@@ -11065,9 +10994,7 @@ int SiS_GetSISTVsaturation(ScrnInfoPtr pScrn)
    if(pSiS->VBFlags2 & VB2_301)          return result;
    if(!(pSiS->VBFlags & CRT2_TV))        return result;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
    inSISIDXREG(SISPART4, 0x21, temp);
    return(int)((temp & 0x07) * 2);
 }
@@ -11109,9 +11036,7 @@ void SiS_SetSISTVcolcalib(ScrnInfoPtr pScrn, int val, Bool coarse)
    if(!(pSiS->VBFlags2 & VB2_SISBRIDGE))        return;
    if(pSiS->VBFlags & (TV_HIVISION | TV_YPBPR)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    if((cfine >= -128) && (cfine <= 127) && (ccoarse >= -120) && (ccoarse <= 120)) {
       long finalcc = cbase + (((ccoarse * 256) + cfine) * 256);
@@ -11163,9 +11088,7 @@ void SiS_SetSISTVcfilter(ScrnInfoPtr pScrn, int val)
    if(!(pSiS->VBFlags2 & VB2_SISBRIDGE))        return;
    if(pSiS->VBFlags & (TV_HIVISION | TV_YPBPR)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    setSISIDXREG(SISPART2,0x30,~0x10,((pSiS->sistvcfilter << 4) & 0x10));
 }
@@ -11185,9 +11108,7 @@ int SiS_GetSISTVcfilter(ScrnInfoPtr pScrn)
    if(!(pSiS->VBFlags & CRT2_TV))               return result;
    if(pSiS->VBFlags & (TV_HIVISION | TV_YPBPR)) return result;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
    inSISIDXREG(SISPART2, 0x30, temp);
    return (int)((temp & 0x10) ? 1 : 0);
 }
@@ -11224,9 +11145,7 @@ void SiS_SetSISTVyfilter(ScrnInfoPtr pScrn, int val)
 #endif
    p30 &= 0x20;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    switch(pSiS->sistvyfilter) {
    case 0:
@@ -11348,9 +11267,7 @@ void SiS_SetSIS6326TVantiflicker(ScrnInfoPtr pScrn, int val)
 
    if(!(pSiS->SiS6326Flags & SIS6326_TVDETECTED)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    tmp = SiS6326GetTVReg(pScrn,0x00);
    if(!(tmp & 0x04)) return;
@@ -11372,9 +11289,7 @@ int SiS_GetSIS6326TVantiflicker(ScrnInfoPtr pScrn)
       return (int)pSiS->sistvantiflicker;
    }
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    tmp = SiS6326GetTVReg(pScrn,0x00);
    if(!(tmp & 0x04)) {
@@ -11394,9 +11309,7 @@ void SiS_SetSIS6326TVenableyfilter(ScrnInfoPtr pScrn, int val)
 
    if(!(pSiS->SiS6326Flags & SIS6326_TVDETECTED)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    tmp = SiS6326GetTVReg(pScrn,0x00);
    if(!(tmp & 0x04)) return;
@@ -11416,9 +11329,7 @@ int SiS_GetSIS6326TVenableyfilter(ScrnInfoPtr pScrn)
       return (int)pSiS->sis6326enableyfilter;
    }
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    tmp = SiS6326GetTVReg(pScrn,0x00);
    if(!(tmp & 0x04)) {
@@ -11439,9 +11350,7 @@ void SiS_SetSIS6326TVyfilterstrong(ScrnInfoPtr pScrn, int val)
 
    if(!(pSiS->SiS6326Flags & SIS6326_TVDETECTED)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    tmp = SiS6326GetTVReg(pScrn,0x00);
    if(!(tmp & 0x04)) return;
@@ -11463,9 +11372,7 @@ int SiS_GetSIS6326TVyfilterstrong(ScrnInfoPtr pScrn)
       return (int)pSiS->sis6326yfilterstrong;
    }
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    tmp = SiS6326GetTVReg(pScrn,0x00);
    if(!(tmp & 0x04)) {
@@ -11487,9 +11394,7 @@ void SiS_SetTVxposoffset(ScrnInfoPtr pScrn, int val)
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    pSiS->tvxpos = val;
 #ifdef SISDUALHEAD
@@ -11637,9 +11542,7 @@ void SiS_SetTVyposoffset(ScrnInfoPtr pScrn, int val)
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    pSiS->tvypos = val;
 #ifdef SISDUALHEAD
@@ -11782,9 +11685,7 @@ void SiS_SetTVxscale(ScrnInfoPtr pScrn, int val)
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    pSiS->tvxscale = val;
 #ifdef SISDUALHEAD
@@ -11872,9 +11773,7 @@ void SiS_SetTVyscale(ScrnInfoPtr pScrn, int val)
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    if(val < -4) val = -4;
    if(val > 3)  val = 3;
@@ -12287,9 +12186,7 @@ void SiS_SetSISCRT1SaturationGain(ScrnInfoPtr pScrn, int val)
 
    if(!(pSiS->SiS_SD3_Flags & SiS_SD3_CRT1SATGAIN)) return;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    if((val >= 0) && (val <= 7)) {
       setSISIDXREG(SISCR,0x53,0xE3, (val << 2));
@@ -12309,9 +12206,7 @@ int SiS_GetSISCRT1SaturationGain(ScrnInfoPtr pScrn)
 
    if(!(pSiS->SiS_SD3_Flags & SiS_SD3_CRT1SATGAIN)) return result;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
    inSISIDXREG(SISCR, 0x53, temp);
    return (int)((temp >> 2) & 0x07);
 }
@@ -12380,9 +12275,7 @@ SiSPostSetMode(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 #endif
     pSiS->CRT1isoff = pSiS->CRT1off;
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     SiSFixupSR11(pScrn);
 
@@ -13105,9 +12998,7 @@ SiS6326PostSetMode(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 
     if(!(pSiS->SiS6326Flags & SIS6326_TVDETECTED)) return;
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     /* Backup default TV position registers */
     pSiS->tvx1 = SiS6326GetTVReg(pScrn,0x3a);
@@ -13826,16 +13717,3 @@ sisSaveUnlockExtRegisterLock(SISPtr pSiS, UChar *reg1, UChar *reg2)
        }
     }
 }
-
-void
-sisRestoreExtRegisterLock(SISPtr pSiS, UChar reg1, UChar reg2)
-{
-    /* restore lock */
-#ifndef UNLOCK_ALWAYS
-    outSISIDXREG(SISSR, 0x05, reg1 == 0xA1 ? 0x86 : 0x00);
-    if((pSiS->VGAEngine == SIS_OLD_VGA) || (pSiS->VGAEngine == SIS_530_VGA)) {
-       outSISIDXREG(SISCR, 0x80, reg2 == 0xA1 ? 0x86 : 0x00);
-    }
-#endif
-}
-

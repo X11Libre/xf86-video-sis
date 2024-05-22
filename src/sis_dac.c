@@ -379,9 +379,7 @@ SiSSave(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 
     PDEBUG(xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 3, "SiSSave()\n"));
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     switch(pSiS->Chipset) {
         case PCI_CHIP_SIS5597:
@@ -439,9 +437,7 @@ SiSRestore(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 
     PDEBUG(xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 4, "SiSRestore()\n"));
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     switch(pSiS->Chipset) {
         case PCI_CHIP_SIS5597:
@@ -516,9 +512,7 @@ SiS300Save(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 
     PDEBUG(xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 3, "SiS300Save()\n"));
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     /* Save SR registers */
     for(i = 0x00; i <= 0x3D; i++) {
@@ -586,9 +580,7 @@ SiS300Restore(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 
     PDEBUG(xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 4, "SiS300Restore()\n"));
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     /* Wait for accelerator to finish on-going drawing operations. */
     inSISIDXREG(SISSR, 0x1E, temp);
@@ -729,9 +721,7 @@ SiS315Save(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 
     PDEBUG(xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 3, "SiS315Save()\n"));
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     /* Save SR registers */
     for(i = 0x00; i <= 0x60; i++) {
@@ -809,9 +799,7 @@ SiS315Restore(ScrnInfoPtr pScrn, SISRegPtr sisReg)
 
     PDEBUG(xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 4, "SiS315Restore()\n"));
 
-#ifdef UNLOCK_ALWAYS
     sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
     /* Wait for accelerator to finish on-going drawing operations. */
     inSISIDXREG(SISSR, 0x1E, temp);
@@ -1257,9 +1245,7 @@ SiSRestoreBridge(ScrnInfoPtr pScrn, SISRegPtr sisReg)
    SISPtr pSiS = SISPTR(pScrn);
    int i;
 
-#ifdef UNLOCK_ALWAYS
    sisSaveUnlockExtRegisterLock(pSiS, NULL, NULL);
-#endif
 
    for(i = 0x30; i <= 0x3b; i++) {
       if(i == 0x34) continue;
