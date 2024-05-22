@@ -335,7 +335,6 @@ SiSSetCursorPosition(ScrnInfoPtr pScrn, int x, int y)
     outSISREG(SISSR, sridx); outSISREG(SISCR, cridx);
 }
 
-#ifdef SISMERGED
 static void
 SiSSetCursorPositionMerged(ScrnInfoPtr pScrn1, int x, int y)
 {
@@ -406,7 +405,6 @@ SiSSetCursorPositionMerged(ScrnInfoPtr pScrn1, int x, int y)
        sis301SetCursorPositionY310(y2, y2_preset)
     }
 }
-#endif
 
 static void
 SiS300SetCursorPosition(ScrnInfoPtr pScrn, int x, int y)
@@ -416,12 +414,10 @@ SiS300SetCursorPosition(ScrnInfoPtr pScrn, int x, int y)
     UShort x_preset = 0;
     UShort y_preset = 0;
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        SiSSetCursorPositionMerged(pScrn, x, y);
        return;
     }
-#endif
 
     if(mode->Flags & V_INTERLACE)     y /= 2;
     else if(mode->Flags & V_DBLSCAN)  y *= 2;
@@ -467,12 +463,10 @@ SiS310SetCursorPosition(ScrnInfoPtr pScrn, int x, int y)
     UShort x_preset = 0;
     UShort y_preset = 0;
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        SiSSetCursorPositionMerged(pScrn, x, y);
        return;
     }
-#endif
 
     if(mode->Flags & V_INTERLACE)     y >>= 1;
     else if(mode->Flags & V_DBLSCAN)  y <<= 1;
@@ -691,14 +685,11 @@ SiS300LoadCursorImage(ScrnInfoPtr pScrn, UChar *src)
     SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        if((CDMPTR->CRT1->Flags & V_DBLSCAN) && (CDMPTR->CRT2->Flags & V_DBLSCAN)) {
           sizedouble = TRUE;
        }
-    } else
-#endif
-           if(pSiS->CurrentLayout.mode->Flags & V_DBLSCAN) {
+    } else if(pSiS->CurrentLayout.mode->Flags & V_DBLSCAN) {
        sizedouble = TRUE;
     }
 
@@ -787,14 +778,11 @@ SiS310LoadCursorImage(ScrnInfoPtr pScrn, UChar *src)
     }
 #endif
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        if((CDMPTR->CRT1->Flags & V_DBLSCAN) && (CDMPTR->CRT2->Flags & V_DBLSCAN)) {
           sizedouble = TRUE;
        }
-    } else
-#endif
-           if(pSiS->CurrentLayout.mode->Flags & V_DBLSCAN) {
+    } else if(pSiS->CurrentLayout.mode->Flags & V_DBLSCAN) {
        sizedouble = TRUE;
     }
 
@@ -917,14 +905,12 @@ SiS300UseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     SISPtr  pSiS = SISPTR(pScrn);
     DisplayModePtr  mode = pSiS->CurrentLayout.mode;
-#ifdef SISMERGED
     DisplayModePtr  mode2 = NULL;
 
     if(pSiS->MergedFB) {
        mode = CDMPTR->CRT1;
        mode2 = CDMPTR->CRT2;
     }
-#endif
 
     switch (pSiS->Chipset)  {
       case PCI_CHIP_SIS300:
@@ -934,14 +920,12 @@ SiS300UseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
 	    return FALSE;
 	 if((mode->Flags & V_DBLSCAN) && (pCurs->bits->height > 32))
 	    return FALSE;
-#ifdef SISMERGED
 	 if(pSiS->MergedFB) {
 	    if(mode2->Flags & V_INTERLACE)
 	       return FALSE;
 	    if((mode2->Flags & V_DBLSCAN) && (pCurs->bits->height > 32))
 	       return FALSE;
 	 }
-#endif
 	 break;
 
       case PCI_CHIP_SIS550:
@@ -964,14 +948,12 @@ SiS300UseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
 	    return FALSE;
 	 if((mode->Flags & V_DBLSCAN) && (pCurs->bits->height > 32))
 	    return FALSE;
-#ifdef SISMERGED
 	 if(pSiS->MergedFB) {
 	    if(mode2->Flags & V_INTERLACE)
 	       return FALSE;
 	    if((mode2->Flags & V_DBLSCAN) && (pCurs->bits->height > 32))
 	       return FALSE;
 	 }
-#endif
 	 break;
 
       default:
@@ -990,14 +972,12 @@ SiSUseHWCursorARGB(ScreenPtr pScreen, CursorPtr pCurs)
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     SISPtr  pSiS = SISPTR(pScrn);
     DisplayModePtr  mode = pSiS->CurrentLayout.mode;
-#ifdef SISMERGED
     DisplayModePtr  mode2 = NULL;
 
     if(pSiS->MergedFB) {
        mode = CDMPTR->CRT1;
        mode2 = CDMPTR->CRT2;
     }
-#endif
 
     switch (pSiS->Chipset)  {
       case PCI_CHIP_SIS300:
@@ -1009,14 +989,12 @@ SiSUseHWCursorARGB(ScreenPtr pScreen, CursorPtr pCurs)
 	    return FALSE;
 	 if((mode->Flags & V_DBLSCAN) && (pCurs->bits->height > 16))
 	    return FALSE;
-#ifdef SISMERGED
 	 if(pSiS->MergedFB) {
 	    if(mode2->Flags & V_INTERLACE)
 	       return FALSE;
 	    if((mode2->Flags & V_DBLSCAN) && (pCurs->bits->height > 16))
 	       return FALSE;
 	 }
-#endif
          break;
 
       case PCI_CHIP_SIS550:
@@ -1043,14 +1021,12 @@ SiSUseHWCursorARGB(ScreenPtr pScreen, CursorPtr pCurs)
 	    return FALSE;
 	 if((pSiS->CurrentLayout.bitsPerPixel == 8) && (pSiS->VBFlags & CRT2_ENABLE))
 	    return FALSE;
-#ifdef SISMERGED
 	 if(pSiS->MergedFB) {
 	    if(mode2->Flags & V_INTERLACE)
 	       return FALSE;
 	    if((mode->Flags & V_DBLSCAN) && (pCurs->bits->height > 32))
 	       return FALSE;
 	 }
-#endif
 	 break;
 
       default:
@@ -1076,14 +1052,11 @@ SiS300LoadCursorImageARGB(ScrnInfoPtr pScrn, CursorPtr pCurs)
     SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        if((CDMPTR->CRT1->Flags & V_DBLSCAN) && (CDMPTR->CRT2->Flags & V_DBLSCAN)) {
           sizedouble = TRUE;
        }
-    } else
-#endif
-           if(pSiS->CurrentLayout.mode->Flags & V_DBLSCAN) {
+    } else if(pSiS->CurrentLayout.mode->Flags & V_DBLSCAN) {
        sizedouble = TRUE;
     }
 
@@ -1207,14 +1180,11 @@ static void SiS310LoadCursorImageARGB(ScrnInfoPtr pScrn, CursorPtr pCurs)
     SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        if((CDMPTR->CRT1->Flags & V_DBLSCAN) && (CDMPTR->CRT2->Flags & V_DBLSCAN)) {
           sizedouble = TRUE;
        }
-    } else
-#endif
-           if(pSiS->CurrentLayout.mode->Flags & V_DBLSCAN) {
+    } else if(pSiS->CurrentLayout.mode->Flags & V_DBLSCAN) {
        sizedouble = TRUE;
     }
 

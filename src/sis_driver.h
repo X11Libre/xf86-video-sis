@@ -1583,10 +1583,8 @@ UShort         SiS_CheckModeCRT1(ScrnInfoPtr pScrn, DisplayModePtr mode,
 UShort         SiS_CheckModeCRT2(ScrnInfoPtr pScrn, DisplayModePtr mode,
 				 unsigned int VBFlags, Bool hcm);
 
-#ifdef SISMERGED
 static Bool    InRegion(int x, int y, region r);
 static void    SISMergedPointerMoved(SCRN_ARG_TYPE arg, int x, int y);
-#endif
 Bool           SiSBridgeIsInSlaveMode(ScrnInfoPtr pScrn);
 UShort	       SiS_GetModeNumber(ScrnInfoPtr pScrn, DisplayModePtr mode, unsigned int VBFlags);
 UChar  	       SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, UShort offset, UChar value);

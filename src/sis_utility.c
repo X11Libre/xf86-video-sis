@@ -325,7 +325,6 @@ SISSwitchCRT1Status(ScrnInfoPtr pScrn, int onoff, Bool quiet)
        }
     }
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        if(((SiSMergedDisplayModePtr)mode->Private)->CRT2Position != sisClone) {
           if(!onoff) {
@@ -350,7 +349,6 @@ SISSwitchCRT1Status(ScrnInfoPtr pScrn, int onoff, Bool quiet)
 	  mode = ((SiSMergedDisplayModePtr)mode->Private)->CRT1;
        }
     }
-#endif
 
     vbflags &= ~(DISPTYPE_CRT1 | SINGLE_MODE | MIRROR_MODE | CRT1_LCDA);
     vbflags3 &= ~(VB3_CRT1_TV | VB3_CRT1_LCD | VB3_CRT1_VGA);
@@ -486,7 +484,6 @@ SISSwitchCRT2Type(ScrnInfoPtr pScrn, ULong newvbflags, Bool quiet)
        newvbflags &= ~TV_YPBPR;
     }
 
-#ifdef SISMERGED
     if(pSiS->MergedFB) {
        if((mode->Private) &&
           ((SiSMergedDisplayModePtr)mode->Private)->CRT2Position != sisClone) {
@@ -512,7 +509,6 @@ SISSwitchCRT2Type(ScrnInfoPtr pScrn, ULong newvbflags, Bool quiet)
 	  mode = ((SiSMergedDisplayModePtr)mode->Private)->CRT2;
        }
     }
-#endif
 
     if((!(newvbflags & CRT2_ENABLE)) && (!(newvbflags & DISPTYPE_CRT1))) {
        if(!quiet) {
@@ -627,14 +623,12 @@ SISCheckModeForCRT2Type(ScrnInfoPtr pScrn, DisplayModePtr mode, ULong vbflags, U
 
        if(vbflags & CRT2_ENABLE) {
 
-#ifdef SISMERGED
           if(pSiS->MergedFB) {
              hcm = pSiS->HaveCustomModes2;
              if(mode->Private) {
 	        mode = ((SiSMergedDisplayModePtr)mode->Private)->CRT2;
              }
           }
-#endif
 
           /* For RandR */
           if((mode->HDisplay > pScrn->virtualX) || (mode->VDisplay > pScrn->virtualY)) {
@@ -668,14 +662,12 @@ SISCheckModeForCRT2Type(ScrnInfoPtr pScrn, DisplayModePtr mode, ULong vbflags, U
 
        if(vbflags & CRT1_LCDA) {
 
-#ifdef SISMERGED
           if(pSiS->MergedFB) {
              hcm = pSiS->HaveCustomModes;
              if(mode->Private) {
 	        mode = ((SiSMergedDisplayModePtr)mode->Private)->CRT1;
 	     }
           }
-#endif
 
 	  /* For RandR */
 	  if((mode->HDisplay > pScrn->virtualX) || (mode->VDisplay > pScrn->virtualY)) {
@@ -762,7 +754,6 @@ SISCheckModeTimingForCRT2Type(ScrnInfoPtr pScrn, UShort cond, UShort hdisplay,
     return(SISCheckModeForCRT2Type(pScrn, mode, vbflags, cond, quiet));
 }
 
-#ifdef SISMERGED
 static void
 SISGetMergedModeDetails(ScrnInfoPtr pScrn,
 	   int hd, int vd, int ht, int vt, int hss, int hse, int vss, int vse, int clk,
@@ -803,7 +794,6 @@ SISGetMergedModeDetails(ScrnInfoPtr pScrn,
     *crt2y = tmode->VDisplay;
     *crt2clk = (unsigned int)SiSCalcVRate(tmode);
 }
-#endif
 
 /***********************************
  *   SiSCtrl extension interface   *
@@ -1505,7 +1495,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
       break;
 
    case SDC_CMD_GETMERGEDMODEDETAILS:
-#ifdef SISMERGED
       if(pSiS->MergedFB) {
          int clk, hd, hss, hse, ht, vd, vss, vse, vt;
 	 unsigned int pos, crt1x, crt1y, crt1clk, crt2x, crt2y, crt2clk;
@@ -1541,7 +1530,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 	 }
 
       } else
-#endif
          sdcbuf->sdc_result_header = SDC_RESULT_INVAL;
       break;
 

@@ -93,10 +93,8 @@ typedef struct {
     CARD8        linebufmask;
 
     short        oldx1, oldx2, oldy1, oldy2;
-#ifdef SISMERGED
     short        oldx1_2, oldx2_2, oldy1_2, oldy2_2;
     Bool    	 mustresettap2;
-#endif
     int          mustwait;
 
     Bool         grabbedByV4L;	   /* V4L stuff */

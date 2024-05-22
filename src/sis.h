@@ -138,14 +138,9 @@
 
 #define SISDUALHEAD		/* Include Dual Head code  */
 
-#define SISMERGED		/* Include Merged-FB code */
-
-#undef SISXINERAMA
-#ifdef SISMERGED
 #define SISXINERAMA		/* Include SiS Pseudo-Xinerama for MergedFB mode */
 #define SIS_XINERAMA_MAJOR_VERSION  1
 #define SIS_XINERAMA_MINOR_VERSION  1
-#endif
 
 #if defined(SIS_HAVE_EXA) || (defined(USE_EXA) && (USE_EXA != 0))
 #define SIS_USE_EXA		/* Include code for EXA */
@@ -1220,7 +1215,6 @@ typedef struct {
     ExtensionEntry	*SiSCtrlExtEntry;
     char		devsectname[32];
     Bool		SCLogQuiet;
-#ifdef SISMERGED
     Bool		MergedFB, MergedFBAuto;
     SiSScrn2Rel		CRT2Position;
     char		*CRT2HSync;
@@ -1250,7 +1244,6 @@ typedef struct {
     ExtensionEntry	*XineramaExtEntry;
     int			SiSXineramaVX, SiSXineramaVY;
     Bool		AtLeastOneNonClone;
-#endif
 #endif
 } SISRec, *SISPtr;
 
@@ -1329,7 +1322,6 @@ typedef struct _customttable {
     const char   *optionName;
 } customttable;
 
-#ifdef SISMERGED
 #ifdef SISXINERAMA
 typedef struct _SiSXineramaData {
     int x;
@@ -1337,7 +1329,6 @@ typedef struct _SiSXineramaData {
     int width;
     int height;
 } SiSXineramaData;
-#endif
 #endif
 
 extern const customttable SiS_customttable[];
@@ -1418,6 +1409,3 @@ extern unsigned char sis_pci_read_host_bridge_u8(int offset);
 extern void sis_pci_write_host_bridge_u8(int offset, unsigned char value);
 extern void sis_pci_write_host_bridge_u32(int offset, unsigned long value);
 #endif  /* _SIS_H_ */
-
-
-

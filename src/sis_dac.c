@@ -1551,12 +1551,10 @@ int SiSMemBandWidth(ScrnInfoPtr pScrn, Bool IsForCRT2)
 		       if(pSiS->SecondHead) GetForCRT1 = TRUE;
 		    }
 #endif
-#ifdef SISMERGED
 		    if(pSiS->MergedFB && IsForCRT2) {
 		       DHM = TRUE;
 		       GetForCRT1 = FALSE;
 		    }
-#endif
 
 		    if(DHM) {
 

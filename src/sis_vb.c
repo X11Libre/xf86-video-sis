@@ -248,13 +248,11 @@ void SISCRT1PreInit(ScrnInfoPtr pScrn)
     }
 #endif
 
-#ifdef SISMERGED
     if((pSiS->MergedFB) && (!(pSiS->MergedFBAuto))) {
        pSiS->CRT1Detected = TRUE;
        pSiS->CRT1off = 0;
        return;
     }
-#endif
 
     inSISIDXREG(SISCR, 0x32, CR32);
 
