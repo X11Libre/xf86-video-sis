@@ -74,21 +74,14 @@
 
 #define SIS_HaveDriverFuncs 0
 
-#undef SISISXORG6899900
 #include "xorgVersion.h"
 #define SISMYSERVERNAME "X.org"
-#define SISISXORG6899900
 
 #define SIS_NAME                "SIS"
 #define SIS_DRIVER_NAME         "sis"
 #define SIS_MAJOR_VERSION	PACKAGE_VERSION_MAJOR
-#ifdef SISISXORG6899900
 #define SIS_MINOR_VERSION	PACKAGE_VERSION_MINOR	/* DRI changes */
 #define SIS_PATCHLEVEL		PACKAGE_VERSION_PATCHLEVEL
-#else
-#define SIS_MINOR_VERSION       7
-#define SIS_PATCHLEVEL          1
-#endif
 #define SIS_CURRENT_VERSION     ((SIS_MAJOR_VERSION << 16) | \
                                  (SIS_MINOR_VERSION << 8) | SIS_PATCHLEVEL )
 
@@ -704,11 +697,7 @@ typedef struct {
 /* For extended memcpy() */
 typedef void (*vidCopyFunc)(UChar *, const UChar *, int);
 
-#ifdef SISISXORG6899900
 #define SISAGPHTYPE drm_handle_t
-#else
-#define SISAGPHTYPE ULong
-#endif
 
 /* Dual head private entity structure */
 #ifdef SISDUALHEAD

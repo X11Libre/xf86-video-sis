@@ -66,9 +66,6 @@ typedef struct {
 typedef struct {
   drm_handle_t handle;
   drmSize size;
-#ifndef SISISXORG6899900
-  drmAddress map;
-#endif
 } sisRegion, *sisRegionPtr;
 
 typedef struct {
