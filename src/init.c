@@ -3298,9 +3298,7 @@ SiSBIOSSetModeCRT2(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
 {
    SISIOADDRESS BaseAddr = SiS_Pr->IOAddress;
    SISPtr  pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
-#endif
    unsigned short ModeIdIndex;
    unsigned short ModeNo = 0;
    unsigned char  backupreg = 0;
@@ -3339,7 +3337,6 @@ SiSBIOSSetModeCRT2(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
    SiSDetermineROMUsage(SiS_Pr);
 
    /* Save mode info so we can set it from within SetMode for CRT1 */
-#ifdef SISDUALHEAD
    if(pSiS->DualHeadMode) {
       pSiSEnt->CRT2ModeNo = ModeNo;
       pSiSEnt->CRT2DMode = mode;
@@ -3358,7 +3355,6 @@ SiSBIOSSetModeCRT2(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
 #endif
       pSiSEnt->CRT2ModeSet = TRUE;
    }
-#endif
 
    if(SiS_Pr->UseCustomMode) {
 
@@ -3477,11 +3473,9 @@ SiSBIOSSetModeCRT1(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
    SISPtr  pSiS = SISPTR(pScrn);
    unsigned short ModeIdIndex, ModeNo = 0;
    unsigned char  backupreg = 0;
-#ifdef SISDUALHEAD
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
    unsigned char  backupcr30, backupcr31, backupcr38, backupcr35, backupp40d=0;
    BOOLEAN backupcustom;
-#endif
 
    SiS_Pr->UseCustomMode = FALSE;
 
@@ -3566,12 +3560,10 @@ SiSBIOSSetModeCRT1(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
 
    SiS_CloseCRTC(SiS_Pr);
 
-#ifdef SISDUALHEAD
    if(pSiS->DualHeadMode) {
       pSiSEnt->CRT1ModeNo = ModeNo;
       pSiSEnt->CRT1DMode = mode;
    }
-#endif
 
    if(SiS_Pr->UseCustomMode) {
       SiS_Pr->CRT1UsesCustomMode = TRUE;
@@ -3582,7 +3574,6 @@ SiSBIOSSetModeCRT1(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
    }
 
    /* Reset CRT2 if changing mode on CRT1 */
-#ifdef SISDUALHEAD
    if(pSiS->DualHeadMode) {
       if(pSiSEnt->CRT2ModeNo != -1) {
 	 xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 3,
@@ -3618,7 +3609,6 @@ SiSBIOSSetModeCRT1(struct SiS_Private *SiS_Pr, ScrnInfoPtr pScrn,
 	 SiS_Pr->UseCustomMode = backupcustom;
       }
    }
-#endif
 
    /* Warning: From here, the custom mode entries in SiS_Pr are
     * possibly overwritten

@@ -267,9 +267,7 @@ SiSUpdateXvGamma(SISPtr pSiS, SISPortPrivPtr pPriv)
     if(!pSiS->XvGamma) return;
     if(!(pSiS->MiscFlags & MISC_CRT1OVERLAYGAMMA)) return;
 
-#ifdef SISDUALHEAD
     if((pPriv->dualHeadMode) && (!pSiS->SecondHead)) return;
-#endif
 
     if(!(sr7 & 0x04)) return;
 
@@ -358,9 +356,7 @@ void
 SISSetPortDefaults(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 {
     SISPtr    pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
     SISEntPtr pSiSEnt = pSiS->entityPrivate;;
-#endif
 
     pPriv->colorKey    = pSiS->colorKey = 0x000101fe;
     pPriv->brightness  = pSiS->XvDefBri;
@@ -377,14 +373,12 @@ SISSetPortDefaults(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
     pPriv->chromamin       = pSiS->XvChromaMin;
     pPriv->chromamax       = pSiS->XvChromaMax;
     if(pPriv->dualHeadMode) {
-#ifdef SISDUALHEAD
        if(!pSiS->SecondHead) {
           pPriv->tvxpos      = pSiS->tvxpos;
           pPriv->tvypos      = pSiS->tvypos;
 	  pPriv->updatetvxpos = TRUE;
           pPriv->updatetvypos = TRUE;
        }
-#endif
     } else {
        pPriv->tvxpos      = pSiS->tvxpos;
        pPriv->tvypos      = pSiS->tvypos;
@@ -392,11 +386,9 @@ SISSetPortDefaults(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
        pPriv->updatetvypos = TRUE;
     }
     if(pPriv->dualHeadMode) {
-#ifdef SISDUALHEAD
        pPriv->crtnum =
 	  pSiSEnt->curxvcrtnum =
 	     pSiSEnt->XvOnCRT2 ? 1 : 0;
-#endif
     } else
        pPriv->crtnum = pSiS->XvOnCRT2 ? 1 : 0;
 
@@ -627,7 +619,6 @@ set_dispmode(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
        else
 	  pPriv->displayMode = DISPMODE_SINGLE1;    /* CRT1 only */
     } else {
-#ifdef SISDUALHEAD
        if(pSiS->DualHeadMode) {
 	  pPriv->dualHeadMode = TRUE;
 	  if(pSiS->SecondHead)
@@ -635,7 +626,6 @@ set_dispmode(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 	  else
 	     pPriv->displayMode = DISPMODE_SINGLE2; /* CRT2 only */
        } else
-#endif
        if(pSiS->VBFlags & DISPTYPE_DISP1) {
 	  pPriv->displayMode = DISPMODE_SINGLE1;    /* CRT1 only */
        } else {
@@ -648,12 +638,10 @@ static void
 set_disptype_regs(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 {
     SISPtr pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
     SISEntPtr pSiSEnt = pSiS->entityPrivate;
     int crtnum = 0;
 
     if(pPriv->dualHeadMode) crtnum = pSiSEnt->curxvcrtnum;
-#endif
 
     /*
      *     SR06[7:6]
@@ -693,14 +681,10 @@ set_disptype_regs(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 		 setsrregmask(pSiS, 0x32, 0x00, 0xc0);
 	      }
 	  } else {
-#ifdef SISDUALHEAD
 	      if((!pPriv->dualHeadMode) || (crtnum == 0)) {
-#endif
 		 setsrregmask(pSiS, 0x06, 0x00, 0xc0);  /* only overlay -> CRT1 */
 		 setsrregmask(pSiS, 0x32, 0x00, 0xc0);
-#ifdef SISDUALHEAD
 	      }
-#endif
 	  }
 	  break;
 
@@ -714,9 +698,7 @@ set_disptype_regs(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 		 setsrregmask(pSiS, 0x32, 0xc0, 0xc0);  /* (although both clocks for CRT2!) */
 	      }
 	  } else {
-#ifdef SISDUALHEAD
 	      if((!pPriv->dualHeadMode) || (crtnum == 1)) {
-#endif
 		 if(pSiS->MiscFlags & MISC_SIS760ONEOVERLAY) {
 		    setsrregmask(pSiS, 0x06, 0x40, 0xc0);  /* overlay 0 -> CRT2 */
 		    setsrregmask(pSiS, 0x32, 0xc0, 0xc0);  /* (although both clocks for CRT2!) */
@@ -724,9 +706,7 @@ set_disptype_regs(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 		    setsrregmask(pSiS, 0x06, 0x40, 0xc0);  /* only overlay -> CRT2 */
 		    setsrregmask(pSiS, 0x32, 0x40, 0xc0);
 		 }
-#ifdef SISDUALHEAD
               }
-#endif
 	  }
 	  break;
 
@@ -803,11 +783,9 @@ set_maxencoding(SISPtr pSiS, SISPortPrivPtr pPriv)
           half = 1920; /* ? */
        }
        if(pPriv->hasTwoOverlays) {
-#ifdef SISDUALHEAD
           if(pSiS->DualHeadMode) {
 	     DummyEncoding.width = half;
           } else
-#endif
           if(pSiS->MergedFB) {
 	     DummyEncoding.width = half;
           } else
@@ -1053,9 +1031,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 {
   SISPortPrivPtr pPriv = (SISPortPrivPtr)data;
   SISPtr pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
   SISEntPtr pSiSEnt = pSiS->entityPrivate;;
-#endif
 
   if(attribute == pSiS->xvBrightness) {
      if((value < -128) || (value > 127))
@@ -1091,9 +1067,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
         pPriv->updatetvxpos = FALSE;
      } else {
         pSiS->tvxpos = pPriv->tvxpos;
-#ifdef SISDUALHEAD
         if(pPriv->dualHeadMode) pSiSEnt->tvxpos = pPriv->tvxpos;
-#endif
         pPriv->updatetvxpos = TRUE;
      }
   } else if(attribute == pSiS->xvTVYPosition) {
@@ -1104,9 +1078,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
         pPriv->updatetvypos = FALSE;
      } else {
         pSiS->tvypos = pPriv->tvypos;
-#ifdef SISDUALHEAD
         if(pPriv->dualHeadMode) pSiSEnt->tvypos = pPriv->tvypos;
-#endif
         pPriv->updatetvypos = TRUE;
      }
   } else if(attribute == pSiS->xvDisableColorkey) {
@@ -1159,9 +1131,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
            if((value < 0) || (value > 1))
               return BadValue;
 	   pPriv->crtnum = value;
-#ifdef SISDUALHEAD
            if(pPriv->dualHeadMode) pSiSEnt->curxvcrtnum = value;
-#endif
         }
      } else return BadMatch;
   } else {
@@ -1180,9 +1150,7 @@ SISGetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 {
   SISPortPrivPtr pPriv = (SISPortPrivPtr)data;
   SISPtr pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
   SISEntPtr pSiSEnt = pSiS->entityPrivate;;
-#endif
 
   if(attribute == pSiS->xvBrightness) {
      *value = pPriv->brightness;
@@ -1234,11 +1202,9 @@ SISGetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
      } else return BadMatch;
   } else if(attribute == pSiS->xvSwitchCRT) {
      if(pSiS->VGAEngine == SIS_315_VGA) {
-#ifdef SISDUALHEAD
         if(pPriv->dualHeadMode)
            *value = pSiSEnt->curxvcrtnum;
         else
-#endif
            *value = pPriv->crtnum;
      } else return BadMatch;
   } else {
@@ -2397,12 +2363,10 @@ close_overlay(SISPtr pSiS, SISPortPrivPtr pPriv)
 
      } else if(pPriv->displayMode == DISPMODE_SINGLE2) {
 
-#ifdef SISDUALHEAD
 	if(pPriv->dualHeadMode) {
 	   /* Check if overlay already grabbed by other head */
 	   if(!(getsrreg(pSiS, 0x06) & 0x40)) return;
 	}
-#endif
 	setvideoregmask(pSiS, Index_VI_Control_Misc2, 0x00, 0x01);
 
      }
@@ -2425,14 +2389,12 @@ close_overlay(SISPtr pSiS, SISPortPrivPtr pPriv)
      /* CRT1: Always uses overlay 0
       */
 
-#ifdef SISDUALHEAD
      if(pPriv->dualHeadMode) {
 	if(!pPriv->hasTwoOverlays) {
 	   /* Check if overlay already grabbed by other head */
 	   if(getsrreg(pSiS, 0x06) & 0x40) return;
 	}
      }
-#endif
 
      setvideoregmask(pSiS, Index_VI_Control_Misc2, 0x00, 0x05);
      setvideoregmask(pSiS, Index_VI_Control_Misc1, 0x00, 0x01);
@@ -2458,9 +2420,7 @@ static void
 SISDisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 {
    SISPtr pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
-#endif
    short  srcPitch = pPriv->srcPitch;
    short  height = pPriv->height;
    UShort screenwidth;
@@ -2477,7 +2437,6 @@ SISDisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
    set_hastwooverlays(pSiS, pPriv);
 
    pPriv->NoOverlay = FALSE;
-#ifdef SISDUALHEAD
    if(pPriv->dualHeadMode) {
       if(!pPriv->hasTwoOverlays) {
 	 if(pSiS->SecondHead) {
@@ -2499,7 +2458,6 @@ SISDisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 	 }
       }
    }
-#endif
 
    /* setup dispmode (MIRROR, SINGLEx) */
    set_dispmode(pScrn, pPriv);
@@ -2915,7 +2873,6 @@ SISDisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
       calc_line_buf_size_2(&overlay, pPriv);
 
    if(pPriv->dualHeadMode) {
-#ifdef SISDUALHEAD
       if(!pSiS->SecondHead) {
          if(pPriv->updatetvxpos) {
             SiS_SetTVxposoffset(pScrn, pPriv->tvxpos);
@@ -2926,7 +2883,6 @@ SISDisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
             pPriv->updatetvypos = FALSE;
          }
       }
-#endif
    } else {
       if(pPriv->updatetvxpos) {
          SiS_SetTVxposoffset(pScrn, pPriv->tvxpos);

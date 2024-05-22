@@ -322,7 +322,6 @@ SiS_PrintIlRange(ScrnInfoPtr pScrn, int token, int min, int max, UChar showhex)
 	pSiS->Options[SiS_FIFT(pSiS->Options, token)].name, min, max);
 }
 
-#ifdef SISDUALHEAD
 static void
 SiS_PrintOverruleDHM(ScrnInfoPtr pScrn, int token1, int token2)
 {
@@ -333,7 +332,6 @@ SiS_PrintOverruleDHM(ScrnInfoPtr pScrn, int token1, int token2)
 	pSiS->Options[SiS_FIFT(pSiS->Options, token1)].name,
 	pSiS->Options[SiS_FIFT(pSiS->Options, token2)].name);
 }
-#endif
 
 static Bool
 SiS_StrIsBoolOn(char *strptr)
@@ -775,17 +773,14 @@ SiSOptions(ScrnInfoPtr pScrn)
        }
     }
 
-#ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) {
        IsDHM = TRUE;
        if(pSiS->SecondHead) IsSecondHead = TRUE;
     }
-#endif
 
     /* MergedFB
      * Enable/disable and configure merged framebuffer mode
      */
-#ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) {
        if(xf86IsOptionSet(pSiS->Options, OPTION_MERGEDFB)) {
 	  xf86DrvMsg(pScrn->scrnIndex, X_WARNING, baddhm,
@@ -796,7 +791,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 	     pSiS->Options[SiS_FIFT(pSiS->Options, OPTION_MERGEDFBAUTO)].name);
        }
     } else
-#endif
     if((pSiS->VGAEngine == SIS_300_VGA) || (pSiS->VGAEngine == SIS_315_VGA)) {
        if((strptr = (char *)xf86GetOptValString(pSiS->Options, OPTION_MERGEDFB))) {
 	  if(SiS_StrIsBoolOn(strptr)) {
@@ -923,7 +917,6 @@ SiSOptions(ScrnInfoPtr pScrn)
     /* Some options can only be specified in the Master Head's Device
      * section. Here we give the user a hint in the log.
      */
-#ifdef SISDUALHEAD
     if((pSiS->DualHeadMode) && (pSiS->SecondHead)) {
        static const char * const mystring = "Option \"%s\" only accepted in CRT2 (Master) Device section\n";
        int i;
@@ -960,7 +953,6 @@ SiSOptions(ScrnInfoPtr pScrn)
        }
 
     } else
-#endif
     {
        if(pSiS->VGAEngine == SIS_315_VGA) {
 
@@ -1002,12 +994,10 @@ SiSOptions(ScrnInfoPtr pScrn)
 	   */
 	  ival = 0;
 	  from = X_DEFAULT;
-#ifdef SISDUALHEAD
 	  if(pSiS->DualHeadMode) {
 	     pSiS->AllowHotkey = 0;
 	     ival = 1;
 	  } else
-#endif
 	  if(xf86GetOptValBool(pSiS->Options, OPTION_ENABLEHOTKEY, &val)) {
 	     pSiS->AllowHotkey = val ? 1 : 0;
 	     from = X_CONFIG;
@@ -1723,7 +1713,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 		   pSiS->CRT2gamma = TRUE;
 		   if(!IsDHM) pSiS->CRT2SepGamma = TRUE;
 		   else {
-#ifdef SISDUALHEAD
 		      pSiS->CRT2SepGamma = FALSE;
 		      xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 				"CRT2Gamma values overrule default and Monitor Gamma\n");
@@ -1732,7 +1721,6 @@ SiSOptions(ScrnInfoPtr pScrn)
 			 pScrn->monitor->gamma.green = pSiS->GammaG2;
 			 pScrn->monitor->gamma.blue = pSiS->GammaB2;
 		      }
-#endif
 		   }
 		}
 	     }
@@ -2120,12 +2108,10 @@ SiSOptions(ScrnInfoPtr pScrn)
 	        if(SiS_EvalOneOrThreeFloats2(pScrn, OPTION_NEWSTOREDBRI2, newbriopt, strptr,
 				&pSiS->NewGammaBriR2, &pSiS->NewGammaBriG2, &pSiS->NewGammaBriB2)) {
 		   if(IsDHM) {
-#ifdef SISDUALHEAD
 		      if(GotNewBri) SiS_PrintOverruleDHM(pScrn, OPTION_NEWSTOREDBRI2, OPTION_NEWSTOREDBRI);
 		      pSiS->NewGammaBriR = pSiS->NewGammaBriR2;
 		      pSiS->NewGammaBriG = pSiS->NewGammaBriG2;
 		      pSiS->NewGammaBriB = pSiS->NewGammaBriB2;
-#endif
 	           } else pSiS->CRT2SepGamma = TRUE;
 	        }
 	        GotNewBri2 = TRUE;
@@ -2137,12 +2123,10 @@ SiSOptions(ScrnInfoPtr pScrn)
 	        if(SiS_EvalOneOrThreeFloats(pScrn, OPTION_STOREDBRI2, briopt, strptr,
 		    &pSiS->GammaBriR2, &pSiS->GammaBriG2, &pSiS->GammaBriB2)) {
 	           if(IsDHM) {
-#ifdef SISDUALHEAD
 		      if(GotOldBri) SiS_PrintOverruleDHM(pScrn, OPTION_STOREDBRI2, OPTION_STOREDBRI);
 		      pSiS->GammaBriR = pSiS->GammaBriR2;
 		      pSiS->GammaBriG = pSiS->GammaBriG2;
 		      pSiS->GammaBriB = pSiS->GammaBriB2;
-#endif
 	           } else pSiS->CRT2SepGamma = TRUE;
 	        }
 	     }
