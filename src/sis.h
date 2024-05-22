@@ -1159,9 +1159,6 @@ typedef struct {
     Atom		xvDisableGfx, xvDisableGfxLR, xvTVXPosition, xvTVYPosition;
     Atom		xvDisableColorkey, xvUseChromakey, xvChromaMin, xvChromaMax;
     Atom		xvInsideChromakey, xvYUVChromakey, xvVSync;
-#ifdef SISDEINT
-    Atom		xvdeintmeth;
-#endif
     Atom		xvGammaRed, xvGammaGreen, xvGammaBlue;
     int			xv_sisdirectunlocked;
     int			SiS76xLFBSize;

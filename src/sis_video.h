@@ -205,10 +205,6 @@ static char sisxvinsidechromakey[] 			= "XV_INSIDE_CHROMAKEY";
 static char sisxvyuvchromakey[] 			= "XV_YUV_CHROMAKEY";
 static char sisxvchromamin[] 				= "XV_CHROMAMIN";
 static char sisxvchromamax[] 				= "XV_CHROMAMAX";
-#ifdef SISDEINT
-static char sisxvdeinterlace[]				= "XV_OVERLAY_DEINTERLACING_METHOD";
-#endif
-
 static char sisxvvsync[]				= "XV_SYNC_TO_VBLANK";
 
 /***********************************************/
@@ -241,9 +237,6 @@ static XF86AttributeRec SISAttributes_300[] =
    {XvSettable | XvGettable, 0, 1,             sisxvyuvchromakey},
    {XvSettable | XvGettable, 0, (1 << 24) - 1, sisxvchromamin},
    {XvSettable | XvGettable, 0, (1 << 24) - 1, sisxvchromamax},
-#ifdef SISDEINT
-   {XvSettable | XvGettable, 0, 4,             sisxvdeinterlace},
-#endif
    {0                      , 0, 0,             NULL}
 };
 
@@ -268,9 +261,6 @@ static XF86AttributeRec SISAttributes_315[] =
    {XvSettable | XvGettable, 0, 1,             sisxvinsidechromakey},
    {XvSettable | XvGettable, 0, (1 << 24) - 1, sisxvchromamin},
    {XvSettable | XvGettable, 0, (1 << 24) - 1, sisxvchromamax},
-#ifdef SISDEINT
-   {XvSettable | XvGettable, 0, 4,             sisxvdeinterlace},
-#endif
    {XvSettable | XvGettable, 0, 1,             sisxvswitchcrt},
    {0                      , 0, 0,             NULL}
 };
@@ -283,6 +273,7 @@ static XF86AttributeRec SISAttributes_315[] =
 #define PIXEL_FMT_UYVY FOURCC_UYVY  /* 0x59565955 */
 #define PIXEL_FMT_YUY2 FOURCC_YUY2  /* 0x32595559 */
 #define PIXEL_FMT_I420 FOURCC_I420  /* 0x30323449 */
+
 #define PIXEL_FMT_RGB5 0x35315652
 #define PIXEL_FMT_RGB6 0x36315652
 #define PIXEL_FMT_YVYU 0x55595659   /* 315/330+ only */

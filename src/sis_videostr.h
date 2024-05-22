@@ -63,9 +63,6 @@ typedef struct {
     Bool         usechromakey;
     Bool	 insidechromakey, yuvchromakey;
     CARD32	 chromamin, chromamax;
-#ifdef SISDEINT
-    int		 deinterlacemethod;
-#endif
 
     CARD32       videoStatus;
     Bool	 overlayStatus;

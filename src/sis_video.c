@@ -955,9 +955,6 @@ SISSetupImageVideo(ScreenPtr pScreen)
     pSiS->xvYUVChromakey      = MAKE_ATOM(sisxvyuvchromakey);
     pSiS->xvChromaMin	      = MAKE_ATOM(sisxvchromamin);
     pSiS->xvChromaMax         = MAKE_ATOM(sisxvchromamax);
-#ifdef SISDEINT
-    pSiS->xvdeintmeth	      = MAKE_ATOM(sisxvdeinterlace);
-#endif
 
     pSiS->xv_sisdirectunlocked = 0;
 
@@ -1137,12 +1134,6 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
      pPriv->chromamin = value;
   } else if(attribute == pSiS->xvChromaMax) {
      pPriv->chromamax = value;
-#ifdef SISDEINT
-  } else if(attribute == pSiS->xvdeintmeth) {
-     if(value < 0) value = 0;
-     if(value > 4) value = 4;
-     pPriv->deinterlacemethod = value;
-#endif
   } else if(attribute == pSiS->xvHue) {
      if(pSiS->VGAEngine == SIS_315_VGA) {
         if((value < -8) || (value > 7)) return BadValue;
@@ -1230,10 +1221,6 @@ SISGetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
      *value = pPriv->chromamin;
   } else if(attribute == pSiS->xvChromaMax) {
      *value = pPriv->chromamax;
-#ifdef SISDEINT
-  } else if(attribute == pSiS->xvdeintmeth) {
-     *value = pPriv->deinterlacemethod;
-#endif
   } else if(attribute == pSiS->xvHue) {
      if(pSiS->VGAEngine == SIS_315_VGA) {
         *value = pPriv->hue;
@@ -2581,26 +2568,7 @@ SISDisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
       overlay.keyOP = VI_ROP_DestKey;
    }
 
-#ifdef SISDEINT
-   switch(pPriv->deinterlacemethod) {
-   case 1:
-      overlay.bobEnable = 0x02;
-      /* overlay.bobEnable |= (pPriv->currentBuf) ? 0x00 : 0x10; */
-      break;
-   case 2:
-      overlay.bobEnable = 0x08;
-      /* overlay.bobEnable |= (pPriv->currentBuf) ? 0x00 : 0x10; */
-      break;
-   case 3:
-      overlay.bobEnable = 0x0a;
-      /* overlay.bobEnable |= (pPriv->currentBuf) ? 0x00 : 0x10; */
-      break;
-   default:
-#endif
-      overlay.bobEnable = 0x00;    /* Disable BOB de-interlacer */
-#ifdef SISDEINT
-   }
-#endif
+   overlay.bobEnable = 0x00;    /* Disable BOB de-interlacer */
 
 #ifdef SISMERGED
    if(pSiS->MergedFB) {
@@ -3376,9 +3344,6 @@ SISPutImage(
    int myreds[] = { 0x000000ff, 0x0000f800, 0, 0x00ff0000 };
 #endif
    int totalSize = 0;
-#ifdef SISDEINT
-   Bool	deintfm = (pPriv->deinterlacemethod > 1) ? TRUE : FALSE;
-#endif
 
 #if 0
    xf86DrvMsg(0, X_INFO, "PutImage: src %dx%d-%dx%d, drw %dx%d-%dx%d, id %x, w %d h %d, buf %p\n",
@@ -3460,23 +3425,6 @@ SISPutImage(
    if(!(pPriv->bufAddr[0] = SISAllocateFBMemory(pScrn, &pPriv->handle, totalSize << 1)))
       return BadAlloc;
 
-#ifdef SISDEINT
-   if(deintfm) {
-      pPriv->bufAddr[1] = pPriv->bufAddr[0] + pPriv->srcPitch;
-
-      {
-         CARD8 *src = (CARD8 *)buf;
-         CARD8 *dest = (CARD8 *)(pSiS->FbBase + pPriv->bufAddr[pPriv->currentBuf]);
-         int i = height;
-         while(i--) {
-	    SiSMemCopyToVideoRam(pSiS, dest, src, pPriv->srcPitch);
-	    src += pPriv->srcPitch;
-	    dest += (pPriv->srcPitch << 1);
-         }
-      }
-
-   } else {
-#endif
       pPriv->bufAddr[1] = pPriv->bufAddr[0] + totalSize;
 
       /* copy data */
@@ -3493,9 +3441,6 @@ SISPutImage(
 	    *dest++ = *src++;
          }
       }
-#ifdef SISDEINT
-   }
-#endif
 
    SISDisplayVideo(pScrn, pPriv);
 
