@@ -3494,9 +3494,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     pSiS->SiSFastVidCopyFrom = SiSVidCopyGetDefault();
     pSiS->SiSFastMemCopyFrom = SiSVidCopyGetDefault();
     pSiS->SiSFastVidCopyDone = FALSE;
-#ifdef SIS_USE_XAA
-    pSiS->RenderCallback = NULL;
-#endif
 #ifdef SIS_USE_EXA
     pSiS->ExaRenderCallback = NULL;
 #endif
@@ -6688,16 +6685,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
     /* Load XAA/EXA (if needed) */
     if(!pSiS->NoAccel) {
-#ifdef SIS_USE_XAA
-       if(!pSiS->useEXA) {
-	  if (!xf86LoadSubModule(pScrn, "xaa")) {
-	      xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-			 "Falling back to shadowfb\n");
-	      pSiS->NoAccel = 1;
-	      pSiS->ShadowFB = 1;
-	  }
-       }
-#endif
 #ifdef SIS_USE_EXA
        if(pSiS->useEXA) {
 	  XF86ModReqInfo req;
@@ -7969,11 +7956,6 @@ SISBlockHandler(BLOCKHANDLER_ARGS_DECL)
        (*pSiS->VideoTimerCallback)(pScrn, currentTime.milliseconds);
     }
 
-#ifdef SIS_USE_XAA
-    if(pSiS->RenderCallback) {
-       (*pSiS->RenderCallback)(pScrn);
-    }
-#endif
 #ifdef SIS_USE_EXA
     if(pSiS->ExaRenderCallback) {
        (*pSiS->ExaRenderCallback)(pScrn);
@@ -9657,19 +9639,6 @@ SISCloseScreen(CLOSE_SCREEN_ARGS_DECL)
        xf86FreeInt10(pSiS->pInt);
        pSiS->pInt = NULL;
     }
-
-#ifdef SIS_USE_XAA
-    if(!pSiS->useEXA) {
-       if(pSiS->AccelLinearScratch) {
-          xf86FreeOffscreenLinear(pSiS->AccelLinearScratch);
-          pSiS->AccelLinearScratch = NULL;
-       }
-       if(pSiS->AccelInfoPtr) {
-          XAADestroyInfoRec(pSiS->AccelInfoPtr);
-          pSiS->AccelInfoPtr = NULL;
-       }
-    }
-#endif
 
 #ifdef SIS_USE_EXA
     if(pSiS->useEXA) {

@@ -147,23 +147,12 @@
 #define SIS_XINERAMA_MINOR_VERSION  1
 #endif
 
-#ifdef HAVE_XAA_H
-#define SIS_USE_XAA		/* Include code for XAA */
-#endif
-
 #if defined(SIS_HAVE_EXA) || (defined(USE_EXA) && (USE_EXA != 0))
 #define SIS_USE_EXA		/* Include code for EXA */
 #endif
 
 /* End of configurable stuff --------------------------------- */
 
-#if !defined(SIS_USE_XAA) && !defined(SIS_USE_EXA)
-#define SIS_USE_XAA
-#endif
-
-#ifdef SIS_USE_XAA
-#include "xaa.h"
-#endif
 #ifdef SIS_USE_EXA
 #include "exa.h"
 #endif
@@ -932,16 +921,6 @@ typedef struct {
     Bool		ClipEnabled;
     int			Xdirection;		/* for temp use in accel */
     int			Ydirection;		/* for temp use in accel */
-#ifdef SIS_USE_XAA
-    XAAInfoRecPtr	AccelInfoPtr;
-    UChar 		*XAAScanlineColorExpandBuffers[2];
-    Bool		DoColorExpand;
-    Bool		ColorExpandBusy;
-    int			xcurrent;		/* for temp use in accel */
-    int			ycurrent;		/* for temp use in accel */
-    int			sisPatternReg[4];
-    int			ROPReg;
-#endif
 #ifdef SIS_USE_EXA
     ExaDriverPtr	EXADriverPtr;
     int			fillPitch, fillBpp;
@@ -998,11 +977,6 @@ typedef struct {
     unsigned int	DRIheapstart, DRIheapend;
     Bool		NeedFlush;	/* Need to flush cmd buf mem (760) */
 
-#ifdef SIS_USE_XAA
-    void		(*RenderCallback)(ScrnInfoPtr);
-    Time		RenderTime;
-    FBLinearPtr		AccelLinearScratch;
-#endif
 #ifdef SIS_USE_EXA
     void		(*ExaRenderCallback)(ScrnInfoPtr);
     Time		ExaRenderTime;
