@@ -35,9 +35,6 @@
 
 #include "sis.h"
 
-#ifdef SIS_USE_XAA
-#include "xf86fbman.h"
-#endif
 #include "xf86xv.h"
 #include "regionstr.h"
 #include <X11/extensions/Xv.h>
