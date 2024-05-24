@@ -700,7 +700,3 @@ SiS315AccelInit(ScreenPtr pScreen)
 
 	return TRUE;
 }
-
-
-
-
