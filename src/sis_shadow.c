@@ -31,15 +31,6 @@
 #include "sis.h"
 #include "servermd.h"
 
-void SISPointerMoved(ScrnInfoPtr arg, int x, int y);
-void SISPointerMovedReflect(ScrnInfoPtr arg, int x, int y);
-void SISRefreshArea(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshAreaReflect(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshArea8(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshArea16(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshArea24(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshArea32(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-
 void
 SISPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 {
