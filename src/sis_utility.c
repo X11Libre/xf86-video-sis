@@ -259,7 +259,7 @@ extern UShort	SiS_CheckModeCRT1(ScrnInfoPtr pScrn, DisplayModePtr mode,
 				 unsigned int VBFlags, Bool hcm);
 extern UShort	SiS_CheckModeCRT2(ScrnInfoPtr pScrn, DisplayModePtr mode,
 				 unsigned int VBFlags, Bool hcm);
-extern void	SISAdjustFrame(ADJUST_FRAME_ARGS_DECL);
+extern void	SISAdjustFrame(ScrnInfoPtr pScrn, int x, int y);
 extern float	SiSCalcVRate(DisplayModePtr mode);
 extern void	SiS_UpdateGammaCRT2(ScrnInfoPtr pScrn);
 extern void	SISCalculateGammaRamp(ScreenPtr pScreen, ScrnInfoPtr pScrn);
@@ -388,12 +388,12 @@ SISSwitchCRT1Status(ScrnInfoPtr pScrn, int onoff, Bool quiet)
     (*pSiS->SyncAccel)(pScrn);
 
     pSiS->skipswitchcheck = TRUE;
-    if(!(pScrn->SwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode)))) {
+    if(!(pScrn->SwitchMode(pScrn, pScrn->currentMode))) {
        pSiS->skipswitchcheck = FALSE;
        return FALSE;
     }
     pSiS->skipswitchcheck = FALSE;
-    SISAdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    SISAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
     return TRUE;
 }
 
@@ -416,12 +416,12 @@ SISRedetectCRT2Devices(ScrnInfoPtr pScrn)
        /* Sync the accelerators */
        (*pSiS->SyncAccel)(pScrn);
        pSiS->skipswitchcheck = TRUE;
-       if(!(pScrn->SwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode)))) {
+       if(!(pScrn->SwitchMode(pScrn, pScrn->currentMode))) {
           pSiS->skipswitchcheck = FALSE;
           return FALSE;
        }
        pSiS->skipswitchcheck = FALSE;
-       SISAdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+       SISAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
     }
     return TRUE;
 }
@@ -542,12 +542,12 @@ SISSwitchCRT2Type(ScrnInfoPtr pScrn, ULong newvbflags, Bool quiet)
     pSiS->VBFlags = pSiS->VBFlags_backup = newvbflags;
 
     pSiS->skipswitchcheck = TRUE;
-    if(!(pScrn->SwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode)))) {
+    if(!(pScrn->SwitchMode(pScrn, pScrn->currentMode))) {
        pSiS->skipswitchcheck = FALSE;
        return FALSE;
     }
     pSiS->skipswitchcheck = FALSE;
-    SISAdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    SISAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
     return TRUE;
 }
 

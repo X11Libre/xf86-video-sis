@@ -34,19 +34,9 @@
 #include "sis.h"
 #include "servermd.h"
 
-void SISPointerMoved(SCRN_ARG_TYPE arg, int x, int y);
-void SISPointerMovedReflect(SCRN_ARG_TYPE arg, int x, int y);
-void SISRefreshArea(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshAreaReflect(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshArea8(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshArea16(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshArea24(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-void SISRefreshArea32(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
-
 void
-SISPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
+SISPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     SISPtr pSiS = SISPTR(pScrn);
 
     if(pSiS->Rotate == 1) {
@@ -57,9 +47,8 @@ SISPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
 }
 
 void
-SISPointerMovedReflect(SCRN_ARG_TYPE arg, int x, int y)
+SISPointerMovedReflect(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     SISPtr pSiS = SISPTR(pScrn);
 
     switch(pSiS->Reflect) {
