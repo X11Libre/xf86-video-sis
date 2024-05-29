@@ -984,7 +984,7 @@ typedef struct {
     CARD32		ColorExpandBase;
 
     int			Rotate, Reflect;
-    void		(*PointerMoved)(SCRN_ARG_TYPE arg, int x, int y);
+    void		(*PointerMoved)(ScrnInfoPtr pScrn, int x, int y);
 
     /* ShadowFB support */
     Bool		ShadowFB;

@@ -359,8 +359,8 @@ SIS_SetMode(
 	pScrn->currentMode = pSiS->CurrentLayout.mode;
 	pSiS->DGAactive = FALSE;
 
-	(*pScrn->SwitchMode)(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode));
-	(*pScrn->AdjustFrame)(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+	(*pScrn->SwitchMode)(pScrn, pScrn->currentMode);
+	(*pScrn->AdjustFrame)(pScrn, pScrn->frameX0, pScrn->frameY0);
 
     } else {	/* set new mode */
 
@@ -375,10 +375,10 @@ SIS_SetMode(
 	pSiS->CurrentLayout.displayWidth  = pMode->bytesPerScanline / (pMode->bitsPerPixel >> 3);
 	pSiS->CurrentLayout.displayHeight = pMode->imageHeight;
 
-	(*pScrn->SwitchMode)(SWITCH_MODE_ARGS(pScrn, pMode->mode));
+	(*pScrn->SwitchMode)(pScrn, pMode->mode);
 	/* Adjust viewport to 0/0 after mode switch */
 	/* This fixes the vmware-in-dualhead problems */
-	(*pScrn->AdjustFrame)(ADJUST_FRAME_ARGS(pScrn, 0, 0));
+	(*pScrn->AdjustFrame)(pScrn, 0, 0);
 	pSiS->CurrentLayout.DGAViewportX = pSiS->CurrentLayout.DGAViewportY = 0;
     }
 
@@ -402,7 +402,7 @@ SIS_SetViewport(
 ){
    SISPtr pSiS = SISPTR(pScrn);
 
-   (*pScrn->AdjustFrame)(ADJUST_FRAME_ARGS(pScrn, x, y));
+   (*pScrn->AdjustFrame)(pScrn, x, y);
    pSiS->DGAViewportStatus = 0;  /* There are never pending Adjusts */
    pSiS->CurrentLayout.DGAViewportX = x;
    pSiS->CurrentLayout.DGAViewportY = y;
