@@ -4005,7 +4005,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 			      biossize = 0x8000;
 			      break;
 	     }
-#if XSERVER_LIBPCIACCESS
+#ifdef XSERVER_LIBPCIACCESS
 	     if(readpci) {
 		pSiS->PciInfo->rom_size = biossize;
 		pci_device_read_rom(pSiS->PciInfo, pSiS->BIOS);

@@ -1704,7 +1704,7 @@ SiSVGAMapMem(ScrnInfoPtr pScrn)
     if(pSiS->VGAMapSize == 0) pSiS->VGAMapSize = (64 * 1024);
     if(pSiS->VGAMapPhys == 0) pSiS->VGAMapPhys = 0xA0000;
 
-#if XSERVER_LIBPCIACCESS
+#ifdef XSERVER_LIBPCIACCESS
     (void) pci_device_map_legacy(pSiS->PciInfo, pSiS->VGAMapPhys, pSiS->VGAMapSize,
                                  PCI_DEV_MAP_FLAG_WRITABLE, &pSiS->VGAMemBase);
 #else
@@ -1722,7 +1722,7 @@ SiSVGAUnmapMem(ScrnInfoPtr pScrn)
 
     if(pSiS->VGAMemBase == NULL) return;
 
-#if XSERVER_LIBPCIACCESS
+#ifdef XSERVER_LIBPCIACCESS
     (void) pci_device_unmap_legacy(pSiS->PciInfo, pSiS->VGAMemBase, pSiS->VGAMapSize);
 #else
     xf86UnMapVidMem(pScrn->scrnIndex, pSiS->VGAMemBase, pSiS->VGAMapSize);
