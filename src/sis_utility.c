@@ -1980,7 +1980,7 @@ SiSCtrlExtInit(ScrnInfoPtr pScrn)
 
    if(!(myext = CheckExtension(SISCTRL_PROTOCOL_NAME))) {
 
-      if(!(myctrl = calloc(sizeof(xSiSCtrlScreenTable), 1)))
+      if(!(myctrl = calloc(1, sizeof(xSiSCtrlScreenTable))))
          return;
 
       if(!(myext = AddExtension(SISCTRL_PROTOCOL_NAME, 0, 0,

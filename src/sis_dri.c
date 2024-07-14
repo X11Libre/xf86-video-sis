@@ -218,7 +218,7 @@ SISDRIScreenInit(ScreenPtr pScreen)
   pDRIInfo->SAREASize = SAREA_MAX;
 #endif
 
-  if(!(pSISDRI = (SISDRIPtr)calloc(sizeof(SISDRIRec), 1))) {
+  if(!(pSISDRI = (SISDRIPtr)calloc(1, sizeof(SISDRIRec)))) {
      DRIDestroyInfoRec(pSIS->pDRIInfo);
      pSIS->pDRIInfo = 0;
      return FALSE;
