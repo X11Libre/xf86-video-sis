@@ -4183,7 +4183,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	  pSiS->useEXA = pSiSEnt->useEXA;
 	  pSiS->TurboQueue = pSiSEnt->TurboQueue;
 	  pSiS->restorebyset = pSiSEnt->restorebyset;
-	  pSiS->AllowHotkey = pSiS->AllowHotkey;
+	  pSiS->AllowHotkey = pSiSEnt->AllowHotkey;
 	  pSiS->OptROMUsage = pSiSEnt->OptROMUsage;
 	  pSiS->OptUseOEM = pSiSEnt->OptUseOEM;
 	  pSiS->forceCRT1 = pSiSEnt->forceCRT1;
