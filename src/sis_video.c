@@ -350,9 +350,7 @@ SISInitVideo(ScreenPtr pScreen)
        xf86XVScreenInit(pScreen, adaptors, num_adaptors);
     }
 
-    if(newAdaptors) {
-       free(newAdaptors);
-    }
+    free(newAdaptors);
 }
 
 /*********************************

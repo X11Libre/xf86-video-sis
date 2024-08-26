@@ -184,8 +184,7 @@ void SIS6326InitVideo(ScreenPtr pScreen)
     if(num_adaptors)
 	xf86XVScreenInit(pScreen, adaptors, num_adaptors);
 
-    if(newAdaptors)
-	free(newAdaptors);
+    free(newAdaptors);
 }
 
 /* client libraries expect an encoding */

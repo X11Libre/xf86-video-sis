@@ -618,10 +618,8 @@ SISDRICloseScreen(ScreenPtr pScreen)
   DRICloseScreen(pScreen);
 
   if(pSIS->pDRIInfo) {
-     if(pSIS->pDRIInfo->devPrivate) {
-	free(pSIS->pDRIInfo->devPrivate);
-	pSIS->pDRIInfo->devPrivate = NULL;
-     }
+     free(pSIS->pDRIInfo->devPrivate);
+     pSIS->pDRIInfo->devPrivate = NULL;
      DRIDestroyInfoRec(pSIS->pDRIInfo);
      pSIS->pDRIInfo = NULL;
   }

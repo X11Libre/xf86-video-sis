@@ -1958,10 +1958,8 @@ SiSCtrlResetProc(ExtensionEntry* extEntry)
      * which is why we must not use pSiS->SiSCtrlExtEntry
      * in SiSCtrlExtUnregister())
      */
-    if(extEntry->extPrivate) {
-       free(extEntry->extPrivate);
-       extEntry->extPrivate = NULL;
-    }
+    free(extEntry->extPrivate);
+    extEntry->extPrivate = NULL;
 }
 
 void
