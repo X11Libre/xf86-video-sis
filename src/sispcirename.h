@@ -33,7 +33,7 @@
 
 enum region_type {
     REGION_MEM,
-    REGION_IO 
+    REGION_IO
 };
 
 #include "xf86Module.h"

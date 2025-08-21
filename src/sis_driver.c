@@ -1508,7 +1508,7 @@ SiSGenerateModeListFromMetaModes(ScrnInfoPtr pScrn, char* str,
         }
 
     } while(*(str++) != 0);
-     
+
     return result;
 }
 

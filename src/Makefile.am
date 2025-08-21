@@ -76,5 +76,5 @@ sis_drv_la_SOURCES = \
 if DRI
 sis_drv_la_SOURCES += \
          sis_dri.c \
-         sis_dri.h 
+         sis_dri.h
 endif

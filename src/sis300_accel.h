@@ -295,13 +295,13 @@
                 CmdQueLen--;
 
 
-/* Set Pattern register */    
+/* Set Pattern register */
 #define SiSSetPattern(num, value) \
       if (CmdQueLen <= 0)  SiSIdle; \
       SIS_MMIO_OUT32(pSiS->IOBase, (PATTERN_REG + (num * 4)), value); \
       CmdQueLen--;
 
-            
+
 /* 3D stuff (used for RENDER) */
 
 /*
@@ -1036,7 +1036,7 @@
 #define RGB_REPLACE__A_STAGE1		0xa3230000
 #define RGBA_REPLACE__RGB_STAGE1	0xe1485000
 #define RGBA_REPLACE__A_STAGE1		0xe3230000
-	
+
 #define A_MODULATE_RGB_STAGE1		0xa1485000
 #define A_MODULATE_A_STAGE1		0xa3e30000
 #define L_MODULATE__RGB_STAGE1		0xa1785000
@@ -1066,7 +1066,7 @@
 #define RGB_BLEND__RGB_STAGE1		0x45394001
 #define RGB_BLEND__A_STAGE1		0xa3230000
 #define RGBA_BLEND__RGB_STAGE1		0x45394001
-#define RGBA_BLEND__A_STAGE1		0xa3e30000     
+#define RGBA_BLEND__A_STAGE1		0xa3e30000
 
 
 #define INIT_6327_CapsEnable            0x00000080
@@ -1180,5 +1180,5 @@ do{ \
       CmdQueLen = (SIS_MMIO_IN16(pSiS->IOBase, 0x8240) & pSiS->CmdQueLenMask) - pSiS->CmdQueLenFix; \
   } \
   CmdQueLen -= (int)(wLen); \
-} while(0) 
+} while(0)
 
