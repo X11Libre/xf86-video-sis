@@ -188,7 +188,7 @@ sis_pci_read_host_bridge_u8(int offset)
 {
     return sis_pci_read_device_u8(0, offset);
 }
-   
+
 static int sisESSPresent(ScrnInfoPtr pScrn)
 {
   int flags = 0;
@@ -219,13 +219,13 @@ static int sisESSPresent(ScrnInfoPtr pScrn)
 
   id_iterator = pci_id_match_iterator_create(&id_match);
 
-  ess137x = pci_device_next(id_iterator);  
+  ess137x = pci_device_next(id_iterator);
   while (ess137x) {
       if ((ess137x->device_id == 0x5000) ||
 	  ((ess137x->device_id & 0xfff0) == 0x1370)) {
 	  flags |= ESS137xPRESENT;
       }
-      ess137x = pci_device_next(id_iterator);  
+      ess137x = pci_device_next(id_iterator);
   }
   return flags;
 #endif
