@@ -49,6 +49,7 @@
 
 #include "sis.h"
 
+#include "extinit.h"
 #include "dixstruct.h"
 #include "shadowfb.h"
 #include "fb.h"
