@@ -118,12 +118,10 @@ SiSSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn,
 	   dstbase = pSiS->scrnOffset * dst_y;
 	   dst_y = 0;
 	}
-#ifdef SISDUALHEAD
 	if(pSiS->VGAEngine != SIS_530_VGA) {
 	   srcbase += HEADOFFSET;
 	   dstbase += HEADOFFSET;
 	}
-#endif
 	SiSSetupSRCBase(srcbase);
 	SiSSetupDSTBase(dstbase);
 
@@ -171,11 +169,9 @@ SiSSubsequentSolidFillRect(ScrnInfoPtr pScrn,
 	   dstbase = pSiS->scrnOffset * y;
 	   y = 0;
 	}
-#ifdef SISDUALHEAD
         if(pSiS->VGAEngine != SIS_530_VGA) {
 	   dstbase += HEADOFFSET;
         }
-#endif
 	SiSSetupDSTBase(dstbase)
 	SiSSetupDSTXY(x,y)
 	SiSSetupRect(w,h)
