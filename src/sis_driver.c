@@ -181,8 +181,6 @@ static PciChipsets XGIPciChipsets[] = {
     { -1,                   -1,                 RES_UNDEFINED }
 };
 
-#ifdef XFree86LOADER
-
 static MODULESETUPPROTO(sisSetup);
 
 static XF86ModuleVersionInfo sisVersRec =
@@ -215,8 +213,6 @@ sisSetup(pointer module, pointer opts, int *errmaj, int *errmin)
     if(errmaj) *errmaj = LDR_ONCEONLY;
     return NULL;
 }
-
-#endif /* XFree86LOADER */
 
 /* Mandatory */
 static void

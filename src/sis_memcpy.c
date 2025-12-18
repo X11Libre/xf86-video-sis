@@ -842,9 +842,7 @@ static char *SiS_GetCPUFreq(ScrnInfoPtr pScrn, char *buf, double *cpuFreq)
 
 #ifdef SISCHECKOSSSE
 
-#ifndef XFree86LOADER
 #include <setjmp.h>
-#endif
 
 static jmp_buf sigill_return;
 
