@@ -46,10 +46,6 @@
 #  include "xf86drmCompat.h"
 #endif
 
-#ifndef XSERVER_LIBPCIACCESS
-extern char *DRICreatePCIBusID(pciVideoPtr PciInfo);
-#endif
-
 #include "sis_common.h"
 
 #ifndef DRIINFO_MAJOR_VERSION

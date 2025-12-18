@@ -434,16 +434,6 @@ SISProbe(DriverPtr drv, int flags)
      * All of the cards this driver supports are PCI, so the "probing" just
      * amounts to checking the PCI data that the server has already collected.
      */
-#ifndef XSERVER_LIBPCIACCESS
-    if(xf86GetPciVideoInfo() == NULL) {
-       /*
-        * We won't let anything in the config file override finding no
-        * PCI video cards at all.
-        */
-       return FALSE;
-    }
-#endif
-
     numUsedSiS = xf86MatchPciInstances(SIS_NAME, PCI_VENDOR_SIS,
 			SISChipsets, SISPciChipsets, devSections,
 			numDevSections, drv, &usedChipsSiS);
@@ -3145,12 +3135,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     pSiS->PciDevice = PCI_CFG_DEV(pSiS->PciInfo); /*SIS_PCI_DEVICE(pSiS->PciInfo);*/
     pSiS->PciFunc = PCI_CFG_FUNC(pSiS->PciInfo);  /*SIS_PCI_FUNC(pSiS->PciInfo);*/
 
-#ifndef XSERVER_LIBPCIACCESS
-    pSiS->PciTag = pciTag(PCI_DEV_BUS(pSiS->PciInfo),
-			  PCI_DEV_DEV(pSiS->PciInfo),
-			  PCI_DEV_FUNC(pSiS->PciInfo));
-#endif
-
     /* Set up i/o port access (for non-x86) */
 #ifdef SISUSEDEVPORT
     if((sisdevport = open("/dev/port", O_RDWR, 0)) == -1) {
@@ -3417,38 +3401,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
      * linear (PCI) video RAM instead.
      */
     SiS_MapVGAMem(pScrn);
-#endif
-
-#ifndef XSERVER_LIBPCIACCESS
-    /* Set operating state */
-
-    /* 1. memory */
-    /* [ResUnusedOpr: Resource decoded by hw, but not used]
-     * [ResDisableOpr: Resource is not decoded by hw]
-     * So, if a0000 memory decoding is disabled, one could
-     * argue that we may say so, too. Hm. Quite likely that
-     * the VBE (via int10) will eventually enable it. So we
-     * cowardly say unused instead.
-     */
-    xf86SetOperatingState(resVgaMem, pSiS->pEnt->index, ResUnusedOpr);
-
-    /* 2. i/o */
-    /* Although we only use the relocated i/o ports, the hardware
-     * also decodes the standard VGA port range. This could in
-     * theory be disabled, but I don't dare to do this; in case of
-     * a server crash, the card would be entirely dead. Also, this
-     * would prevent int10 and the VBE from working at all. Generic
-     * access control through the PCI configuration registers does
-     * nicely anyway.
-     */
-    xf86SetOperatingState(resVgaIo, pSiS->pEnt->index, ResUnusedOpr);
-
-    /* Operations for which memory access is required */
-    pScrn->racMemFlags = RAC_FB | RAC_COLORMAP | RAC_CURSOR | RAC_VIEWPORT;
-
-    /* Operations for which I/O access is required */
-    pScrn->racIoFlags = RAC_COLORMAP | RAC_CURSOR | RAC_VIEWPORT;
-
 #endif
 
     /* Load ramdac module */
@@ -3738,9 +3690,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
        if(pSiSEnt) pSiSEnt->SiS_Pr = pSiS->SiS_Pr;
 #endif
        memset(pSiS->SiS_Pr, 0, sizeof(struct SiS_Private));
-#ifndef XSERVER_LIBPCIACCESS
-       pSiS->SiS_Pr->PciTag = pSiS->PciTag;
-#endif
        pSiS->SiS_Pr->ChipType = pSiS->ChipType;
        pSiS->SiS_Pr->ChipRevision = pSiS->ChipRev;
        pSiS->SiS_Pr->SiS_Backup70xx = 0xff;
@@ -3971,7 +3920,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 			      biossize = 0x8000;
 			      break;
 	     }
-#ifdef XSERVER_LIBPCIACCESS
 	     if(readpci) {
 		pSiS->PciInfo->rom_size = biossize;
 		pci_device_read_rom(pSiS->PciInfo, pSiS->BIOS);
@@ -3979,27 +3927,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 		   found = TRUE;
 		}
 	     }
-#else
-	     if(readpci) {
-		xf86ReadPciBIOS(0, pSiS->PciTag, 0, pSiS->BIOS, biossize);
-		if(SISCheckBIOS(pSiS, mypciid, mypcivendor, biossize)) {
-		   found = TRUE;
-		}
-	     }
-
-	     if(!found) {
-	        ULong  segstart;
-		for(segstart = BIOS_BASE; segstart < 0x000f0000; segstart += 0x00001000) {
-
-		   if(xf86ReadDomainMemory(pSiS->PciTag, segstart, biossize, pSiS->BIOS) != biossize) continue;
-
-		   if(!SISCheckBIOS(pSiS, mypciid, mypcivendor, biossize)) continue;
-
-		   found = TRUE;
-		   break;
-		}
-             }
-#endif
 	     if(found) {
 		UShort romptr = pSiS->BIOS[0x16] | (pSiS->BIOS[0x17] << 8);
 		pSiS->SiS_Pr->VirtualRomBase = pSiS->BIOS;
@@ -4282,19 +4209,6 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
     }
     xf86DrvMsg(pScrn->scrnIndex, from, "MMIO registers at 0x%lX (size %ldK)\n",
 	   (ULong)pSiS->IOAddress, pSiS->mmioSize);
-
-#ifndef XSERVER_LIBPCIACCESS
-    /* Register the PCI-assigned resources */
-    if(xf86RegisterResources(pSiS->pEnt->index, NULL, ResExclusive)) {
-       SISErrorLog(pScrn, "PCI resource conflicts detected\n");
-#ifdef SISDUALHEAD
-       if(pSiSEnt) pSiSEnt->ErrorAfterFirst = TRUE;
-#endif
-       if(pSiS->pInt) xf86FreeInt10(pSiS->pInt);
-       SISFreeRec(pScrn);
-       return FALSE;
-    }
-#endif
 
     from = X_PROBED;
     if(pSiS->pEnt->device->videoRam != 0) {
@@ -6781,9 +6695,6 @@ static Bool
 SISMapMem(ScrnInfoPtr pScrn)
 {
     SISPtr pSiS = SISPTR(pScrn);
-#ifndef XSERVER_LIBPCIACCESS
-    int mmioFlags = VIDMEM_MMIO;
-#endif
 #ifdef SISDUALHEAD
     SISEntPtr pSiSEnt = pSiS->entityPrivate;
 #endif
@@ -6793,21 +6704,11 @@ SISMapMem(ScrnInfoPtr pScrn)
      * (For Alpha, we need to map SPARSE memory, since we need
      * byte/short access.)
      */
-#ifndef XSERVER_LIBPCIACCESS
-#if defined(__alpha__)
-    mmioFlags |= VIDMEM_SPARSE;
-#endif
-#endif
-
 #ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) {
         pSiSEnt->MapCountIOBase++;
         if(!(pSiSEnt->IOBase)) {
 	     /* Only map if not mapped previously */
-#ifndef XSERVER_LIBPCIACCESS
-    	     pSiSEnt->IOBase = xf86MapPciMem(pScrn->scrnIndex, mmioFlags,
-                         pSiS->PciTag, pSiS->IOAddress, (pSiS->mmioSize * 1024));
-#else
 	     void **result = (void **)&pSiSEnt->IOBase;
 	     int err = pci_device_map_range(pSiS->PciInfo,
  	                                    pSiS->IOAddress,
@@ -6820,15 +6721,10 @@ SISMapMem(ScrnInfoPtr pScrn)
                              "Unable to map IO aperture. %s (%d)\n",
                              strerror (err), err);
 	     }
-#endif
         }
         pSiS->IOBase = pSiSEnt->IOBase;
     } else
 #endif
-#ifndef XSERVER_LIBPCIACCESS
-    	pSiS->IOBase = xf86MapPciMem(pScrn->scrnIndex, mmioFlags,
-                        pSiS->PciTag, pSiS->IOAddress, (pSiS->mmioSize * 1024));
-#else
        {
 	     void **result = (void **)&pSiS->IOBase;
 	     int err = pci_device_map_range(pSiS->PciInfo,
@@ -6843,7 +6739,6 @@ SISMapMem(ScrnInfoPtr pScrn)
                              strerror (err), err);
 	     }
        }
-#endif
 
     if(pSiS->IOBase == NULL) {
     	SISErrorLog(pScrn, "Could not map MMIO area\n");
@@ -6860,10 +6755,6 @@ SISMapMem(ScrnInfoPtr pScrn)
         pSiSEnt->MapCountIOBaseDense++;
         if(!(pSiSEnt->IOBaseDense)) {
 	     /* Only map if not mapped previously */
-#ifndef XSERVER_LIBPCIACCESS
-	     pSiSEnt->IOBaseDense = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_MMIO,
-                    pSiS->PciTag, pSiS->IOAddress, (pSiS->mmioSize * 1024));
-#else
 	     void **result = (void **)&pSiSEnt->IOBaseDense;
 	     int err = pci_device_map_range(pSiS->PciInfo,
  	                                    pSiS->IOAddress,
@@ -6876,15 +6767,10 @@ SISMapMem(ScrnInfoPtr pScrn)
                              "Unable to map IO dense aperture. %s (%d)\n",
                              strerror (err), err);
 	     }
-#endif /* XSERVER_LIBPCIACCESS */
 	}
 	pSiS->IOBaseDense = pSiSEnt->IOBaseDense;
     } else {
 #endif /* SISDUALHEAD */
-#ifndef XSERVER_LIBPCIACCESS
-	     pSiS->IOBaseDense = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_MMIO,
-                    pSiS->PciTag, pSiS->IOAddress, (pSiS->mmioSize * 1024));
-#else
 	     void **result = (void **)&pSiS->IOBaseDense;
 	     int err = pci_device_map_range(pSiS->PciInfo,
  	                                    pSiS->IOAddress,
@@ -6897,7 +6783,6 @@ SISMapMem(ScrnInfoPtr pScrn)
                              "Unable to map IO dense aperture. %s (%d)\n",
                              strerror (err), err);
 	     }
-#endif /* XSERVER_LIBPCIACCESS */
 #ifdef SISDUALHEAD
     }
 #endif
@@ -6912,12 +6797,6 @@ SISMapMem(ScrnInfoPtr pScrn)
 	pSiSEnt->MapCountFbBase++;
 	if(!(pSiSEnt->FbBase)) {
 	     /* Only map if not mapped previously */
-#ifndef XSERVER_LIBPCIACCESS
-	     pSiSEnt->FbBase = pSiSEnt->RealFbBase =
-			xf86MapPciMem(pScrn->scrnIndex, VIDMEM_FRAMEBUFFER,
-			 pSiS->PciTag, (ULong)pSiS->realFbAddress,
-			 pSiS->FbMapSize);
-#else
          int err = pci_device_map_range(pSiS->PciInfo,
                                    (ULong)pSiS->realFbAddress,
                                    pSiS->FbMapSize,
@@ -6931,7 +6810,6 @@ SISMapMem(ScrnInfoPtr pScrn)
             return FALSE;
         }
 	pSiSEnt->RealFbBase = pSiSEnt->FbBase;
-#endif
 	}
 	pSiS->FbBase = pSiS->RealFbBase = pSiSEnt->FbBase;
 	/* Adapt FbBase (for DHM and SiS76x UMA skipping; dhmOffset is 0 otherwise) */
@@ -6939,12 +6817,6 @@ SISMapMem(ScrnInfoPtr pScrn)
     } else {
 #endif
 
-#ifndef XSERVER_LIBPCIACCESS
-      pSiS->FbBase = pSiS->RealFbBase =
-			xf86MapPciMem(pScrn->scrnIndex, VIDMEM_FRAMEBUFFER,
-			 pSiS->PciTag, (ULong)pSiS->realFbAddress,
-			 pSiS->FbMapSize);
-#else
          int err = pci_device_map_range(pSiS->PciInfo,
                                    (ULong)pSiS->realFbAddress,
                                    pSiS->FbMapSize,
@@ -6958,7 +6830,6 @@ SISMapMem(ScrnInfoPtr pScrn)
             return FALSE;
         }
 	pSiS->RealFbBase = pSiS->FbBase;
-#endif
 	pSiS->FbBase += pSiS->dhmOffset;
 
 #ifdef SISDUALHEAD
@@ -6998,11 +6869,7 @@ SISUnmapMem(ScrnInfoPtr pScrn)
         if(pSiSEnt->MapCountIOBase) {
 	    pSiSEnt->MapCountIOBase--;
 	    if((pSiSEnt->MapCountIOBase == 0) || (pSiSEnt->forceUnmapIOBase)) {
-#ifndef XSERVER_LIBPCIACCESS
-		xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pSiSEnt->IOBase, (pSiS->mmioSize * 1024));
-#else
 	        pci_device_unmap_range(pSiS->PciInfo, pSiSEnt->IOBase, (pSiS->mmioSize * 1024));
-#endif
 		pSiSEnt->IOBase = NULL;
 		pSiSEnt->MapCountIOBase = 0;
 		pSiSEnt->forceUnmapIOBase = FALSE;
@@ -7013,11 +6880,7 @@ SISUnmapMem(ScrnInfoPtr pScrn)
 	if(pSiSEnt->MapCountIOBaseDense) {
 	    pSiSEnt->MapCountIOBaseDense--;
 	    if((pSiSEnt->MapCountIOBaseDense == 0) || (pSiSEnt->forceUnmapIOBaseDense)) {
-#ifndef XSERVER_LIBPCIACCESS
-		xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pSiSEnt->IOBaseDense, (pSiS->mmioSize * 1024));
-#else
 		pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiSEnt->IOBaseDense, (pSiS->mmioSize * 1024));
-#endif
 		pSiSEnt->IOBaseDense = NULL;
 		pSiSEnt->MapCountIOBaseDense = 0;
 		pSiSEnt->forceUnmapIOBaseDense = FALSE;
@@ -7028,11 +6891,7 @@ SISUnmapMem(ScrnInfoPtr pScrn)
 	if(pSiSEnt->MapCountFbBase) {
 	    pSiSEnt->MapCountFbBase--;
 	    if((pSiSEnt->MapCountFbBase == 0) || (pSiSEnt->forceUnmapFbBase)) {
-#ifndef XSERVER_LIBPCIACCESS
-		xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pSiSEnt->RealFbBase, pSiS->FbMapSize);
-#else
 		pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiSEnt->RealFbBase, pSiS->FbMapSize);
-#endif
 		pSiSEnt->FbBase = pSiSEnt->RealFbBase = NULL;
 		pSiSEnt->MapCountFbBase = 0;
 		pSiSEnt->forceUnmapFbBase = FALSE;
@@ -7042,25 +6901,13 @@ SISUnmapMem(ScrnInfoPtr pScrn)
 	}
     } else {
 #endif
-#ifndef XSERVER_LIBPCIACCESS
-	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pSiS->IOBase, (pSiS->mmioSize * 1024));
-#else
 	pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiS->IOBase, (pSiS->mmioSize * 1024));
-#endif
 	pSiS->IOBase = NULL;
 #ifdef __alpha__
-#ifndef XSERVER_LIBPCIACCESS
-	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pSiS->IOBaseDense, (pSiS->mmioSize * 1024));
-#else
 	pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiS->IOBaseDense, (pSiS->mmioSize * 1024));
-#endif
 	pSiS->IOBaseDense = NULL;
 #endif
-#ifndef XSERVER_LIBPCIACCESS
-	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pSiS->RealFbBase, pSiS->FbMapSize);
-#else
 	pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiS->RealFbBase, pSiS->FbMapSize);
-#endif
 	pSiS->FbBase = pSiS->RealFbBase = NULL;
 #ifdef SISDUALHEAD
     }
@@ -13415,11 +13262,6 @@ UChar
 SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, UShort offset, UChar value)
 {
     UChar ret = 0;
-#ifndef XSERVER_LIBPCIACCESS
-#ifdef SIS_USE_BIOS_SCRATCH
-    UChar *base;
-#endif
-#endif
 
     /* For some reasons (like detecting the current display mode),
      * we need to read (or write-back) values from the BIOS
@@ -13441,26 +13283,6 @@ SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, UShort offset, UChar value)
        break;
     }
 
-#ifndef XSERVER_LIBPCIACCESS
-#ifdef SIS_USE_BIOS_SCRATCH
-    if(SISPTR(pScrn)->Primary) {
-       base = xf86MapVidMem(pScrn->scrnIndex, VIDMEM_MMIO, 0, 0x2000);
-       if(!base) {
-          SISErrorLog(pScrn, "(Could not map BIOS scratch area)\n");
-          return ret;
-       }
-
-       ret = *(base + offset);
-
-       /* value != 0xff means: set register */
-       if(value != 0xff) {
-          *(base + offset) = value;
-       }
-
-       xf86UnMapVidMem(pScrn->scrnIndex, base, 0x2000);
-    }
-#endif
-#endif
     return ret;
 }
 

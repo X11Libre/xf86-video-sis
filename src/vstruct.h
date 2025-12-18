@@ -236,9 +236,6 @@ struct SiS_Private
 {
 	unsigned char			ChipType;
 	unsigned char			ChipRevision;
-#ifndef XSERVER_LIBPCIACCESS
-	PCITAG				PciTag;
-#endif
 	unsigned char 			*VirtualRomBase;
 	BOOLEAN				UseROM;
 	SISIOADDRESS			IOAddress;

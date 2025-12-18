@@ -94,7 +94,6 @@ static const struct _sis6326mclk {
 	{134, 0, 0x4a, 0xa3 }
 };
 
-#ifdef XSERVER_LIBPCIACCESS
 static struct pci_device *
 sis_get_device (int device)
 {
@@ -144,36 +143,6 @@ sis_pci_write_host_bridge_u8(int offset, unsigned char value)
     pci_device_cfg_write_u8(host_bridge, value, offset);
 }
 
-#else
-unsigned long
-sis_pci_read_device_u32(int device, int offset)
-{
-    PCITAG tag = pciTag(0, device, 0);
-    return pciReadLong(tag, offset);
-}
-
-unsigned char
-sis_pci_read_device_u8(int device, int offset)
-{
-    PCITAG tag = pciTag(0, device, 0);
-    return pciReadByte(tag, offset);
-}
-
-void
-sis_pci_write_host_bridge_u32(int offset, unsigned long value)
-{
-    pciWriteLong(0x00000000, offset, value);
-}
-
-void
-sis_pci_write_host_bridge_u8(int offset, unsigned char value)
-{
-    pciWriteByte(0x00000000, offset, value);
-}
-
-
-#endif
-
 unsigned long
 sis_pci_read_host_bridge_u32(int offset)
 {
@@ -189,24 +158,6 @@ sis_pci_read_host_bridge_u8(int offset)
 static int sisESSPresent(ScrnInfoPtr pScrn)
 {
   int flags = 0;
-#ifndef XSERVER_LIBPCIACCESS
-  int i;
-  pciConfigPtr pdptr, *systemPCIdevices = NULL;
-
-  if((systemPCIdevices = xf86GetPciConfigInfo())) {
-      i = 0;
-      while((pdptr = systemPCIdevices[i])) {
-	  if((pdptr->pci_vendor == 0x1274) &&
-	     ((pdptr->pci_device == 0x5000) ||
-	      ((pdptr->pci_device & 0xFFF0) == 0x1370))) {
-	      flags |= ESS137xPRESENT;
-	      break;
-	  }
-	  i++;
-      }
-  }
-  return flags;
-#else
   struct pci_id_match id_match = { 0x1274, PCI_MATCH_ANY,
 				   PCI_MATCH_ANY, PCI_MATCH_ANY,
 				   PCI_MATCH_ANY, PCI_MATCH_ANY,
@@ -225,7 +176,6 @@ static int sisESSPresent(ScrnInfoPtr pScrn)
       ess137x = pci_device_next(id_iterator);
   }
   return flags;
-#endif
 }
 
 /* For old chipsets, 5597, 6326, 530/620 */
