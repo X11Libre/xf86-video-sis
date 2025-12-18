@@ -53,10 +53,7 @@
  * Formerly based on non-functional code-fragements for 300 series by SiS, Inc.
  * Used by permission.
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "init.h"
 #include "sis_dac.h"

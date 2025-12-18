@@ -91,10 +91,7 @@
  * video if the destination area is bigger than the video.
  *
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "sis.h"
 #include "regionstr.h"

@@ -29,10 +29,7 @@
  *	      Can-Ru Yeou, SiS Inc.
  *
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #if 0
 #define DEBUG

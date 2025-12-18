@@ -54,10 +54,7 @@
  * Used by permission.
  *
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "init301.h"
 #include "oem300.h"

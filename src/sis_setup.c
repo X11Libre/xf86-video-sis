@@ -30,10 +30,7 @@
  * Ideas and methods for old series based on code by Can-Ru Yeou, SiS Inc.
  *
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "sis.h"
 #define SIS_NEED_inSISREGW

@@ -30,10 +30,7 @@
  * Idea based on code by Can-Ru Yeou, SiS Inc.
  *
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "sis.h"
 

@@ -31,10 +31,7 @@
  * 2003/08/18: Rewritten for using VRAM command queue
  *
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "sis.h"
 #define SIS_NEED_MYMMIO
