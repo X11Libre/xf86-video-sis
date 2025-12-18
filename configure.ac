@@ -81,9 +81,9 @@ if test "$DRI" != no; then
                AC_CHECK_FILE([${sdkdir}/dristruct.h],
                              [have_dristruct_h="yes"], [have_dristruct_h="no"])
         else
-		have_dri_h="yes"
-		have_sarea_h="yes"
-		have_dristruct_h="yes"
+            have_dri_h="yes"
+            have_sarea_h="yes"
+            have_dristruct_h="yes"
         fi
 fi
 
@@ -114,9 +114,5 @@ XORG_CFLAGS="$XORG_CFLAGS $PCIACCESS_CFLAGS"
 
 AC_SUBST([moduledir])
 
-AC_CONFIG_FILES([
-                Makefile
-                src/Makefile
-                man/Makefile
-])
+AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 AC_OUTPUT
