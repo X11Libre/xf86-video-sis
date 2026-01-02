@@ -31,8 +31,8 @@
 #include "sis.h"
 #include "servermd.h"
 
-void SISPointerMoved(SCRN_ARG_TYPE arg, int x, int y);
-void SISPointerMovedReflect(SCRN_ARG_TYPE arg, int x, int y);
+void SISPointerMoved(ScrnInfoPtr arg, int x, int y);
+void SISPointerMovedReflect(ScrnInfoPtr arg, int x, int y);
 void SISRefreshArea(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void SISRefreshAreaReflect(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void SISRefreshArea8(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
@@ -41,33 +41,31 @@ void SISRefreshArea24(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void SISRefreshArea32(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 
 void
-SISPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
+SISPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     SISPtr pSiS = SISPTR(pScrn);
 
     if(pSiS->Rotate == 1) {
-       (*pSiS->PointerMoved)(arg, pScrn->pScreen->height - y - 1, x);
+       (*pSiS->PointerMoved)(pScrn, pScrn->pScreen->height - y - 1, x);
     } else {
-       (*pSiS->PointerMoved)(arg, y, pScrn->pScreen->width - x - 1);
+       (*pSiS->PointerMoved)(pScrn, y, pScrn->pScreen->width - x - 1);
     }
 }
 
 void
-SISPointerMovedReflect(SCRN_ARG_TYPE arg, int x, int y)
+SISPointerMovedReflect(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     SISPtr pSiS = SISPTR(pScrn);
 
     switch(pSiS->Reflect) {
     case 1: /* x */
-       (*pSiS->PointerMoved)(arg, pScrn->pScreen->width - x - 1, y);
+       (*pSiS->PointerMoved)(pScrn, pScrn->pScreen->width - x - 1, y);
        break;
     case 2: /* y */
-       (*pSiS->PointerMoved)(arg, x, pScrn->pScreen->height - y - 1);
+       (*pSiS->PointerMoved)(pScrn, x, pScrn->pScreen->height - y - 1);
        break;
     case 3: /* x + y */
-       (*pSiS->PointerMoved)(arg, pScrn->pScreen->width - x - 1, pScrn->pScreen->height - y - 1);
+       (*pSiS->PointerMoved)(pScrn, pScrn->pScreen->width - x - 1, pScrn->pScreen->height - y - 1);
     }
 }
 
