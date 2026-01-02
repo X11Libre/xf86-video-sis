@@ -1540,20 +1540,20 @@ struct _SISFB_INFO {
 static void SISIdentify(int flags);
 static Bool SISProbe(DriverPtr drv, int flags);
 static Bool SISPreInit(ScrnInfoPtr pScrn, int flags);
-static Bool SISScreenInit(SCREEN_INIT_ARGS_DECL);
-static Bool SISEnterVT(VT_FUNC_ARGS_DECL);
-static void SISLeaveVT(VT_FUNC_ARGS_DECL);
-static Bool SISCloseScreen(CLOSE_SCREEN_ARGS_DECL);
+static Bool SISScreenInit(ScreenPtr pScreen, int argc, char **argv);
+static Bool SISEnterVT(ScrnInfoPtr arg);
+static void SISLeaveVT(ScrnInfoPtr arg);
+static Bool SISCloseScreen(ScreenPtr pScreen);
 static Bool SISSaveScreen(ScreenPtr pScreen, int mode);
-static Bool SISSwitchMode(SWITCH_MODE_ARGS_DECL);
-void	    SISAdjustFrame(ADJUST_FRAME_ARGS_DECL);
+static Bool SISSwitchMode(ScrnInfoPtr arg, DisplayModePtr mode);
+void	    SISAdjustFrame(ScrnInfoPtr arg, int x, int y);
 
 /* Optional functions */
 #ifdef SISDUALHEAD
 static Bool 	  SISSaveScreenDH(ScreenPtr pScreen, int mode);
 #endif
-static void       SISFreeScreen(FREE_SCREEN_ARGS_DECL);
-static ModeStatus SISValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode,
+static void       SISFreeScreen(ScrnInfoPtr arg);
+static ModeStatus SISValidMode(ScrnInfoPtr arg, DisplayModePtr mode,
 				Bool verbose, int flags);
 
 /* Internally used functions */
@@ -1584,7 +1584,7 @@ UShort         SiS_CheckModeCRT2(ScrnInfoPtr pScrn, DisplayModePtr mode,
 				 unsigned int VBFlags, Bool hcm);
 
 static Bool    InRegion(int x, int y, region r);
-static void    SISMergedPointerMoved(SCRN_ARG_TYPE arg, int x, int y);
+static void    SISMergedPointerMoved(ScrnInfoPtr arg, int x, int y);
 Bool           SiSBridgeIsInSlaveMode(ScrnInfoPtr pScrn);
 UShort	       SiS_GetModeNumber(ScrnInfoPtr pScrn, DisplayModePtr mode, unsigned int VBFlags);
 UChar  	       SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, UShort offset, UChar value);
@@ -1608,8 +1608,8 @@ extern void 	SiSVGAUnmapMem(ScrnInfoPtr pScrn);
 extern Bool 	SiSVGASaveScreen(ScreenPtr pScreen, int mode);
 
 /* shadow */
-extern void 	SISPointerMoved(SCRN_ARG_TYPE arg, int x, int y);
-extern void 	SISPointerMovedReflect(SCRN_ARG_TYPE arg, int x, int y);
+extern void 	SISPointerMoved(ScrnInfoPtr arg, int x, int y);
+extern void 	SISPointerMovedReflect(ScrnInfoPtr arg, int x, int y);
 extern void 	SISRefreshArea(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 extern void 	SISRefreshAreaReflect(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 extern void 	SISRefreshArea8(ScrnInfoPtr pScrn, int num, BoxPtr pbox);

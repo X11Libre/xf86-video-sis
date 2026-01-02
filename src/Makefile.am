@@ -31,7 +31,6 @@ sis_drv_ladir = @moduledir@/drivers
 sis_drv_la_SOURCES = \
          300vtbl.h \
          310vtbl.h \
-         compat-api.h \
          init.c \
          init.h \
          init301.c \

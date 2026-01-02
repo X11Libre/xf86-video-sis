@@ -157,8 +157,6 @@
 #include "extnsionst.h" 			/* required */
 #include <X11/extensions/panoramiXproto.h> 	/* required */
 
-#include "compat-api.h"
-
 #undef SISCHECKOSSSE
 // xf86InterceptSigIll() is discontinued in xorg-server 1.20
 #if (XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(1,19,99,1,0))
@@ -986,7 +984,7 @@ typedef struct {
     CARD32		ColorExpandBase;
 
     int			Rotate, Reflect;
-    void		(*PointerMoved)(SCRN_ARG_TYPE arg, int x, int y);
+    void		(*PointerMoved)(ScrnInfoPtr arg, int x, int y);
 
     /* ShadowFB support */
     Bool		ShadowFB;
