@@ -1405,7 +1405,7 @@ SiSVGASaveFonts(ScrnInfoPtr pScrn)
 {
 #ifdef SIS_PC_PLATFORM
     SISPtr pSiS = SISPTR(pScrn);
-    pointer vgaMemBase = pSiS->VGAMemBase;
+    void *vgaMemBase = pSiS->VGAMemBase;
     UChar miscOut, attr10, gr4, gr5, gr6, seq2, seq4, scrn;
 
     if((pSiS->fonts) || (vgaMemBase == NULL)) return;
@@ -1533,7 +1533,7 @@ SiSVGARestoreFonts(ScrnInfoPtr pScrn)
 {
 #ifdef SIS_PC_PLATFORM
     SISPtr pSiS = SISPTR(pScrn);
-    pointer vgaMemBase = pSiS->VGAMemBase;
+    void *vgaMemBase = pSiS->VGAMemBase;
     UChar miscOut, attr10, gr1, gr3, gr4, gr5, gr6, gr8, seq2, seq4, scrn;
 
     if((!pSiS->fonts) || (vgaMemBase == NULL)) return;

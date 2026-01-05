@@ -98,14 +98,14 @@
 #include "sis_videostr.h"
 
 static		XF86VideoAdaptorPtr SISSetupImageVideo(ScreenPtr);
-static void 	SISStopVideo(ScrnInfoPtr, pointer, Bool);
-static int 	SISSetPortAttribute(ScrnInfoPtr, Atom, INT32, pointer);
-static int 	SISGetPortAttribute(ScrnInfoPtr, Atom ,INT32 *, pointer);
+static void 	SISStopVideo(ScrnInfoPtr, void*, Bool);
+static int 	SISSetPortAttribute(ScrnInfoPtr, Atom, INT32, void*);
+static int 	SISGetPortAttribute(ScrnInfoPtr, Atom ,INT32 *, void*);
 static void 	SISQueryBestSize(ScrnInfoPtr, Bool, short, short, short,
-			short, unsigned int *,unsigned int *, pointer);
+			short, unsigned int *,unsigned int *, void*);
 static int 	SISPutImage( ScrnInfoPtr,
 			short, short, short, short, short, short, short, short,
-			int, UChar *, short, short, Bool, RegionPtr, pointer,
+			int, UChar *, short, short, Bool, RegionPtr, void*,
 			DrawablePtr);
 static int 	SISQueryImageAttributes(ScrnInfoPtr,
 			int, UShort *, UShort *, int *, int *);

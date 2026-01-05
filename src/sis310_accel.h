@@ -225,7 +225,7 @@
 #define SiSFlushCmdBuf  \
   if(pSiS->NeedFlush) { \
      CARD32 ttt = ((SiSGetSwWP()) - 4) & pSiS->cmdQueueSizeMask;	\
-     pointer tt = (char *)pSiS->cmdQueueBase + ttt; 			\
+     void *tt = (char *)pSiS->cmdQueueBase + ttt; 			\
      dummybuf = SIS_RQINDEX(0);						\
   }
 
@@ -296,7 +296,7 @@
 #define SiSSetupSRCDSTBase(srcbase,dstbase) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_ADDR); \
 	 SIS_WQINDEX(1) = (CARD32)(srcbase); 			\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + DST_ADDR); \
@@ -308,7 +308,7 @@
 #define SiSSetupSRCDSTXY(sx,sy,dx,dy) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_Y); 	\
 	 SIS_WQINDEX(1) = (CARD32)(((sx)<<16) | (sy));		\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + DST_Y); 	\
@@ -320,7 +320,7 @@
 #define SiSSetupDSTXYRect(x,y,w,h) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + DST_Y); 		\
 	 SIS_WQINDEX(1) = (CARD32)(((x)<<16) | (y));	 		\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + RECT_WIDTH); 	\
@@ -332,7 +332,7 @@
 #define SiSSetupSRCPitchDSTRect(pitch,x,y) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_PITCH); 	\
 	 SIS_WQINDEX(1) = (CARD32)(pitch);				\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + DST_PITCH); 	\
@@ -344,7 +344,7 @@
 #define SiSSetupSRCBase(base) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_ADDR); 	\
 	 SIS_WQINDEX(1) = (CARD32)(base); 				\
 	 SiSNILandUpdateSWQueue \
@@ -353,7 +353,7 @@
 #define SiSSetupSRCPitch(pitch) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_PITCH); 	\
 	 SIS_WQINDEX(1) = (CARD32)(pitch);				\
 	 SiSNILandUpdateSWQueue \
@@ -362,7 +362,7 @@
 #define SiSSetupSRCXY(x,y) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_Y); 	\
 	 SIS_WQINDEX(1) = (CARD32)(((x)<<16) | (y));		\
 	 SiSNILandUpdateSWQueue \
@@ -371,7 +371,7 @@
 #define SiSSetupDSTBase(base) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + DST_ADDR); 	\
 	 SIS_WQINDEX(1) = (CARD32)(base);				\
 	 SiSNILandUpdateSWQueue \
@@ -380,7 +380,7 @@
 #define SiSSetupDSTXY(x,y) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + DST_Y); 	\
 	 SIS_WQINDEX(1) = (CARD32)(((x)<<16) | (y));	 	\
 	 SiSNILandUpdateSWQueue \
@@ -389,7 +389,7 @@
 #define SiSSetupDSTRect(x,y) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + DST_PITCH); 	\
 	 SIS_WQINDEX(1) = (CARD32)(((y)<<16) | (x));		\
 	 SiSNILandUpdateSWQueue \
@@ -398,7 +398,7 @@
 #define SiSSetupDSTRectBurstHeader(x,y,reg,num) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + DST_PITCH);	\
 	 SIS_WQINDEX(1) = (CARD32)(((y)<<16) | (x));			\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_BURST_HEADER0 + reg); 		\
@@ -413,7 +413,7 @@
 #define SiSSetupPATFGDSTRect(color,x,y) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + PAT_FGCOLOR); 	\
 	 SIS_WQINDEX(1) = (CARD32)(color);	 			\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + DST_PITCH); 	\
@@ -425,7 +425,7 @@
 #define SiSSetupSRCFGDSTRect(color,x,y) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_FGCOLOR); 	\
 	 SIS_WQINDEX(1) = (CARD32)(color);	 			\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + DST_PITCH); 	\
@@ -437,7 +437,7 @@
 #define SiSSetupRectSRCPitch(w,h,pitch) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + RECT_WIDTH); 	\
 	 SIS_WQINDEX(1) = (CARD32)(((h)<<16) | (w));			\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + SRC_PITCH); 	\
@@ -449,7 +449,7 @@
 #define SiSSetupRect(w,h) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + RECT_WIDTH); 	\
 	 SIS_WQINDEX(1) = (CARD32)(((h)<<16) | (w));			\
 	 SiSNILandUpdateSWQueue \
@@ -458,7 +458,7 @@
 #define SiSSetupPATFG(color) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + PAT_FGCOLOR); 	\
 	 SIS_WQINDEX(1) = (CARD32)(color);	 			\
 	 SiSNILandUpdateSWQueue \
@@ -467,7 +467,7 @@
 #define SiSSetupPATBG(color) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + PAT_BGCOLOR);	\
 	 SIS_WQINDEX(1) = (CARD32)(color);	 			\
 	 SiSNILandUpdateSWQueue \
@@ -476,7 +476,7 @@
 #define SiSSetupSRCFG(color) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_FGCOLOR);	\
 	 SIS_WQINDEX(1) = (CARD32)(color);	 			\
 	 SiSNILandUpdateSWQueue \
@@ -485,7 +485,7 @@
 #define SiSSetupSRCBG(color) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + SRC_BGCOLOR);	\
 	 SIS_WQINDEX(1) = (CARD32)(color);	 			\
 	 SiSNILandUpdateSWQueue \
@@ -494,7 +494,7 @@
 #define SiSSetupSRCTrans(color) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + TRANS_SRC_KEY_HIGH);	\
 	 SIS_WQINDEX(1) = (CARD32)(color);	 				\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + TRANS_SRC_KEY_LOW);	\
@@ -506,7 +506,7 @@
 #define SiSSetupDSTTrans(color) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + TRANS_DST_KEY_HIGH);	\
 	 SIS_WQINDEX(1) = (CARD32)(color);	 				\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + TRANS_DST_KEY_LOW);	\
@@ -518,7 +518,7 @@
 #define SiSSetupMONOPAT(p0,p1) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + MONO_MASK);		\
 	 SIS_WQINDEX(1) = (CARD32)(p0);	 				\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + MONO_MASK + 4);	\
@@ -530,7 +530,7 @@
 #define SiSSetupClip(left,top,right,bottom) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + LEFT_CLIP);	\
 	 SIS_WQINDEX(1) = (CARD32)(((left) & 0xFFFF) | ((top)<<16));   	\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + RIGHT_CLIP);	\
@@ -542,7 +542,7 @@
 #define SiSSetupDSTBaseDoCMD(base) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + DST_ADDR); 	\
 	 SIS_WQINDEX(1) = (CARD32)(base);				\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + COMMAND_READY);	\
@@ -555,7 +555,7 @@
 #define SiSSetRectDoCMD(w,h) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + RECT_WIDTH); 	\
 	 SIS_WQINDEX(1) = (CARD32)(((h)<<16) | (w));	 		\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + COMMAND_READY);	\
@@ -571,7 +571,7 @@
 #define SiSDoCMD \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + COMMAND_READY);	\
 	 SIS_WQINDEX(1) = (CARD32)(pSiS->CommandReg); 			\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_NIL_CMD); 			\
@@ -585,7 +585,7 @@
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
 	 CARD32 _tmp = SIS_MMIO_IN32(pSiS->IOBase, FIRE_TRIGGER) & ~(1 << 10);	\
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + FIRE_TRIGGER);	\
 	 SIS_WQINDEX(1) = (CARD32)(_tmp | ((disable & 1) << 10)); 	\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_NIL_CMD); 			\
@@ -600,7 +600,7 @@
 #define SiSSetupX0Y0X1Y1(x1,y1,x2,y2) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + LINE_X0);	\
 	 SIS_WQINDEX(1) = (CARD32)(((y1)<<16) | (x1)); 		\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + LINE_X1);	\
@@ -612,7 +612,7 @@
 #define SiSSetupX0Y0(x,y) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + LINE_X0);	\
 	 SIS_WQINDEX(1) = (CARD32)(((y)<<16) | (x)); 		\
 	 SiSNILandUpdateSWQueue \
@@ -621,7 +621,7 @@
 #define SiSSetupX1Y1(x,y) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + LINE_X1);	\
 	 SIS_WQINDEX(1) = (CARD32)(((y)<<16) | (x)); 		\
 	 SiSNILandUpdateSWQueue \
@@ -630,7 +630,7 @@
 #define SiSSetupLineCountPeriod(c, p) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + LINE_COUNT);	\
 	 SIS_WQINDEX(1) = (CARD32)(((p) << 16) | (c)); 			\
 	 SiSNILandUpdateSWQueue \
@@ -639,7 +639,7 @@
 #define SiSSetupStyle(ls,hs) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + LINE_STYLE_0);	\
 	 SIS_WQINDEX(1) = (CARD32)(ls);					\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + LINE_STYLE_1);	\
@@ -653,7 +653,7 @@
 #define SiSSetupYHLR(y,h,left,right) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + TRAP_YH);	\
 	 SIS_WQINDEX(1) = (CARD32)(((y)<<16) | (h)); 		\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + TRAP_LR);	\
@@ -666,7 +666,7 @@
 #define SiSSetupdLdR(dxL,dyL,fxR,dyR) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + TRAP_DL);	\
 	 SIS_WQINDEX(1) = (CARD32)(((dyL)<<16) | (dxL)); 	\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + TRAP_DR);	\
@@ -678,7 +678,7 @@
 #define SiSSetupELER(eL,eR) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + TRAP_EL);	\
 	 SIS_WQINDEX(1) = (CARD32)(eL);	 			\
 	 SIS_WQINDEX(2) = (CARD32)(SIS_SPKC_HEADER + TRAP_ER);	\
@@ -692,7 +692,7 @@
 #define SiSSetupAlpha(alpha) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + ALPHA_ALPHA);	\
 	 SIS_WQINDEX(1) = (CARD32)(alpha);	 			\
 	 SiSNILandUpdateSWQueue \
@@ -701,7 +701,7 @@
 #define SiSSetPattern(num, value) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(SIS_SPKC_HEADER + (PATTERN_REG + (num * 4)));	\
 	 SIS_WQINDEX(1) = (CARD32)(value); 						\
 	 SiSNILandUpdateSWQueue \
@@ -710,7 +710,7 @@
 #define SiSSetupPatternRegBurst(pat1, pat2, pat3, pat4) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(pat1);		\
 	 SIS_WQINDEX(1) = (CARD32)(pat2);		\
 	 SIS_WQINDEX(2) = (CARD32)(pat3);		\
@@ -753,7 +753,7 @@ typedef struct _SiS_Packet12_YUV {
 #define SiSWritePacketPart(part1, part2, part3, part4) \
       { \
 	 CARD32 ttt = SiSGetSwWP(); \
-	 pointer tt = (char *)pSiS->cmdQueueBase + ttt; \
+	 void *tt = (char *)pSiS->cmdQueueBase + ttt; \
 	 SIS_WQINDEX(0) = (CARD32)(part1);	\
 	 SIS_WQINDEX(1) = (CARD32)(part2);	\
 	 SIS_WQINDEX(2) = (CARD32)(part3);	\

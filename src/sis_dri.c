@@ -177,7 +177,7 @@ SISDRIScreenInit(ScreenPtr pScreen)
 #if DRIINFO_MAJOR_VERSION <= 4
   pDRIInfo->frameBufferPhysicalAddress = pSIS->realFbAddress;
 #else
-  pDRIInfo->frameBufferPhysicalAddress = (pointer)pSIS->realFbAddress;
+  pDRIInfo->frameBufferPhysicalAddress = pSIS->realFbAddress;
 #endif
   pDRIInfo->frameBufferSize = pSIS->FbMapSize;
 

@@ -57,14 +57,14 @@
 #define WATCHDOG_DELAY  500000 /* Watchdog counter for Vertical Restrace waiting */
 
 static 		XF86VideoAdaptorPtr SIS6326SetupImageVideo(ScreenPtr);
-static void 	SIS6326StopVideo(ScrnInfoPtr, pointer, Bool);
-static int 	SIS6326SetPortAttribute(ScrnInfoPtr, Atom, INT32, pointer);
-static int 	SIS6326GetPortAttribute(ScrnInfoPtr, Atom ,INT32 *, pointer);
+static void 	SIS6326StopVideo(ScrnInfoPtr, void*, Bool);
+static int 	SIS6326SetPortAttribute(ScrnInfoPtr, Atom, INT32, void*);
+static int 	SIS6326GetPortAttribute(ScrnInfoPtr, Atom ,INT32 *, void*);
 static void 	SIS6326QueryBestSize(ScrnInfoPtr, Bool, short, short, short,
-			short, unsigned int *,unsigned int *, pointer);
+			short, unsigned int *,unsigned int *, void*);
 static int 	SIS6326PutImage( ScrnInfoPtr,
 			short, short, short, short, short, short, short, short,
-			int, unsigned char*, short, short, Bool, RegionPtr, pointer,
+			int, unsigned char*, short, short, Bool, RegionPtr, void*,
 			DrawablePtr);
 static int 	SIS6326QueryImageAttributes(ScrnInfoPtr,
 			int, unsigned short *, unsigned short *, int *, int *);
@@ -536,7 +536,7 @@ SIS6326SetupImageVideo(ScreenPtr pScreen)
 
     pPriv = (SISPortPrivPtr)(&adapt->pPortPrivates[1]);
 
-    adapt->pPortPrivates[0].ptr = (pointer)(pPriv);
+    adapt->pPortPrivates[0].ptr = pPriv;
     adapt->pAttributes = SIS6326Attributes;
     adapt->nAttributes = NUM_ATTRIBUTES;
     if(pSiS->NoYV12 == 1) {
@@ -584,7 +584,7 @@ SIS6326SetupImageVideo(ScreenPtr pScreen)
 
 static int
 SIS6326SetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
-		    INT32 value, pointer data)
+		    INT32 value, void *data)
 {
   SISPortPrivPtr pPriv = (SISPortPrivPtr)data;
 
@@ -618,7 +618,7 @@ SIS6326GetPortAttribute(
   ScrnInfoPtr pScrn,
   Atom attribute,
   INT32 *value,
-  pointer data
+  void *data
 ){
   SISPortPrivPtr pPriv = (SISPortPrivPtr)data;
 
@@ -643,7 +643,7 @@ SIS6326QueryBestSize(
   short vid_w, short vid_h,
   short drw_w, short drw_h,
   unsigned int *p_w, unsigned int *p_h,
-  pointer data
+  void *data
 ){
   *p_w = drw_w;
   *p_h = drw_h;
@@ -1143,7 +1143,7 @@ SIS6326DisplayVideo(ScrnInfoPtr pScrn, SISPortPrivPtr pPriv)
 }
 
 static void
-SIS6326StopVideo(ScrnInfoPtr pScrn, pointer data, Bool shutdown)
+SIS6326StopVideo(ScrnInfoPtr pScrn, void *data, Bool shutdown)
 {
   SISPortPrivPtr pPriv = (SISPortPrivPtr)data;
   SISPtr pSiS = SISPTR(pScrn);
@@ -1179,7 +1179,7 @@ SIS6326PutImage(
   int id, unsigned char* buf,
   short width, short height,
   Bool sync,
-  RegionPtr clipBoxes, pointer data,
+  RegionPtr clipBoxes, void *data,
   DrawablePtr pDraw
 ){
    SISPtr pSiS = SISPTR(pScrn);
@@ -1433,7 +1433,7 @@ SIS6326AllocSurface (
     surface->id      = id;
     surface->pitches = &pPriv->pitch;
     surface->offsets = &pPriv->offset;
-    surface->devPrivate.ptr = (pointer)pPriv;
+    surface->devPrivate.ptr = pPriv;
 
     close_overlay(pSiS, pPriv);
     pPriv->videoStatus = 0;
@@ -1479,7 +1479,7 @@ SIS6326GetSurfaceAttribute (
 {
     SISPortPrivPtr pPriv = GET_PORT_PRIVATE(pScrn);
 
-    return SIS6326GetPortAttribute(pScrn, attribute, value, (pointer)pPriv);
+    return SIS6326GetPortAttribute(pScrn, attribute, value, pPriv);
 }
 
 static int
@@ -1491,7 +1491,7 @@ SIS6326SetSurfaceAttribute(
 {
     SISPortPrivPtr pPriv = GET_PORT_PRIVATE(pScrn);;
 
-    return SIS6326SetPortAttribute(pScrn, attribute, value, (pointer)pPriv);
+    return SIS6326SetPortAttribute(pScrn, attribute, value, pPriv);
 }
 
 static int
