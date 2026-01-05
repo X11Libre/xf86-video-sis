@@ -199,15 +199,15 @@ static XF86ModuleVersionInfo sisVersRec =
 
 _X_EXPORT XF86ModuleData sisModuleData = { &sisVersRec, sisSetup, NULL };
 
-pointer
-sisSetup(pointer module, pointer opts, int *errmaj, int *errmin)
+void *
+sisSetup(void *module, void *opts, int *errmaj, int *errmin)
 {
     static Bool setupDone = FALSE;
 
     if(!setupDone) {
        setupDone = TRUE;
        xf86AddDriver(&SIS, module, 0);
-       return (pointer)TRUE;
+       return (void*)TRUE;
     }
 
     if(errmaj) *errmaj = LDR_ONCEONLY;
@@ -6151,7 +6151,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
      */
     {
        int minpitch, maxpitch, minheight, maxheight;
-       pointer backupddc = pScrn->monitor->DDC;
+       void *backupddc = pScrn->monitor->DDC;
 
        minpitch = 256;
        minheight = 128;
@@ -6364,7 +6364,7 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
     if(pSiS->MergedFB) {
 
-       pointer backupddc;
+       void *backupddc;
 
        crt2freqoverruled = FALSE;
 
@@ -6880,7 +6880,7 @@ SISUnmapMem(ScrnInfoPtr pScrn)
 	if(pSiSEnt->MapCountIOBaseDense) {
 	    pSiSEnt->MapCountIOBaseDense--;
 	    if((pSiSEnt->MapCountIOBaseDense == 0) || (pSiSEnt->forceUnmapIOBaseDense)) {
-		pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiSEnt->IOBaseDense, (pSiS->mmioSize * 1024));
+		pci_device_unmap_range(pSiS->PciInfo, pSiSEnt->IOBaseDense, (pSiS->mmioSize * 1024));
 		pSiSEnt->IOBaseDense = NULL;
 		pSiSEnt->MapCountIOBaseDense = 0;
 		pSiSEnt->forceUnmapIOBaseDense = FALSE;
@@ -6891,7 +6891,7 @@ SISUnmapMem(ScrnInfoPtr pScrn)
 	if(pSiSEnt->MapCountFbBase) {
 	    pSiSEnt->MapCountFbBase--;
 	    if((pSiSEnt->MapCountFbBase == 0) || (pSiSEnt->forceUnmapFbBase)) {
-		pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiSEnt->RealFbBase, pSiS->FbMapSize);
+		pci_device_unmap_range(pSiS->PciInfo, pSiSEnt->RealFbBase, pSiS->FbMapSize);
 		pSiSEnt->FbBase = pSiSEnt->RealFbBase = NULL;
 		pSiSEnt->MapCountFbBase = 0;
 		pSiSEnt->forceUnmapFbBase = FALSE;
@@ -6901,13 +6901,13 @@ SISUnmapMem(ScrnInfoPtr pScrn)
 	}
     } else {
 #endif
-	pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiS->IOBase, (pSiS->mmioSize * 1024));
+	pci_device_unmap_range(pSiS->PciInfo, pSiS->IOBase, (pSiS->mmioSize * 1024));
 	pSiS->IOBase = NULL;
 #ifdef __alpha__
-	pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiS->IOBaseDense, (pSiS->mmioSize * 1024));
+	pci_device_unmap_range(pSiS->PciInfo, pSiS->IOBaseDense, (pSiS->mmioSize * 1024));
 	pSiS->IOBaseDense = NULL;
 #endif
-	pci_device_unmap_range(pSiS->PciInfo, (pointer)pSiS->RealFbBase, pSiS->FbMapSize);
+	pci_device_unmap_range(pSiS->PciInfo, pSiS->RealFbBase, pSiS->FbMapSize);
 	pSiS->FbBase = pSiS->RealFbBase = NULL;
 #ifdef SISDUALHEAD
     }
@@ -6987,7 +6987,7 @@ SISVESASaveRestore(ScrnInfoPtr pScrn, vbeSaveRestoreFunction function)
        SiSVGASaveFonts(pScrn);
 
        if(pSiS->vesamajor > 1) {
-	  if(!VBESaveRestore(pSiS->pVbe, function, (pointer)&pSiS->state,
+	  if(!VBESaveRestore(pSiS->pVbe, function, &pSiS->state,
 				&pSiS->stateSize, &pSiS->statePage)) {
 	     return;
 	  }
@@ -7002,7 +7002,7 @@ SISVESASaveRestore(ScrnInfoPtr pScrn, vbeSaveRestoreFunction function)
 	     memcpy(pSiS->state, pSiS->pstate, pSiS->stateSize);
 	  }
 
-	  if(VBESaveRestore(pSiS->pVbe,function,(pointer)&pSiS->state,
+	  if(VBESaveRestore(pSiS->pVbe,function,&pSiS->state,
 			    &pSiS->stateSize,&pSiS->statePage) &&
 	     (function == MODE_SAVE)) {
 	     /* don't rely on the memory not being touched */
@@ -7713,7 +7713,7 @@ SISBridgeRestore(ScrnInfoPtr pScrn)
 
 /* Our BlockHandler */
 static void
-SISBlockHandler(ScreenPtr pScreen, pointer pTimeout)
+SISBlockHandler(ScreenPtr pScreen, void *pTimeout)
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     SISPtr pSiS = SISPTR(pScrn);

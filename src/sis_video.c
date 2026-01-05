@@ -887,7 +887,7 @@ SISSetupImageVideo(ScreenPtr pScreen)
        pPriv->havetapscaler = TRUE;
     }
 
-    adapt->pPortPrivates[0].ptr = (pointer)(pPriv);
+    adapt->pPortPrivates[0].ptr = pPriv;
     if(pSiS->VGAEngine == SIS_300_VGA) {
        adapt->nImages = NUM_IMAGES_300;
        adapt->pAttributes = SISAttributes_300;
@@ -1046,7 +1046,7 @@ SISUpdateVideoParms(SISPtr pSiS, SISPortPrivPtr pPriv)
 
 static int
 SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
-		    INT32 value, pointer data)
+		    INT32 value, void *data)
 {
   SISPortPrivPtr pPriv = (SISPortPrivPtr)data;
   SISPtr pSiS = SISPTR(pScrn);
@@ -1173,7 +1173,7 @@ SISSetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 
 static int
 SISGetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
-			INT32 *value, pointer data)
+			INT32 *value, void *data)
 {
   SISPortPrivPtr pPriv = (SISPortPrivPtr)data;
   SISPtr pSiS = SISPTR(pScrn);
@@ -1255,7 +1255,7 @@ SISQueryBestSize(
   short vid_w, short vid_h,
   short drw_w, short drw_h,
   unsigned int *p_w, unsigned int *p_h,
-  pointer data
+  void *data
 ){
   *p_w = drw_w;
   *p_h = drw_h;
@@ -3111,7 +3111,7 @@ SISAllocateFBMemory(
 	 *handle = NULL;
       }
 
-      if(!(area = exaOffscreenAlloc(pScreen, bytesize, 8, TRUE, SiSDestroyArea, (pointer)handle))) {
+      if(!(area = exaOffscreenAlloc(pScreen, bytesize, 8, TRUE, SiSDestroyArea, handle))) {
 	 xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 	           "Xv: Failed to allocate %d bytes of video memory\n", bytesize);
 	 return 0;
@@ -3148,7 +3148,7 @@ SISFreeFBMemory(ScrnInfoPtr pScrn, void **handle)
  *********************************/
 
 static void
-SISStopVideo(ScrnInfoPtr pScrn, pointer data, Bool shutdown)
+SISStopVideo(ScrnInfoPtr pScrn, void *data, Bool shutdown)
 {
   SISPortPrivPtr pPriv = (SISPortPrivPtr)data;
   SISPtr pSiS = SISPTR(pScrn);
@@ -3188,7 +3188,7 @@ SISPutImage(
   int id, UChar *buf,
   short width, short height,
   Bool sync,
-  RegionPtr clipBoxes, pointer data,
+  RegionPtr clipBoxes, void *data,
   DrawablePtr pDraw
 ){
    SISPtr pSiS = SISPTR(pScrn);
@@ -3433,7 +3433,7 @@ SISAllocSurface (
     surface->id      = id;
     surface->pitches = &pPriv->pitch;
     surface->offsets = &pPriv->offset;
-    surface->devPrivate.ptr = (pointer)pPriv;
+    surface->devPrivate.ptr = pPriv;
 
     close_overlay(pSiS, pPriv);
     pPriv->videoStatus = 0;
@@ -3479,7 +3479,7 @@ SISGetSurfaceAttribute (
 {
     SISPortPrivPtr pPriv = GET_PORT_PRIVATE(pScrn);
 
-    return SISGetPortAttribute(pScrn, attribute, value, (pointer)pPriv);
+    return SISGetPortAttribute(pScrn, attribute, value, pPriv);
 }
 
 static int
@@ -3491,7 +3491,7 @@ SISSetSurfaceAttribute(
 {
     SISPortPrivPtr pPriv = GET_PORT_PRIVATE(pScrn);;
 
-    return SISSetPortAttribute(pScrn, attribute, value, (pointer)pPriv);
+    return SISSetPortAttribute(pScrn, attribute, value, pPriv);
 }
 
 static int
