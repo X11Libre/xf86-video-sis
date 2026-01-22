@@ -34,6 +34,7 @@
 #define _SIS_H_
 
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <math.h>
 #include <setjmp.h>
@@ -734,7 +735,7 @@ typedef struct {
     ULong		masterFbSize;
     ULong		slaveFbAddress;
     ULong		slaveFbSize;
-    void		*FbBase;         	/* VRAM linear address */
+    uint8_t		*FbBase;         	/* VRAM linear address */
     UChar		*RealFbBase;         	/* Real VRAM linear address (for DHM, SiS76x UMA skipping) */
     void		*IOBase;         	/* MMIO linear address */
     UShort		MapCountIOBase;		/* map/unmap queue counter */
@@ -834,12 +835,12 @@ typedef struct {
     int			hasTwoOverlays;	/* Chipset supports two video overlays? */
     struct SiS_Private	*SiS_Pr;	/* For mode switching code */
     int			DSTN;		/* For 550 FSTN/DSTN; set by option, no detection */
-    ULong		FbAddress;	/* VRAM physical address (in DHM: for each Fb!) */
-    ULong		realFbAddress;	/* For DHM/PCI mem mapping: store global FBAddress */
-    void 		*FbBase;	/* VRAM virtual linear address */
+    pciaddr_t		FbAddress;	/* VRAM physical address (in DHM: for each Fb!) */
+    pciaddr_t		realFbAddress;	/* For DHM/PCI mem mapping: store global FBAddress */
+    uint8_t 		*FbBase;	/* VRAM virtual linear address */
     void 		*RealFbBase;	/* Real VRAM virtual linear address (for DHM and SiS76x UMA skipping) */
     CARD32		IOAddress;	/* MMIO physical address */
-    void		*IOBase;	/* MMIO linear address */
+    uint8_t		*IOBase;	/* MMIO linear address */
 #ifdef __alpha__
     void		*IOBaseDense;	/* MMIO for Alpha platform */
 #endif
@@ -1031,7 +1032,7 @@ typedef struct {
     int			mapPhys, mapOff, mapSize;
     int			statePage, stateSize, stateMode;
     CARD8		*fonts;
-    CARD8		*state, *pstate;
+    void		*state, *pstate;
     void		*base, *VGAbase;
 #ifdef SISDUALHEAD
     Bool		DualHeadMode;		/* TRUE if we use dual head mode */
