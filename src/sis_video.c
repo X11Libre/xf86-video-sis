@@ -3275,12 +3275,12 @@ SISPutImage(
    if(!(pPriv->bufAddr[0] = SISAllocateFBMemory(pScrn, &pPriv->handle, totalSize << 1)))
       return BadAlloc;
 
-      pPriv->bufAddr[1] = pPriv->bufAddr[0] + totalSize;
+   pPriv->bufAddr[1] = pPriv->bufAddr[0] + totalSize;
 
-      /* copy data */
-      if((pSiS->XvUseMemcpy) || (totalSize < 16)) {
+   /* copy data */
+   if((pSiS->XvUseMemcpy) || (totalSize < 16)) {
          SiSMemCopyToVideoRam(pSiS, pSiS->FbBase + pPriv->bufAddr[pPriv->currentBuf], buf, totalSize);
-      } else {
+   } else {
          ULong i;
          CARD32 *src = (CARD32 *)buf;
          CARD32 *dest = (CARD32 *)(pSiS->FbBase + pPriv->bufAddr[pPriv->currentBuf]);
@@ -3290,7 +3290,7 @@ SISPutImage(
 	    *dest++ = *src++;
 	    *dest++ = *src++;
          }
-      }
+   }
 
    SISDisplayVideo(pScrn, pPriv);
 
