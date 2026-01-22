@@ -1510,16 +1510,10 @@ void		SiS_SetRegANDOR(SISIOADDRESS Port, unsigned short Index, unsigned short Da
 void		SiS_SetRegAND(SISIOADDRESS Port,unsigned short Index, unsigned short DataAND);
 void		SiS_SetRegOR(SISIOADDRESS Port,unsigned short Index, unsigned short DataOR);
 
-void		SiS_DisplayOn(struct SiS_Private *SiS_Pr);
 void		SiS_DisplayOff(struct SiS_Private *SiS_Pr);
-void		SiSRegInit(struct SiS_Private *SiS_Pr, SISIOADDRESS BaseAddr);
-void		SiSSetLVDSetc(struct SiS_Private *SiS_Pr);
-void		SiS_SetEnableDstn(struct SiS_Private *SiS_Pr, int enable);
-void		SiS_SetEnableFstn(struct SiS_Private *SiS_Pr, int enable);
 unsigned short	SiS_GetModeFlag(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex);
 BOOLEAN		SiSDetermineROMLayout661(struct SiS_Private *SiS_Pr);
-void		SiS_GetVBType(struct SiS_Private *SiS_Pr);
 
 BOOLEAN		SiS_SearchModeID(struct SiS_Private *SiS_Pr, unsigned short *ModeNo,
 				unsigned short *ModeIdIndex);
@@ -1558,15 +1552,12 @@ extern void		SiS_GetLCDResInfo(struct SiS_Private *SiS_Pr, unsigned short ModeNo
 extern void		SiS_SetYPbPr(struct SiS_Private *SiS_Pr);
 extern void		SiS_SetTVMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex);
-extern void		SiS_UnLockCRT2(struct SiS_Private *SiS_Pr);
-extern void		SiS_DisableBridge(struct SiS_Private *);
 extern BOOLEAN		SiS_SetCRT2Group(struct SiS_Private *, unsigned short);
 extern unsigned short	SiS_GetRatePtr(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex);
 extern void		SiS_WaitRetrace1(struct SiS_Private *SiS_Pr);
 extern unsigned short	SiS_GetResInfo(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex);
-extern unsigned short	SiS_GetCH700x(struct SiS_Private *SiS_Pr, unsigned short tempax);
 extern unsigned short	SiS_GetVCLK2Ptr(struct SiS_Private *SiS_Pr, unsigned short ModeNo,
 				unsigned short ModeIdIndex, unsigned short RRTI);
 extern BOOLEAN		SiS_IsVAMode(struct SiS_Private *);
@@ -1577,7 +1568,6 @@ extern unsigned short	SiS_CheckBuildCustomMode(ScrnInfoPtr pScrn, DisplayModePtr
 				unsigned int VBFlags);
 extern unsigned char	SiS_GetSetBIOSScratch(ScrnInfoPtr pScrn, unsigned short offset,
 				unsigned char value);
-extern unsigned char	SiS_GetSetModeID(ScrnInfoPtr pScrn, unsigned char id);
 extern unsigned short 	SiS_GetModeNumber(ScrnInfoPtr pScrn, DisplayModePtr mode,
 				unsigned int VBFlags);
 #endif
