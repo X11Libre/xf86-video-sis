@@ -212,12 +212,12 @@ static XF86VideoFormatRec SIS6326Formats[NUM_FORMATS] =
 
 static XF86AttributeRec SIS6326Attributes[NUM_ATTRIBUTES] =
 {
-   {XvSettable | XvGettable, 0, (1 << 24) - 1, "XV_COLORKEY"},
-   {XvSettable | XvGettable, -128, 127,        "XV_BRIGHTNESS"},
-   {XvSettable | XvGettable, 0, 7,             "XV_CONTRAST"},
-   {XvSettable | XvGettable, 0, 1,             "XV_AUTOPAINT_COLORKEY"},
-   {XvSettable             , 0, 0,             "XV_SET_DEFAULTS"},
-   {XvSettable | XvGettable, 0, 1,             "XV_DISABLE_GRAPHICS"}
+   {XvSettable | XvGettable, 0, (1 << 24) - 1, (char*)"XV_COLORKEY"},
+   {XvSettable | XvGettable, -128, 127,        (char*)"XV_BRIGHTNESS"},
+   {XvSettable | XvGettable, 0, 7,             (char*)"XV_CONTRAST"},
+   {XvSettable | XvGettable, 0, 1,             (char*)"XV_AUTOPAINT_COLORKEY"},
+   {XvSettable             , 0, 0,             (char*)"XV_SET_DEFAULTS"},
+   {XvSettable | XvGettable, 0, 1,             (char*)"XV_DISABLE_GRAPHICS"}
 };
 
 #define NUM_IMAGES 6
