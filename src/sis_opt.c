@@ -377,8 +377,10 @@ SiS_EvalOneOrThreeFloats(ScrnInfoPtr pScrn, int token, const char *myerror,
        }
     }
     if(!valid) {
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
        xf86DrvMsg(pScrn->scrnIndex, X_WARNING, myerror,
                   pSiS->Options[SiS_FIFT(pSiS->Options, token)].name);
+#pragma GCC diagnostic pop
     }
     return (valid);
 }
@@ -407,8 +409,10 @@ SiS_EvalOneOrThreeFloats2(ScrnInfoPtr pScrn, int token, const char *myerror,
        }
     }
     if(!valid) {
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
        xf86DrvMsg(pScrn->scrnIndex, X_WARNING, myerror,
                   pSiS->Options[SiS_FIFT(pSiS->Options, token)].name);
+#pragma GCC diagnostic pop
     }
     return (valid);
 }
