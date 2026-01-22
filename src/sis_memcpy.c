@@ -787,7 +787,7 @@ static vidCopyFunc SiS_GetBestByGrade(ScrnInfoPtr pScrn, SISMCFuncData *MCFuncti
 
 #ifdef SiS_haveProc
 /* Linux: Read file (/proc/cpuinfo) into buffer */
-static int SiS_ReadProc(char *buf, char *filename)
+static int SiS_ReadProc(char *buf, const char *filename)
 {
     FILE *cpuInfoFile;
     int count;
