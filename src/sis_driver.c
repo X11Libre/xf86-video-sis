@@ -54,7 +54,6 @@
 #include "fb.h"
 #include "micmap.h"
 #include "mipointer.h"
-#include "edid.h"
 
 #define SIS_NEED_inSISREG
 #define SIS_NEED_inSISIDXREG
