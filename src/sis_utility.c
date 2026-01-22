@@ -1496,7 +1496,7 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
    case SDC_CMD_GETMERGEDMODEDETAILS:
       if(pSiS->MergedFB) {
          int clk, hd, hss, hse, ht, vd, vss, vse, vt;
-	 unsigned int pos, crt1x, crt1y, crt1clk, crt2x, crt2y, crt2clk;
+	 unsigned int pos = 0, crt1x = 0, crt1y = 0, crt1clk = 0, crt2x = 0, crt2y = 0, crt2clk = 0;
 
 	 clk   = sdcbuf->sdc_parm[0];
 	 hd    = sdcbuf->sdc_parm[1];
