@@ -30,8 +30,10 @@
  */
 #include "config.h"
 
-#include "sis.h"
+#include <math.h>
 #include <X11/X.h>
+
+#include "sis.h"
 #include "dixstruct.h"
 
 #include "sis_videostr.h"
@@ -784,12 +786,12 @@ SISGetMergedModeDetails(ScrnInfoPtr pScrn,
     tmode = ((SiSMergedDisplayModePtr)mode->Private)->CRT1;
     *crt1x = tmode->HDisplay;
     *crt1y = tmode->VDisplay;
-    *crt1clk = (unsigned int)SiSCalcVRate(tmode);
+    *crt1clk = roundf(SiSCalcVRate(tmode));
 
     tmode = ((SiSMergedDisplayModePtr)mode->Private)->CRT2;
     *crt2x = tmode->HDisplay;
     *crt2y = tmode->VDisplay;
-    *crt2clk = (unsigned int)SiSCalcVRate(tmode);
+    *crt2clk = roundf(SiSCalcVRate(tmode));
 }
 
 /***********************************

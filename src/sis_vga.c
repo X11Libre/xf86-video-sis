@@ -35,6 +35,8 @@
  */
 #include "config.h"
 
+#include <math.h>
+
 #include "sis.h"
 #define SIS_NEED_inSISREG
 #define SIS_NEED_outSISREG
@@ -179,7 +181,7 @@ SISInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
     int          clock = mode->Clock;
     int          width = mode->HDisplay;
     int          height = mode->VDisplay;
-    int          rate = (int)SiSCalcVRate(mode);
+    int          rate = roundf(SiSCalcVRate(mode));
     int          buswidth = pSiS->BusWidth;
     unsigned int vclk[5];
     UShort       CRT_CPUthresholdLow, CRT_CPUthresholdHigh, CRT_ENGthreshold;

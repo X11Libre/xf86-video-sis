@@ -44,6 +44,8 @@
  */
 #include "config.h"
 
+#include <math.h>
+
 #include "sis.h"
 
 #include "extinit.h"
@@ -1148,7 +1150,7 @@ SiSCopyModeNLink(ScrnInfoPtr pScrn, DisplayModePtr dest,
      * simply set this to the refresh rate for the CRT1 mode (since CRT2 will
      * mostly be LCD or TV anyway).
      */
-    mode->VRefresh = SiSCalcVRate(i);
+    mode->VRefresh = roundf(SiSCalcVRate(i));
 
     if( ((mode->HDisplay * ((pScrn->bitsPerPixel + 7) / 8) * mode->VDisplay) > pSiS->maxxfbmem) ||
 	(mode->HDisplay > 4088) ||
@@ -13102,7 +13104,7 @@ SISSearchCRT1Rate(ScrnInfoPtr pScrn, DisplayModePtr mode)
 
    defindex = (xres == 800 || xres == 1024 || xres == 1280) ? 0x02 : 0x01;
 
-   irefresh = (int)SiSCalcVRate(mode);
+   irefresh = roundf(SiSCalcVRate(mode));
    if(!irefresh) return defindex;
 
    /* SiS730 has troubles on CRT2 if CRT1 is at 32bpp */
