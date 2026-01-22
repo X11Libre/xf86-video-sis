@@ -277,8 +277,8 @@ SISDRIScreenInit(ScreenPtr pScreen)
      return FALSE;
   }
 
-  xf86DrvMsg(pScreen->myNum, X_INFO, "[drm] MMIO registers mapped to 0x%0llx\n",
-		pSISDRI->regs.handle);
+  xf86DrvMsg(pScreen->myNum, X_INFO, "[drm] MMIO registers mapped to 0x%0lx\n",
+             (unsigned long int)pSISDRI->regs.handle);
 
   /* AGP */
   do {
