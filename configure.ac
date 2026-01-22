@@ -39,6 +39,9 @@ m4_ifndef([XORG_MACROS_VERSION],
 XORG_MACROS_VERSION(1.8)
 XORG_DEFAULT_OPTIONS
 
+AC_PROG_CC
+CFLAGS="$CFLAGS -Wno-declaration-after-statement"
+
 # Initialize libtool
 LT_INIT([disable-static])
 
