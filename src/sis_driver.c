@@ -4700,26 +4700,26 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
      */
     pSiS->SiS_Pr->SiS_ChSW = FALSE;
     if(pSiS->Chipset == PCI_CHIP_SIS630) {
-       int i = 0;
+       int idx = 0;
        do {
-	  if(mychswtable[i].subsysVendor == PCI_SUB_VENDOR_ID(pSiS->PciInfo) &&
-	     mychswtable[i].subsysCard == PCI_SUB_DEVICE_ID(pSiS->PciInfo)) {
+	  if(mychswtable[idx].subsysVendor == PCI_SUB_VENDOR_ID(pSiS->PciInfo) &&
+	     mychswtable[idx].subsysCard == PCI_SUB_DEVICE_ID(pSiS->PciInfo)) {
 	     xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 	         "PCI subsystem ID found in list for Chrontel/GPIO setup:\n");
 	     xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
 		 "\tVendor/Card: %s %s (ID %04x)\n",
-		  mychswtable[i].vendorName,
-		  mychswtable[i].cardName,
+		  mychswtable[idx].vendorName,
+		  mychswtable[idx].cardName,
 		  PCI_SUB_DEVICE_ID(pSiS->PciInfo));
 	     pSiS->SiS_Pr->SiS_ChSW = TRUE;
 	     break;
           }
-          i++;
-       } while(mychswtable[i].subsysVendor != 0);
+          idx++;
+       } while(mychswtable[idx].subsysVendor != 0);
     }
 
     if(pSiS->SiS_Pr->SiS_CustomT == CUT_NONE) {
-       int    i = 0, j;
+       int    j;
        UShort bversptr = 0;
        Bool   footprint;
        CARD32 chksum = 0;
@@ -4729,28 +4729,28 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
           for(i=0; i<32768; i++) chksum += pSiS->BIOS[i];
        }
 
-       i = 0;
+       int idx = 0;
        do {
-	  if( (SiS_customttable[i].chipID == pSiS->ChipType)                            &&
-	      ((!strlen(SiS_customttable[i].biosversion)) ||
+	  if( (SiS_customttable[idx].chipID == pSiS->ChipType)                            &&
+	      ((!strlen(SiS_customttable[idx].biosversion)) ||
 	       (pSiS->SiS_Pr->UseROM &&
-	       (!strncmp(SiS_customttable[i].biosversion, (char *)&pSiS->BIOS[bversptr],
-	                strlen(SiS_customttable[i].biosversion)))))                     &&
-	      ((!strlen(SiS_customttable[i].biosdate)) ||
+	       (!strncmp(SiS_customttable[idx].biosversion, (char *)&pSiS->BIOS[bversptr],
+	                strlen(SiS_customttable[idx].biosversion)))))                     &&
+	      ((!strlen(SiS_customttable[idx].biosdate)) ||
 	       (pSiS->SiS_Pr->UseROM &&
-	       (!strncmp(SiS_customttable[i].biosdate, (char *)&pSiS->BIOS[0x2c],
-	                strlen(SiS_customttable[i].biosdate)))))			      &&
-	      ((!SiS_customttable[i].bioschksum) ||
+	       (!strncmp(SiS_customttable[idx].biosdate, (char *)&pSiS->BIOS[0x2c],
+	                strlen(SiS_customttable[idx].biosdate)))))			      &&
+	      ((!SiS_customttable[idx].bioschksum) ||
 	       (pSiS->SiS_Pr->UseROM &&
-	       (SiS_customttable[i].bioschksum == chksum)))			      &&
-	      (SiS_customttable[i].pcisubsysvendor == PCI_SUB_VENDOR_ID(pSiS->PciInfo))      &&
-	      (SiS_customttable[i].pcisubsyscard == PCI_SUB_DEVICE_ID(pSiS->PciInfo)) ) {
+	       (SiS_customttable[idx].bioschksum == chksum)))			      &&
+	      (SiS_customttable[idx].pcisubsysvendor == PCI_SUB_VENDOR_ID(pSiS->PciInfo))      &&
+	      (SiS_customttable[idx].pcisubsyscard == PCI_SUB_DEVICE_ID(pSiS->PciInfo)) ) {
 	     footprint = TRUE;
 	     for(j=0; j<5; j++) {
-	        if(SiS_customttable[i].biosFootprintAddr[j]) {
+	        if(SiS_customttable[idx].biosFootprintAddr[j]) {
 		   if(pSiS->SiS_Pr->UseROM) {
-		      if(pSiS->BIOS[SiS_customttable[i].biosFootprintAddr[j]] !=
-						SiS_customttable[i].biosFootprintData[j])
+		      if(pSiS->BIOS[SiS_customttable[idx].biosFootprintAddr[j]] !=
+						SiS_customttable[idx].biosFootprintData[j])
 		         footprint = FALSE;
 		   } else footprint = FALSE;
 	        }
@@ -4758,13 +4758,13 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 	     if(footprint) {
 	        xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 	           "Identified %s %s, special timing applies\n",
-		   SiS_customttable[i].vendorName, SiS_customttable[i].cardName);
-	        pSiS->SiS_Pr->SiS_CustomT = SiS_customttable[i].SpecialID;
+		   SiS_customttable[idx].vendorName, SiS_customttable[idx].cardName);
+	        pSiS->SiS_Pr->SiS_CustomT = SiS_customttable[idx].SpecialID;
 	        break;
 	     }
           }
-          i++;
-       } while(SiS_customttable[i].chipID);
+          idx++;
+       } while(SiS_customttable[idx].chipID);
     }
 
     /* Handle ForceCRT1 option */
@@ -5454,26 +5454,26 @@ SISPreInit(ScrnInfoPtr pScrn, int flags)
 
 	     /* If we haven't been able to find out, use our other methods */
 	     if(pSiS->SiS_Pr->PDC == -1) {
-		int i=0;
+		int idx=0;
 		do {
-		   if(mypdctable[i].subsysVendor == PCI_SUB_VENDOR_ID(pSiS->PciInfo) &&
-		      mypdctable[i].subsysCard == PCI_SUB_DEVICE_ID(pSiS->PciInfo)) {
+		   if(mypdctable[idx].subsysVendor == PCI_SUB_VENDOR_ID(pSiS->PciInfo) &&
+		      mypdctable[idx].subsysCard == PCI_SUB_DEVICE_ID(pSiS->PciInfo)) {
 			 xf86DrvMsg(pScrn->scrnIndex, X_INFO,
 			    "PCI card/vendor identified for non-default PanelDelayCompensation\n");
 			 xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
 			     "Vendor: %s, card: %s (ID %04x), PanelDelayCompensation: 0x%02x\n",
-			     mypdctable[i].vendorName, mypdctable[i].cardName,
-			     PCI_SUB_DEVICE_ID(pSiS->PciInfo), mypdctable[i].pdc);
+			     mypdctable[idx].vendorName, mypdctable[idx].cardName,
+			     PCI_SUB_DEVICE_ID(pSiS->PciInfo), mypdctable[idx].pdc);
 			 if(pSiS->PDC == -1) {
-			    pSiS->PDC = mypdctable[i].pdc;
+			    pSiS->PDC = mypdctable[idx].pdc;
 			 } else {
 			    xf86DrvMsg(pScrn->scrnIndex, X_CONFIG,
 				"PanelDelayCompensation overruled by option\n");
 			 }
 			 break;
 		   }
-		   i++;
-		} while(mypdctable[i].subsysVendor != 0);
+		   idx++;
+		} while(mypdctable[idx].subsysVendor != 0);
 	     }
 
 	     if(pSiS->PDC != -1) {
