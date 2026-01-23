@@ -1549,9 +1549,7 @@ static Bool SISSwitchMode(ScrnInfoPtr arg, DisplayModePtr mode);
 void	    SISAdjustFrame(ScrnInfoPtr arg, int x, int y);
 
 /* Optional functions */
-#ifdef SISDUALHEAD
 static Bool 	  SISSaveScreenDH(ScreenPtr pScreen, int mode);
-#endif
 static void       SISFreeScreen(ScrnInfoPtr arg);
 static ModeStatus SISValidMode(ScrnInfoPtr arg, DisplayModePtr mode,
 				Bool verbose, int flags);
