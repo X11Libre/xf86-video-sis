@@ -137,8 +137,6 @@
 
 /* Configurable stuff: ------------------------------------- */
 
-#define SISDUALHEAD		/* Include Dual Head code  */
-
 #define SISXINERAMA		/* Include SiS Pseudo-Xinerama for MergedFB mode */
 #define SIS_XINERAMA_MAJOR_VERSION  1
 #define SIS_XINERAMA_MINOR_VERSION  1
@@ -679,7 +677,6 @@ typedef struct {
 typedef void (*vidCopyFunc)(UChar *, const UChar *, int);
 
 /* Dual head private entity structure */
-#ifdef SISDUALHEAD
 typedef struct {
     ScrnInfoPtr		pScrn_1;
     ScrnInfoPtr		pScrn_2;
@@ -805,7 +802,6 @@ typedef struct {
     vidCopyFunc		SiSFastVidCopyFrom, SiSFastMemCopyFrom;
     unsigned int	CPUFlags;
 } SISEntRec, *SISEntPtr;
-#endif
 
 #define SISPTR(p)       ((SISPtr)((p)->driverPrivate))
 #define XAAPTR(p)       ((XAAInfoRecPtr)(SISPTR(p)->AccelInfoPtr))
@@ -1034,12 +1030,10 @@ typedef struct {
     CARD8		*fonts;
     void		*state, *pstate;
     void		*base, *VGAbase;
-#ifdef SISDUALHEAD
     Bool		DualHeadMode;		/* TRUE if we use dual head mode */
     Bool		SecondHead;		/* TRUE is this is the second head */
     SISEntPtr		entityPrivate;		/* Ptr to private entity (see above) */
     Bool		SiSXinerama;		/* Do we use Xinerama mode? */
-#endif
     SISFBLayout		CurrentLayout;		/* Current framebuffer layout */
     UShort		SiS_DDC2_Index;
     UShort		SiS_DDC2_Data;

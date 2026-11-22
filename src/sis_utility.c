@@ -309,9 +309,7 @@ SISSwitchCRT1Status(ScrnInfoPtr pScrn, int onoff, Bool quiet)
     /* Off only if at least one CRT2 device is active */
     if((!onoff) && (!(vbflags & CRT2_ENABLE))) return FALSE;
 
-#ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) return FALSE;
-#endif
 
     /* Can't switch to LCDA if not supported (duh!) */
     if(!(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTLCDA)) {
@@ -407,9 +405,7 @@ SISRedetectCRT2Devices(ScrnInfoPtr pScrn)
        return FALSE;
     }
 
-#ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) return FALSE;
-#endif
 
     /* Sync the accelerators */
     (*pSiS->SyncAccel)(pScrn);
@@ -462,9 +458,7 @@ SISSwitchCRT2Type(ScrnInfoPtr pScrn, ULong newvbflags, Bool quiet)
     /* Only if there is a video bridge */
     if(!(pSiS->VBFlags2 & VB2_VIDEOBRIDGE)) return FALSE;
 
-#ifdef SISDUALHEAD
     if(pSiS->DualHeadMode) return FALSE;
-#endif
 
 #define SiS_NewVBMask (CRT2_ENABLE|CRT1_LCDA|TV_PAL|TV_NTSC|TV_PALM|TV_PALN|TV_NTSCJ| \
 		       TV_AVIDEO|TV_SVIDEO|TV_SCART|TV_HIVISION|TV_YPBPR|TV_YPBPRALL|\
@@ -616,9 +610,7 @@ SISCheckModeForCRT2Type(ScrnInfoPtr pScrn, DisplayModePtr mode, ULong vbflags, U
 
     mastermode = mode;
 
-#ifdef SISDUALHEAD
     if((!pSiS->DualHeadMode) || (!pSiS->SecondHead)) {
-#endif
 
        if(vbflags & CRT2_ENABLE) {
 
@@ -649,15 +641,11 @@ SISCheckModeForCRT2Type(ScrnInfoPtr pScrn, DisplayModePtr mode, ULong vbflags, U
 
        }
 
-#ifdef SISDUALHEAD
     }
-#endif
 
     mode = mastermode;
 
-#ifdef SISDUALHEAD
     if((!pSiS->DualHeadMode) || (pSiS->SecondHead)) {
-#endif
 
        if(vbflags & CRT1_LCDA) {
 
@@ -688,9 +676,7 @@ SISCheckModeForCRT2Type(ScrnInfoPtr pScrn, DisplayModePtr mode, ULong vbflags, U
 
        }
 
-#ifdef SISDUALHEAD
     }
-#endif
 
     return result;
 }
@@ -818,9 +804,7 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 {
    ScrnInfoPtr pScrn = xf86ScreenToScrn(screenInfo.screens[sdcbuf->screen]);
    SISPtr pSiS = SISPTR(pScrn);
-#ifdef SISDUALHEAD
    SISEntPtr pSiSEnt = pSiS->entityPrivate;
-#endif
    SISPortPrivPtr pPriv = NULL;
    ULong j;
 
@@ -928,30 +912,22 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
       break;
 
    case SDC_CMD_SETVBFLAGS:
-#ifdef SISDUALHEAD
       if(!pSiS->DualHeadMode) {
-#endif
 	 if(pSiS->xv_sisdirectunlocked) {
 	    SISSwitchCRT2Type(pScrn, (ULong)sdcbuf->sdc_parm[0], pSiS->SCLogQuiet);
 	    if(pPriv) SISUpdateVideoParms(pSiS, pPriv);
 	 } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
-#ifdef SISDUALHEAD
       } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
-#endif
       break;
 
    case SDC_CMD_NEWSETVBFLAGS:
-#ifdef SISDUALHEAD
       if(!pSiS->DualHeadMode) {
-#endif
 	 if(pSiS->xv_sisdirectunlocked) {
 	    SISSwitchOutputType(pScrn, (ULong)sdcbuf->sdc_parm[0], (ULong)sdcbuf->sdc_parm[1],
 	    		(ULong)sdcbuf->sdc_parm[2], pSiS->SCLogQuiet);
 	    if(pPriv) SISUpdateVideoParms(pSiS, pPriv);
 	 } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
-#ifdef SISDUALHEAD
       } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
-#endif
       break;
 
    case SDC_CMD_GETDETECTEDDEVICES:
@@ -959,15 +935,11 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
       break;
 
    case SDC_CMD_REDETECTCRT2DEVICES:
-#ifdef SISDUALHEAD
       if(!pSiS->DualHeadMode) {
-#endif
 	 if(pSiS->xv_sisdirectunlocked) {
 	    SISRedetectCRT2Devices(pScrn);
 	 } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
-#ifdef SISDUALHEAD
       } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
-#endif
       break;
 
    case SDC_CMD_GETCRT1STATUS:
@@ -975,16 +947,12 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
       break;
 
    case SDC_CMD_SETCRT1STATUS:
-#ifdef SISDUALHEAD
       if(!pSiS->DualHeadMode) {
-#endif
 	 if(pSiS->xv_sisdirectunlocked) {
 	    SISSwitchCRT1Status(pScrn, (ULong)sdcbuf->sdc_parm[0], pSiS->SCLogQuiet);
 	    if(pPriv) SISUpdateVideoParms(pSiS, pPriv);
 	 } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
-#ifdef SISDUALHEAD
       } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
-#endif
       break;
 
    case SDC_CMD_GETSDFLAGS:
@@ -1151,18 +1119,14 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
    case SDC_CMD_GETGAMMASTATUS:
       {
          int i = 0;
-#ifdef SISDUALHEAD
 	 if(pSiS->DualHeadMode) {
 	    if(pSiSEnt->CRT1gamma) i |= 0x01;
 	    if(pSiSEnt->CRT2gamma) i |= 0x02;
 	 } else {
-#endif
 	    if(pSiS->CRT1gamma)    i |= 0x01;
 	    if(pSiS->CRT2gamma)    i |= 0x02;
 	    if(pSiS->CRT2SepGamma) i |= 0x08;
-#ifdef SISDUALHEAD
 	 }
-#endif
 	 if(pSiS->XvGamma) i |= 0x04;
          sdcbuf->sdc_result[0] = i;
       }
@@ -1175,12 +1139,10 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 	 Bool backup2 = pSiS->CRT2SepGamma;
 	 pSiS->CRT1gamma = (value & 0x01) ? TRUE : FALSE;
 	 pSiS->CRT2gamma = (value & 0x02) ? TRUE : FALSE;
-#ifdef SISDUALHEAD
 	 if(pSiS->DualHeadMode) {
 	    pSiSEnt->CRT1gamma = pSiS->CRT1gamma;
 	    pSiSEnt->CRT2gamma = pSiS->CRT2gamma;
 	 }
-#endif
 	 if(pSiS->SiS_SD_Flags & SiS_SD_SUPPORTSGRCRT2) {
 	    pSiS->CRT2SepGamma = (value & 0x08) ? TRUE : FALSE;
 	    if(pSiS->CRT2SepGamma != backup2) {
@@ -1297,21 +1259,18 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
       break;
 
    case SDC_CMD_GETGAMMABRIGHTNESS2: /* xv_BRx2, xv_PBx2 */
-#ifdef SISDUALHEAD
       if(pSiS->DualHeadMode) {
          sdcbuf->sdc_result[0] = pSiSEnt->GammaBriR;
 	 sdcbuf->sdc_result[1] = pSiSEnt->GammaBriG;
 	 sdcbuf->sdc_result[2] = pSiSEnt->GammaBriB;
 	 break;
       }
-#endif
       sdcbuf->sdc_result[0] = pSiS->GammaBriR;
       sdcbuf->sdc_result[1] = pSiS->GammaBriG;
       sdcbuf->sdc_result[2] = pSiS->GammaBriB;
       break;
 
    case SDC_CMD_GETNEWGAMMABRICON2: /* no xv pendant */
-#ifdef SISDUALHEAD
       if(pSiS->DualHeadMode) {
          sdcbuf->sdc_result[0] = (CARD32)(((int)(pSiSEnt->NewGammaBriR * 1000.0)) + 1000);
 	 sdcbuf->sdc_result[1] = (CARD32)(((int)(pSiSEnt->NewGammaBriG * 1000.0)) + 1000);
@@ -1321,7 +1280,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 	 sdcbuf->sdc_result[5] = (CARD32)(((int)(pSiSEnt->NewGammaConB * 1000.0)) + 1000);
 	 break;
       }
-#endif
       sdcbuf->sdc_result[0] = (CARD32)(((int)(pSiS->NewGammaBriR * 1000.0)) + 1000);
       sdcbuf->sdc_result[1] = (CARD32)(((int)(pSiS->NewGammaBriG * 1000.0)) + 1000);
       sdcbuf->sdc_result[2] = (CARD32)(((int)(pSiS->NewGammaBriB * 1000.0)) + 1000);
@@ -1337,7 +1295,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 	 sdcbuf->sdc_result_header = SDC_RESULT_INVAL;
       } else if(pSiS->xv_sisdirectunlocked) {
          pSiS->SiS_SD3_Flags |= SiS_SD3_OLDGAMMAINUSE;
-#ifdef SISDUALHEAD
 	 if(pSiS->DualHeadMode) {
 	    pSiSEnt->GammaBriR = sdcbuf->sdc_parm[0];
 	    pSiSEnt->GammaBriG = sdcbuf->sdc_parm[1];
@@ -1345,7 +1302,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 	    pSiSEnt->NewGammaBriR = pSiSEnt->NewGammaBriG = pSiSEnt->NewGammaBriB = 0.0;
 	    pSiSEnt->NewGammaConR = pSiSEnt->NewGammaConG = pSiSEnt->NewGammaConB = 0.0;
 	 }
-#endif
       } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
       break;
 
@@ -1356,7 +1312,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 	 sdcbuf->sdc_result_header = SDC_RESULT_INVAL;
       } else if(pSiS->xv_sisdirectunlocked) {
          pSiS->SiS_SD3_Flags &= ~SiS_SD3_OLDGAMMAINUSE;
-#ifdef SISDUALHEAD
 	 if(pSiS->DualHeadMode) {
 	    pSiSEnt->NewGammaBriR = ((float)((int)sdcbuf->sdc_parm[0] - 1000)) / 1000.0;
 	    pSiSEnt->NewGammaBriG = ((float)((int)sdcbuf->sdc_parm[1] - 1000)) / 1000.0;
@@ -1366,7 +1321,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 	    pSiSEnt->NewGammaConB = ((float)((int)sdcbuf->sdc_parm[5] - 1000)) / 1000.0;
 	    pSiSEnt->GammaBriR = pSiSEnt->GammaBriG = pSiSEnt->GammaBriB = 1000;
 	 }
-#endif
       } else sdcbuf->sdc_result_header = SDC_RESULT_NOPERM;
       break;
 
@@ -1536,11 +1490,9 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
       {
          SISPtr	mypSiS = pSiS;
 	 sdcbuf->sdc_result[0] = 0;
-#ifdef SISDUALHEAD
 	 if(pSiS->DualHeadMode) {
 	    if(pSiSEnt->pScrn_2) mypSiS = SISPTR(pSiSEnt->pScrn_2);
 	 }
-#endif
 	 sisutil_prepare_string(sdcbuf, mypSiS->devsectname);
       }
       break;
@@ -1549,11 +1501,9 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
       {
          ScrnInfoPtr mypScrn = pScrn;
          sdcbuf->sdc_result[0] = 0;
-#ifdef SISDUALHEAD
 	 if(pSiS->DualHeadMode) {
 	    if(pSiSEnt->pScrn_2) mypScrn = pSiSEnt->pScrn_2;
 	 }
-#endif
          if(mypScrn->monitor) {
             sisutil_prepare_string(sdcbuf, mypScrn->monitor->id);
          }
@@ -1562,19 +1512,16 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
 
    case SDC_CMD_GETDEVICENAME2:		/* In DualHead mode, this returns CRT2 data */
       sdcbuf->sdc_result[0] = 0;
-#ifdef SISDUALHEAD
       if(pSiS->DualHeadMode) {
          if(pSiSEnt->pScrn_1) {
 	    sisutil_prepare_string(sdcbuf, SISPTR(pSiSEnt->pScrn_1)->devsectname);
 	 }
       } else
-#endif
 	 sdcbuf->sdc_result_header = SDC_RESULT_INVAL;
       break;
 
    case SDC_CMD_GETMONITORNAME2:	/* In DualHead mode, this returns CRT2 data */
       sdcbuf->sdc_result[0] = 0;
-#ifdef SISDUALHEAD
       if(pSiS->DualHeadMode) {
          if(pSiSEnt->pScrn_1) {
 	    if(pSiSEnt->pScrn_1->monitor) {
@@ -1582,7 +1529,6 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
             }
 	 }
       } else
-#endif
 	 sdcbuf->sdc_result_header = SDC_RESULT_INVAL;
       break;
 
@@ -1723,20 +1669,16 @@ SiSHandleSiSDirectCommand(xSiSCtrlCommandReply *sdcbuf)
       if((pPriv) && (pSiS->VGAEngine == SIS_315_VGA)) {
          if(pPriv->AllowSwitchCRT) {
 	    pPriv->crtnum = sdcbuf->sdc_parm[0] ? 1 : 0;
-#ifdef SISDUALHEAD
             if(pPriv->dualHeadMode) pSiSEnt->curxvcrtnum = pPriv->crtnum;
-#endif
 	 }
       } else sdcbuf->sdc_result_header = SDC_RESULT_INVAL;
       break;
 
    case SDC_CMD_GETXVSWITCHCRT:
       if((pPriv) && (pSiS->VGAEngine == SIS_315_VGA)) {
-#ifdef SISDUALHEAD
          if(pPriv->dualHeadMode)
             sdcbuf->sdc_result[0] = pSiSEnt->curxvcrtnum;
          else
-#endif
             sdcbuf->sdc_result[0] = pPriv->crtnum;
       } else sdcbuf->sdc_result_header = SDC_RESULT_INVAL;
       break;
