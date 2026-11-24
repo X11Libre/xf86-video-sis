@@ -200,6 +200,10 @@ static XF86ModuleVersionInfo sisVersRec =
 
 _X_EXPORT XF86ModuleData sisModuleData = { &sisVersRec, sisSetup, NULL };
 
+#ifdef XF86_MODULE_VERSION_SUFFIX
+XF86_MODULE_VERSION_SUFFIX(sis, SIS_VERSION_SUFFIX);
+#endif
+
 void *
 sisSetup(void *module, void *opts, int *errmaj, int *errmin)
 {
