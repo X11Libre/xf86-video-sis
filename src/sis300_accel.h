@@ -145,7 +145,7 @@
 
 #define SiSSetupDSTRect(x,y) \
                 if (CmdQueLen <= 0)  SiSIdle;\
-                SIS_MMIO_OUT32(pSiS->IOBase, BR(5), (y)<<16 | (x) );\
+                SIS_MMIO_OUT32(pSiS->IOBase, BR(5), (CARD32)(y)<<16 | (x) );\
                 CmdQueLen--;
 
 #define SiSSetupDSTColorDepth(bpp) \
