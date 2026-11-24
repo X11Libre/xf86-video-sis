@@ -202,8 +202,8 @@ SiSSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn,
 	int    mymin, mymax;
 
 	srcbase = dstbase = 0;
-	mymin = min(src_y, dst_y);
-	mymax = max(src_y, dst_y);
+	mymin = MIN(src_y, dst_y);
+	mymax = MAX(src_y, dst_y);
 
 	/* Although the chip knows the direction to use
 	 * if the source and destination areas overlap,
