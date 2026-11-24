@@ -415,10 +415,10 @@ SiS_CR36BIOSWord23d(struct SiS_Private *SiS_Pr)
 void
 SiS_DDC2Delay(struct SiS_Private *SiS_Pr, unsigned int delaytime)
 {
-   unsigned int i, j = 0;
+   unsigned int i;
 
    for(i = 0; i < delaytime; i++) {
-      j += SiS_GetReg(SiS_Pr->SiS_P3c4,0x05);
+      SiS_GetReg(SiS_Pr->SiS_P3c4,0x05);
    }
 }
 
@@ -487,7 +487,7 @@ SiS_PanelDelay(struct SiS_Private *SiS_Pr, unsigned short DelayTime)
 	    SiS_DDC2Delay(SiS_Pr, 0x4000);
 	 }
 
-      } else if((SiS_Pr->SiS_IF_DEF_LVDS == 1) /* ||
+      } else if(SiS_Pr->SiS_IF_DEF_LVDS == 1 /* ||
 	 (SiS_Pr->SiS_CustomT == CUT_COMPAQ1280) ||
 	 (SiS_Pr->SiS_CustomT == CUT_CLEVO1400) */ ) {			/* 315 series, LVDS; Special */
 
