@@ -1093,13 +1093,13 @@ SiSCopyModeNLink(ScrnInfoPtr pScrn, DisplayModePtr dest,
        if(!(pScrn->display->virtualX)) {
           dx = i->HDisplay + j->HDisplay;
        } else {
-          dx = min(pScrn->virtualX, i->HDisplay + j->HDisplay);
+          dx = MIN(pScrn->virtualX, i->HDisplay + j->HDisplay);
        }
        dx -= mode->HDisplay;
        if(!(pScrn->display->virtualY)) {
-          dy = max(i->VDisplay, j->VDisplay);
+          dy = MAX(i->VDisplay, j->VDisplay);
        } else {
-          dy = min(pScrn->virtualY, max(i->VDisplay, j->VDisplay));
+          dy = MIN(pScrn->virtualY, MAX(i->VDisplay, j->VDisplay));
        }
        dy -= mode->VDisplay;
        break;
@@ -1108,27 +1108,27 @@ SiSCopyModeNLink(ScrnInfoPtr pScrn, DisplayModePtr dest,
        if(!(pScrn->display->virtualY)) {
           dy = i->VDisplay + j->VDisplay;
        } else {
-          dy = min(pScrn->virtualY, i->VDisplay + j->VDisplay);
+          dy = MIN(pScrn->virtualY, i->VDisplay + j->VDisplay);
        }
        dy -= mode->VDisplay;
        if(!(pScrn->display->virtualX)) {
-          dx = max(i->HDisplay, j->HDisplay);
+          dx = MAX(i->HDisplay, j->HDisplay);
        } else {
-          dx = min(pScrn->virtualX, max(i->HDisplay, j->HDisplay));
+          dx = MIN(pScrn->virtualX, MAX(i->HDisplay, j->HDisplay));
        }
        dx -= mode->HDisplay;
        break;
     case sisClone:
        if(!(pScrn->display->virtualX)) {
-          dx = max(i->HDisplay, j->HDisplay);
+          dx = MAX(i->HDisplay, j->HDisplay);
        } else {
-          dx = min(pScrn->virtualX, max(i->HDisplay, j->HDisplay));
+          dx = MIN(pScrn->virtualX, MAX(i->HDisplay, j->HDisplay));
        }
        dx -= mode->HDisplay;
        if(!(pScrn->display->virtualY)) {
-          dy = max(i->VDisplay, j->VDisplay);
+          dy = MAX(i->VDisplay, j->VDisplay);
        } else {
-	  dy = min(pScrn->virtualY, max(i->VDisplay, j->VDisplay));
+	  dy = MIN(pScrn->virtualY, MAX(i->VDisplay, j->VDisplay));
        }
        dy -= mode->VDisplay;
        break;
@@ -1583,8 +1583,8 @@ SiSMergedFBSetDpi(ScrnInfoPtr pScrn1, ScrnInfoPtr pScrn2, SiSScrn2Rel srel)
     */
    if( (DDC1 && (DDC1->features.hsize > 0 && DDC1->features.vsize > 0)) &&
        (DDC2 && (DDC2->features.hsize > 0 && DDC2->features.vsize > 0)) ) {
-      ddcWidthmm = max(DDC1->features.hsize, DDC2->features.hsize) * 10;
-      ddcHeightmm = max(DDC1->features.vsize, DDC2->features.vsize) * 10;
+      ddcWidthmm = MAX(DDC1->features.hsize, DDC2->features.hsize) * 10;
+      ddcHeightmm = MAX(DDC1->features.vsize, DDC2->features.vsize) * 10;
       switch(srel) {
       case sisLeftOf:
       case sisRightOf:
@@ -1840,7 +1840,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
     if(pSiS->maxCRT1_X1) {		/* Means we have at least one non-clone mode */
        switch(pSiS->CRT2Position) {
        case sisLeftOf:
-	  x1 = min(pSiS->maxCRT1_X2, pScrn1->virtualX - pSiS->maxCRT1_X1);
+	  x1 = MIN(pSiS->maxCRT1_X2, pScrn1->virtualX - pSiS->maxCRT1_X1);
 	  if(x1 < 0) x1 = 0;
 	  y1 = pSiS->CRT1YOffs;
 	  w1 = pScrn1->virtualX - x1;
@@ -1855,7 +1855,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 	  }
 	  x2 = 0;
 	  y2 = pSiS->CRT2YOffs;
-	  w2 = max(pSiS->maxCRT2_X2, pScrn1->virtualX - pSiS->maxCRT2_X1);
+	  w2 = MAX(pSiS->maxCRT2_X2, pScrn1->virtualX - pSiS->maxCRT2_X1);
 	  if(w2 > pScrn1->virtualX) w2 = pScrn1->virtualX;
 	  h2 = realvirtY;
 	  if((usenonrect) && (pSiS->maxCRT2_Y2 != realvirtY)) {
@@ -1870,7 +1870,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
        case sisRightOf:
 	  x1 = 0;
 	  y1 = pSiS->CRT1YOffs;
-	  w1 = max(pSiS->maxCRT1_X1, pScrn1->virtualX - pSiS->maxCRT1_X2);
+	  w1 = MAX(pSiS->maxCRT1_X1, pScrn1->virtualX - pSiS->maxCRT1_X2);
 	  if(w1 > pScrn1->virtualX) w1 = pScrn1->virtualX;
 	  h1 = realvirtY;
 	  if((usenonrect) && (pSiS->maxCRT1_Y1 != realvirtY)) {
@@ -1881,7 +1881,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 	     pSiS->NonRectDead.y1 = pScrn1->virtualY - 1;
 	     pSiS->HaveNonRect = TRUE;
 	  }
-	  x2 = min(pSiS->maxCRT2_X1, pScrn1->virtualX - pSiS->maxCRT2_X2);
+	  x2 = MIN(pSiS->maxCRT2_X1, pScrn1->virtualX - pSiS->maxCRT2_X2);
 	  if(x2 < 0) x2 = 0;
 	  y2 = pSiS->CRT2YOffs;
 	  w2 = pScrn1->virtualX - x2;
@@ -1897,7 +1897,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 	  break;
        case sisAbove:
 	  x1 = pSiS->CRT1XOffs;
-	  y1 = min(pSiS->maxCRT1_Y2, pScrn1->virtualY - pSiS->maxCRT1_Y1);
+	  y1 = MIN(pSiS->maxCRT1_Y2, pScrn1->virtualY - pSiS->maxCRT1_Y1);
 	  if(y1 < 0) y1 = 0;
 	  w1 = realvirtX;
 	  h1 = pScrn1->virtualY - y1;
@@ -1912,7 +1912,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 	  x2 = pSiS->CRT2XOffs;
 	  y2 = 0;
 	  w2 = realvirtX;
-	  h2 = max(pSiS->maxCRT2_Y2, pScrn1->virtualY - pSiS->maxCRT2_Y1);
+	  h2 = MAX(pSiS->maxCRT2_Y2, pScrn1->virtualY - pSiS->maxCRT2_Y1);
 	  if(h2 > pScrn1->virtualY) h2 = pScrn1->virtualY;
 	  if((usenonrect) && (pSiS->maxCRT2_X2 != realvirtX)) {
 	     w2 = pSiS->MBXNR2XMAX = pSiS->maxCRT2_X2;
@@ -1927,7 +1927,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 	  x1 = pSiS->CRT1XOffs;
 	  y1 = 0;
 	  w1 = realvirtX;
-	  h1 = max(pSiS->maxCRT1_Y1, pScrn1->virtualY - pSiS->maxCRT1_Y2);
+	  h1 = MAX(pSiS->maxCRT1_Y1, pScrn1->virtualY - pSiS->maxCRT1_Y2);
 	  if(h1 > pScrn1->virtualY) h1 = pScrn1->virtualY;
 	  if((usenonrect) && (pSiS->maxCRT1_X1 != realvirtX)) {
 	     w1 = pSiS->MBXNR1XMAX = pSiS->maxCRT1_X1;
@@ -1938,7 +1938,7 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 	     pSiS->HaveNonRect = TRUE;
 	  }
 	  x2 = pSiS->CRT2XOffs;
-	  y2 = min(pSiS->maxCRT2_Y1, pScrn1->virtualY - pSiS->maxCRT2_Y2);
+	  y2 = MIN(pSiS->maxCRT2_Y1, pScrn1->virtualY - pSiS->maxCRT2_Y2);
 	  if(y2 < 0) y2 = 0;
 	  w2 = realvirtX;
 	  h2 = pScrn1->virtualY - y2;
@@ -2010,8 +2010,8 @@ SiSUpdateXineramaScreenInfo(ScrnInfoPtr pScrn1)
 
        x1 = x2 = 0;
        y1 = y2 = 0;
-       w1 = w2 = max(pSiS->maxClone_X1, pSiS->maxClone_X2);
-       h1 = h2 = max(pSiS->maxClone_Y1, pSiS->maxClone_Y2);
+       w1 = w2 = MAX(pSiS->maxClone_X1, pSiS->maxClone_X2);
+       h1 = h2 = MAX(pSiS->maxClone_Y1, pSiS->maxClone_Y2);
 
     }
 
@@ -8956,7 +8956,7 @@ SISMergedPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 	            pSiS->CRT1frameY0 = CRT1YOffs;
 
 	         temp1 = pSiS->CRT1frameY0 + CDMPTR->CRT1->VDisplay;
-	         temp2 = min((VVirt - CRT2YOffs), (CRT1YOffs + pSiS->MBXNR1YMAX));
+	         temp2 = MIN((VVirt - CRT2YOffs), (CRT1YOffs + pSiS->MBXNR1YMAX));
 	         if(temp1 > temp2)
 	            pSiS->CRT1frameY0 -= (temp1 - temp2);
 	      }
@@ -8965,7 +8965,7 @@ SISMergedPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 	            pScrn2->frameY0 = CRT2YOffs;
 
 	         temp1 = pScrn2->frameY0 + CDMPTR->CRT2->VDisplay;
-	         temp2 = min((VVirt - CRT1YOffs), (CRT2YOffs + pSiS->MBXNR2YMAX));
+	         temp2 = MIN((VVirt - CRT1YOffs), (CRT2YOffs + pSiS->MBXNR2YMAX));
 	         if(temp1 > temp2)
 	            pScrn2->frameY0 -= (temp1 - temp2);
 	      }
@@ -8979,7 +8979,7 @@ SISMergedPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 	            pSiS->CRT1frameX0 = CRT1XOffs;
 
 	         temp1 = pSiS->CRT1frameX0 + CDMPTR->CRT1->HDisplay;
-	         temp2 = min((HVirt - CRT2XOffs), (CRT1XOffs + pSiS->MBXNR1XMAX));
+	         temp2 = MIN((HVirt - CRT2XOffs), (CRT1XOffs + pSiS->MBXNR1XMAX));
 	         if(temp1 > temp2)
 	            pSiS->CRT1frameX0 -= (temp1 - temp2);
 	      }
@@ -8988,7 +8988,7 @@ SISMergedPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 	            pScrn2->frameX0 = CRT2XOffs;
 
 	         temp1 = pScrn2->frameX0 + CDMPTR->CRT2->HDisplay;
-	         temp2 = min((HVirt - CRT1XOffs), (CRT2XOffs + pSiS->MBXNR2XMAX));
+	         temp2 = MIN((HVirt - CRT1XOffs), (CRT2XOffs + pSiS->MBXNR2XMAX));
 	         if(temp1 > temp2)
 	            pScrn2->frameX0 -= (temp1 - temp2);
 	      }
@@ -9044,35 +9044,35 @@ SISAdjustFrameMerged(ScrnInfoPtr pScrn, int x, int y)
     BOUND(x, 0, HVirt - HTotal);
     BOUND(y, 0, VVirt - VTotal);
     if(SDMPTR(pScrn1)->CRT2Position != sisClone) {
-       BOUND(x1, CRT1XOffs, min(HVirt, MBXNR1XMAX + CRT1XOffs) - min(HTotal, MBXNR1XMAX) - CRT2XOffs);
-       BOUND(y1, CRT1YOffs, min(VVirt, MBXNR1YMAX + CRT1YOffs) - min(VTotal, MBXNR1YMAX) - CRT2YOffs);
-       BOUND(x2, CRT2XOffs, min(HVirt, MBXNR2XMAX + CRT2XOffs) - min(HTotal, MBXNR2XMAX) - CRT1XOffs);
-       BOUND(y2, CRT2YOffs, min(VVirt, MBXNR2YMAX + CRT2YOffs) - min(VTotal, MBXNR2YMAX) - CRT1YOffs);
+       BOUND(x1, CRT1XOffs, MIN(HVirt, MBXNR1XMAX + CRT1XOffs) - MIN(HTotal, MBXNR1XMAX) - CRT2XOffs);
+       BOUND(y1, CRT1YOffs, MIN(VVirt, MBXNR1YMAX + CRT1YOffs) - MIN(VTotal, MBXNR1YMAX) - CRT2YOffs);
+       BOUND(x2, CRT2XOffs, MIN(HVirt, MBXNR2XMAX + CRT2XOffs) - MIN(HTotal, MBXNR2XMAX) - CRT1XOffs);
+       BOUND(y2, CRT2YOffs, MIN(VVirt, MBXNR2YMAX + CRT2YOffs) - MIN(VTotal, MBXNR2YMAX) - CRT1YOffs);
     }
 
     switch(SDMPTR(pScrn1)->CRT2Position) {
         case sisLeftOf:
             pScrn2->frameX0 = x2;
-            BOUND(pScrn2->frameY0,   y2, y2 + min(VMax, MBXNR2YMAX) - CDMPTR->CRT2->VDisplay);
+            BOUND(pScrn2->frameY0,   y2, y2 + MIN(VMax, MBXNR2YMAX) - CDMPTR->CRT2->VDisplay);
             pSiS->CRT1frameX0 = x1 + CDMPTR->CRT2->HDisplay;
-            BOUND(pSiS->CRT1frameY0, y1, y1 + min(VMax, MBXNR1YMAX) - CDMPTR->CRT1->VDisplay);
+            BOUND(pSiS->CRT1frameY0, y1, y1 + MIN(VMax, MBXNR1YMAX) - CDMPTR->CRT1->VDisplay);
             break;
         case sisRightOf:
             pSiS->CRT1frameX0 = x1;
-            BOUND(pSiS->CRT1frameY0, y1, y1 + min(VMax, MBXNR1YMAX) - CDMPTR->CRT1->VDisplay);
+            BOUND(pSiS->CRT1frameY0, y1, y1 + MIN(VMax, MBXNR1YMAX) - CDMPTR->CRT1->VDisplay);
             pScrn2->frameX0 = x2 + CDMPTR->CRT1->HDisplay;
-            BOUND(pScrn2->frameY0,   y2, y2 + min(VMax, MBXNR2YMAX) - CDMPTR->CRT2->VDisplay);
+            BOUND(pScrn2->frameY0,   y2, y2 + MIN(VMax, MBXNR2YMAX) - CDMPTR->CRT2->VDisplay);
             break;
         case sisAbove:
-            BOUND(pScrn2->frameX0,   x2, x2 + min(HMax, MBXNR2XMAX) - CDMPTR->CRT2->HDisplay);
+            BOUND(pScrn2->frameX0,   x2, x2 + MIN(HMax, MBXNR2XMAX) - CDMPTR->CRT2->HDisplay);
             pScrn2->frameY0 = y2;
-            BOUND(pSiS->CRT1frameX0, x1, x1 + min(HMax, MBXNR1XMAX) - CDMPTR->CRT1->HDisplay);
+            BOUND(pSiS->CRT1frameX0, x1, x1 + MIN(HMax, MBXNR1XMAX) - CDMPTR->CRT1->HDisplay);
             pSiS->CRT1frameY0 = y1 + CDMPTR->CRT2->VDisplay;
             break;
         case sisBelow:
-            BOUND(pSiS->CRT1frameX0, x1, x1 + min(HMax, MBXNR1XMAX) - CDMPTR->CRT1->HDisplay);
+            BOUND(pSiS->CRT1frameX0, x1, x1 + MIN(HMax, MBXNR1XMAX) - CDMPTR->CRT1->HDisplay);
             pSiS->CRT1frameY0 = y1;
-            BOUND(pScrn2->frameX0,   x2, x2 + min(HMax, MBXNR2XMAX) - CDMPTR->CRT2->HDisplay);
+            BOUND(pScrn2->frameX0,   x2, x2 + MIN(HMax, MBXNR2XMAX) - CDMPTR->CRT2->HDisplay);
             pScrn2->frameY0 = y2 + CDMPTR->CRT1->VDisplay;
             break;
         case sisClone:

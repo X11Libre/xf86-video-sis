@@ -85,6 +85,13 @@
 #define SIS_CURRENT_VERSION     ((SIS_MAJOR_VERSION << 16) | \
                                  (SIS_MINOR_VERSION << 8) | SIS_PATCHLEVEL )
 
+#ifndef MIN
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+#ifndef MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
 #include "xf86xv.h"
 #include <X11/extensions/Xv.h>
 
