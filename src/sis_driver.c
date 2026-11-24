@@ -1350,7 +1350,7 @@ SiSGenerateModeListFromLargestModes(ScrnInfoPtr pScrn,
     if(srel != sisClone) {
        if(mode3 && mode4 && !pSiS->NonRect) {
 	  mode1 = mode3;
-	  mode2 = mode2;
+	  mode2 = mode4;
        }
     }
 
